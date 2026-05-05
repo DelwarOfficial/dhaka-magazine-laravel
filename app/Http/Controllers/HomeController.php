@@ -1,0 +1,282 @@
+<?php
+
+namespace App\Http\Controllers;
+
+use Illuminate\Http\Request;
+
+class HomeController extends Controller
+{
+    public function index()
+    {
+        $articles = $this->sampleArticles();
+
+        // Breaking stories (header)
+        $breakingStories = [
+            $articles[1],
+            $articles[2],
+            $articles[3],
+        ];
+
+        $categories = [
+            'জাতীয়', 'রাজনীতি', 'অর্থনীতি', 'country', 'বিশ্ব',
+            'খেলা', 'বিনোদন', 'লাইফস্টাইল', 'মতামত', 'প্রযুক্তি',
+        ];
+
+        // ══ HERO — 3 COLUMNS ═══════════════════════════════════════
+        $leftCol    = [$articles[4], $articles[7], $articles[10], $articles[16], $articles[19]];
+        $featured   = $articles[0];
+        $centerGrid = [$articles[1], $articles[2], $articles[6], $articles[7], $articles[8], $articles[3]];
+        $rightCol   = [$articles[5], $articles[9], $articles[3]];
+
+        // ══ BANGLADESH ════════════════════════════════════════════
+        $bangladeshArticles = [$articles[0], $articles[7], $articles[10], $articles[18]];
+
+        // ══ সারাদেশ → Country ═════════════════════════════════
+        $countryLeft  = [$articles[18], $articles[10]];
+        $countryHero  = $articles[6];
+        $countryRight = [$articles[4], $articles[15], $articles[19], $articles[8]];
+
+        // ══ INTERNATIONAL ════════════════════════════════════════
+        $internationalBig   = $articles[5];
+        $internationalSmall = [$articles[17], $articles[2], $articles[3], $articles[7]];
+        $internationalRight = $articles[9];
+
+        // ══ OPINION ══════════════════════════════════════════════
+        $opinionArticles = [$articles[8], $articles[16], $articles[3], $articles[12]];
+        $opinionMeta = [
+            ['name' => 'ড. শফিকুল ইসলাম',    'tag' => 'কলাম'],
+            ['name' => 'সৈয়দ আবুল মকসুদ',   'tag' => 'মতামত'],
+            ['name' => 'অধ্যাপক আনু মুহাম্মদ', 'tag' => 'বিশ্লেষণ'],
+            ['name' => 'ফারুক ওয়াসিফ',       'tag' => 'মতামত'],
+        ];
+
+        // ══ SPORTS ═══════════════════════════════════════════════
+        $sportsArticles = [$articles[1], $articles[11], $articles[4], $articles[13]];
+        $sportsSubcatArticles = [
+            ['article' => $articles[1],  'subcat' => 'ক্রিকেট'],
+            ['article' => $articles[11], 'subcat' => 'অলিম্পিক'],
+            ['article' => $articles[3],  'subcat' => 'ফুটবল'],
+            ['article' => $articles[13], 'subcat' => 'আজকের খেলা'],
+        ];
+
+        // ══ TECH ═════════════════════════════════════════════════
+        $techArticles = [$articles[2], $articles[9], $articles[13], $articles[15]];
+
+        // ══ VIDEO ════════════════════════════════════════════════
+        $videoFeatured = $articles[6];
+        $videoSmall    = [$articles[14], $articles[0], $articles[2]];
+
+        // ══ ENTERTAINMENT ════════════════════════════════════════
+        $entertainmentLeft  = [$articles[6], $articles[14], $articles[18]];
+        $entertainmentHero  = $articles[7];
+        $entertainmentRight = [$articles[1], $articles[11], $articles[4]];
+
+        // ══ ECONOMY + HEALTH ════════════════════════════════════
+        $economyArticles = [$articles[3], $articles[12]];
+        $healthArticles  = [$articles[4], $articles[15]];
+
+        // ══ SPECIAL ══════════════════════════════════════════════
+        $specialArticles = [$articles[7], $articles[16], $articles[0], $articles[17], $articles[19]];
+
+        // ══ POPULAR NEWS (sidebar) ═══════════════════════════════
+        $popularNews = array_slice($articles, 5, 5);
+
+        return view('pages.home', compact(
+            'breakingStories',
+            'categories',
+            'leftCol',
+            'featured',
+            'centerGrid',
+            'rightCol',
+            'bangladeshArticles',
+            'countryLeft',
+            'countryHero',
+            'countryRight',
+            'internationalBig',
+            'internationalSmall',
+            'internationalRight',
+            'opinionArticles',
+            'opinionMeta',
+            'sportsArticles',
+            'sportsSubcatArticles',
+            'techArticles',
+            'videoFeatured',
+            'videoSmall',
+            'entertainmentLeft',
+            'entertainmentHero',
+            'entertainmentRight',
+            'economyArticles',
+            'healthArticles',
+            'specialArticles',
+            'popularNews',
+        ));
+    }
+
+    private function sampleArticles()
+    {
+        $img = fn($n) => asset("images/news-{$n}.jpg");
+
+        return [
+            [
+                'id' => 1, 'slug' => 'metro-rail-new-route',
+                'title' => 'মেট্রোরেলের নতুন রুট চালু, স্বস্তিতে যাত্রীরা',
+                'category' => 'জাতীয়',
+                'excerpt' => 'যানজটের নগরী ঢাকায় স্বস্তির এক নতুন দ্বার উন্মোচিত হলো। আজ সকালে মেট্রোরেলের নতুন রুটের উদ্বোধন করা হয়েছে।',
+                'author' => 'নিজস্ব প্রতিবেদক', 'date' => '১২ মে, ২০২৪', 'time_ago' => '৩০ মিনিট আগে',
+                'image_url' => $img(1),
+            ],
+            [
+                'id' => 2, 'slug' => 'cricket-world-cup-win',
+                'title' => 'বিশ্বকাপের প্রথম ম্যাচে বাংলাদেশের দুর্দান্ত জয়',
+                'category' => 'খেলা',
+                'excerpt' => 'টানটান উত্তেজনার এক ম্যাচে প্রতিপক্ষকে বড় ব্যবধানে হারিয়েছে বাংলাদেশ ক্রিকেট দল।',
+                'author' => 'ক্রীড়া প্রতিবেদক', 'date' => '১১ মে, ২০২৪', 'time_ago' => '১ ঘণ্টা আগে',
+                'image_url' => $img(2),
+            ],
+            [
+                'id' => 3, 'slug' => 'ai-new-development',
+                'title' => 'কৃত্রিম বুদ্ধিমত্তার নতুন চমক, চিন্তায় প্রযুক্তি বিশ্ব',
+                'category' => 'প্রযুক্তি',
+                'excerpt' => 'সম্প্রতি এক নতুন এআই মডেল উন্মোচন করা হয়েছে যা মানুষের মতো চিন্তা করতে সক্ষম বলে দাবি করা হচ্ছে।',
+                'author' => 'প্রযুক্তি ডেস্ক', 'date' => '১০ মে, ২০২৪', 'time_ago' => '২ ঘণ্টা আগে',
+                'image_url' => $img(3),
+            ],
+            [
+                'id' => 4, 'slug' => 'economic-growth-report',
+                'title' => 'অর্থনৈতিক প্রবৃদ্ধিতে নতুন রেকর্ড, আশাবাদী বিশেষজ্ঞরা',
+                'category' => 'অর্থনীতি',
+                'excerpt' => 'চলতি অর্থবছরে দেশের অর্থনৈতিক প্রবৃদ্ধি সকল রেকর্ড ছাড়িয়ে গেছে। রপ্তানি আয়েও দেখা গেছে বড় লাফ।',
+                'author' => 'বাণিজ্য প্রতিবেদক', 'date' => '০৯ মে, ২০২৪', 'time_ago' => '৩ ঘণ্টা আগে',
+                'image_url' => $img(4),
+            ],
+            [
+                'id' => 5, 'slug' => 'new-hospital-dhaka',
+                'title' => 'রাজধানীতে আন্তর্জাতিক মানের নতুন হাসপাতাল উদ্বোধন',
+                'category' => 'লাইফস্টাইল',
+                'excerpt' => 'সর্বাধুনিক চিকিৎসাসুবিধা নিয়ে ঢাকায় যাত্রা শুরু করলো এক নতুন হাসপাতাল।',
+                'author' => 'স্বাস্থ্য প্রতিবেদক', 'date' => '০৮ মে, ২০২৪', 'time_ago' => '৪ ঘণ্টা আগে',
+                'image_url' => $img(5),
+            ],
+            [
+                'id' => 6, 'slug' => 'international-climate-summit',
+                'title' => 'জলবায়ু সম্মেলনে বিশ্ব নেতাদের কড়া বার্তা',
+                'category' => 'বিশ্ব',
+                'excerpt' => 'বৈশ্বিক উষ্ণতা রোধে এখনই কার্যকর পদক্ষেপ না নিলে ভয়াবহ পরিণতির সতর্কবার্তা দিয়েছেন বিশ্ব নেতারা।',
+                'author' => 'আন্তর্জাতিক ডেস্ক', 'date' => '০৭ মে, ২০২৪', 'time_ago' => '৫ ঘণ্টা আগে',
+                'image_url' => $img(6),
+            ],
+            [
+                'id' => 7, 'slug' => 'new-movie-release',
+                'title' => 'ঈদে মুক্তি পাচ্ছে বহুল প্রতীক্ষিত সিনেমা \'স্বপ্নযাত্রা\'',
+                'category' => 'বিনোদন',
+                'excerpt' => 'দীর্ঘদিন ধরে আলোচনায় থাকা সিনেমা \'স্বপ্নযাত্রা\' অবশেষে এই ঈদে প্রেক্ষাগৃহে আসছে।',
+                'author' => 'বিনোদন ডেস্ক', 'date' => '০৬ মে, ২০২৪', 'time_ago' => '৬ ঘণ্টা আগে',
+                'image_url' => $img(7),
+            ],
+            [
+                'id' => 8, 'slug' => 'student-protest-update',
+                'title' => 'দাবি আদায়ে শিক্ষার্থীদের আন্দোলন অব্যাহত',
+                'category' => 'জাতীয়',
+                'excerpt' => 'নিরাপদ সড়কের দাবিতে শিক্ষার্থীদের আন্দোলন আজ তৃতীয় দিনে গড়িয়েছে।',
+                'author' => 'নিজস্ব প্রতিবেদক', 'date' => '০৫ মে, ২০২৪', 'time_ago' => '৭ ঘণ্টা আগে',
+                'image_url' => $img(8),
+            ],
+            [
+                'id' => 9, 'slug' => 'opinion-education-system',
+                'title' => 'শিক্ষা ব্যবস্থায় পরিবর্তন: কতটা জরুরি?',
+                'category' => 'মতামত',
+                'excerpt' => 'বর্তমান শিক্ষা ব্যবস্থা কি যুগের চাহিদার সাথে তাল মেলাতে পারছে? এই নিয়ে বিস্তারিত আলোচনা।',
+                'author' => 'ড. শফিকুল ইসলাম', 'date' => '০৪ মে, ২০২৪', 'time_ago' => '৮ ঘণ্টা আগে',
+                'image_url' => $img(1),
+            ],
+            [
+                'id' => 10, 'slug' => 'tech-startup-funding',
+                'title' => 'দেশীয় স্টার্টআপে বিশাল বিদেশি বিনিয়োগ',
+                'category' => 'প্রযুক্তি',
+                'excerpt' => 'বাংলাদেশের এক তরুণ স্টার্টআপ কোম্পানি বিদেশি বিনিয়োগকারীদের কাছ থেকে বিশাল অঙ্কের তহবিল সংগ্রহ করেছে।',
+                'author' => 'প্রযুক্তি প্রতিবেদক', 'date' => '০৩ মে, ২০২৪', 'time_ago' => '৯ ঘণ্টা আগে',
+                'image_url' => $img(3),
+            ],
+            [
+                'id' => 11, 'slug' => 'agricultural-innovation',
+                'title' => 'কৃষিতে নতুন প্রযুক্তির ছোঁয়া, কৃষকদের মুখে হাসি',
+                'category' => 'জাতীয়',
+                'excerpt' => 'আধুনিক কৃষি যন্ত্রপাতি ব্যবহারের ফলে উৎপাদন বেড়েছে বহুগুণ, যার ফলে কৃষকরা আর্থিকভাবে লাভবান হচ্ছেন।',
+                'author' => 'কৃষি প্রতিবেদক', 'date' => '০২ মে, ২০২৪', 'time_ago' => '১০ ঘণ্টা আগে',
+                'image_url' => $img(4),
+            ],
+            [
+                'id' => 12, 'slug' => 'olympic-preparation',
+                'title' => 'আগামী অলিম্পিকের জন্য প্রস্তুতি শুরু',
+                'category' => 'খেলা',
+                'excerpt' => 'আগামী অলিম্পিক গেমসে ভালো ফলাফল করার লক্ষ্যে এখন থেকেই প্রস্তুতি শুরু করেছে অ্যাথলেটরা।',
+                'author' => 'ক্রীড়া ডেস্ক', 'date' => '০১ মে, ২০২৪', 'time_ago' => '১১ ঘণ্টা আগে',
+                'image_url' => $img(2),
+            ],
+            [
+                'id' => 13, 'slug' => 'global-market-crisis',
+                'title' => 'বিশ্ববাজারে অস্থিরতা, প্রভাব পড়ছে দেশের অর্থনীতিতে',
+                'category' => 'অর্থনীতি',
+                'excerpt' => 'বিশ্ববাজারে জ্বালানি তেল এবং নিত্যপ্রয়োজনীয় পণ্যের দাম বৃদ্ধিতে দেশের অর্থনীতিতে নেতিবাচক প্রভাব পড়ছে।',
+                'author' => 'অর্থনীতি ডেস্ক', 'date' => '৩০ এপ্রিল, ২০২৪', 'time_ago' => '১২ ঘণ্টা আগে',
+                'image_url' => $img(4),
+            ],
+            [
+                'id' => 14, 'slug' => 'new-smart-phone-launch',
+                'title' => 'বাজারে এলো নতুন ফ্লাগশিপ স্মার্টফোন',
+                'category' => 'প্রযুক্তি',
+                'excerpt' => 'অত্যাধুনিক সব ফিচার নিয়ে বাজারে এসেছে নতুন একটি ফ্লাগশিপ স্মার্টফোন, যা প্রযুক্তিপ্রেমীদের মাঝে ব্যাপক আগ্রহ তৈরি করেছে।',
+                'author' => 'গ্যাজেট রিভিউয়ার', 'date' => '২৯ এপ্রিল, ২০২৪', 'time_ago' => '১৩ ঘণ্টা আগে',
+                'image_url' => $img(3),
+            ],
+            [
+                'id' => 15, 'slug' => 'music-concert-dhaka',
+                'title' => 'ঢাকায় অনুষ্ঠিত হলো বিশাল কনসার্ট',
+                'category' => 'বিনোদন',
+                'excerpt' => 'দেশি-বিদেশি জনপ্রিয় শিল্পীদের অংশগ্রহণে ঢাকায় একটি বিশাল কনসার্ট অনুষ্ঠিত হয়েছে, যেখানে তরুণদের উপচে পড়া ভিড় ছিল।',
+                'author' => 'কালচারাল ডেস্ক', 'date' => '২৮ এপ্রিল, ২০২৪', 'time_ago' => '১ দিন আগে',
+                'image_url' => $img(7),
+            ],
+            [
+                'id' => 16, 'slug' => 'health-tips-summer',
+                'title' => 'গরমের তীব্রতায় সুস্থ থাকার উপায়',
+                'category' => 'লাইফস্টাইল',
+                'excerpt' => 'প্রচণ্ড গরমে সুস্থ থাকতে চিকিৎসকদের কিছু জরুরি পরামর্শ মেনে চলা প্রয়োজন।',
+                'author' => 'স্বাস্থ্য পরামর্শক', 'date' => '২৭ এপ্রিল, ২০২৪', 'time_ago' => '১ দিন আগে',
+                'image_url' => $img(5),
+            ],
+            [
+                'id' => 17, 'slug' => 'opinion-traffic-jam',
+                'title' => 'ঢাকার যানজট: সমাধান কোথায়?',
+                'category' => 'মতামত',
+                'excerpt' => 'রাজধানীর অন্যতম প্রধান সমস্যা যানজট। এর সমাধানে কী কী পদক্ষেপ নেওয়া যেতে পারে, তা নিয়ে বিশেষজ্ঞদের মতামত।',
+                'author' => 'সৈয়দ আবুল মকসুদ', 'date' => '২৬ এপ্রিল, ২০২৪', 'time_ago' => '২ দিন আগে',
+                'image_url' => $img(1),
+            ],
+            [
+                'id' => 18, 'slug' => 'international-peace-treaty',
+                'title' => 'দীর্ঘদিনের সংঘাত শেষে দুই দেশের মধ্যে শান্তি চুক্তি',
+                'category' => 'বিশ্ব',
+                'excerpt' => 'অবশেষে দুই প্রতিবেশী দেশের মধ্যে দীর্ঘদিনের সীমান্ত সংঘাতের অবসান ঘটিয়ে একটি ঐতিহাসিক শান্তি চুক্তি স্বাক্ষরিত হয়েছে।',
+                'author' => 'আন্তর্জাতিক সম্পর্ক বিশ্লেষক', 'date' => '২৫ এপ্রিল, ২০২৪', 'time_ago' => '২ দিন আগে',
+                'image_url' => $img(6),
+            ],
+            [
+                'id' => 19, 'slug' => 'national-award-ceremony',
+                'title' => 'জাতীয় চলচ্চিত্র পুরস্কার প্রদান অনুষ্ঠান সম্পন্ন',
+                'category' => 'জাতীয়',
+                'excerpt' => 'চলচ্চিত্র শিল্পে বিশেষ অবদানের স্বীকৃতিস্বরূপ আজ প্রধানমন্ত্রী বিজয়ীদের হাতে জাতীয় চলচ্চিত্র পুরস্কার তুলে দিয়েছেন।',
+                'author' => 'সংস্কৃতি বিষয়ক প্রতিবেদক', 'date' => '২৪ এপ্রিল, ২০২৪', 'time_ago' => '৩ দিন আগে',
+                'image_url' => $img(7),
+            ],
+            [
+                'id' => 20, 'slug' => 'new-bridge-inauguration',
+                'title' => 'দেশের দক্ষিণাঞ্চলে নতুন সেতুর উদ্বোধন',
+                'category' => 'জাতীয়',
+                'excerpt' => 'যোগাযোগ ব্যবস্থায় নতুন মাইলফলক। দক্ষিণাঞ্চলের মানুষের দীর্ঘদিনের স্বপ্নের নতুন সেতু আজ উন্মুক্ত করা হলো।',
+                'author' => 'উন্নয়ন প্রতিবেদক', 'date' => '২৩ এপ্রিল, ২০২৪', 'time_ago' => '৩ দিন আগে',
+                'image_url' => $img(1),
+            ],
+        ];
+    }
+}

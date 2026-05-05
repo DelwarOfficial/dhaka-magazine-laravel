@@ -1,0 +1,144 @@
+/* ============================================================
+   Dhaka Magazine — Compiled Tailwind + Custom Styles
+   ============================================================ */
+
+/* ── Fonts ────────────────────────────────────────────────── */
+@font-face {
+    font-family: 'NotoSerifBengali';
+    src: url('../fonts/NotoSerifBengali-Regular.ttf') format('truetype');
+    font-weight: 400;
+    font-style: normal;
+}
+@font-face {
+    font-family: 'NotoSerifBengali';
+    src: url('../fonts/NotoSerifBengali-Thin.ttf') format('truetype');
+    font-weight: 300;
+    font-style: normal;
+}
+@font-face {
+    font-family: 'NotoSerifBengali';
+    src: url('../fonts/NotoSerifBengali-SemiBold.ttf') format('truetype');
+    font-weight: 600;
+    font-style: normal;
+}
+@font-face {
+    font-family: 'NotoSerifBengali';
+    src: url('../fonts/NotoSerifBengali-Bold.ttf') format('truetype');
+    font-weight: 700;
+    font-style: normal;
+}
+@font-face {
+    font-family: 'NotoSerifBengali';
+    src: url('../fonts/NotoSerifBengali-ExtraBold.ttf') format('truetype');
+    font-weight: 800;
+    font-style: normal;
+}
+
+/* ── Tailwind base (copy the output of `pnpm run build` from
+   the React project here for production).
+   For now we provide the minimal custom classes the UI needs. ── */
+
+/* ── Custom utility classes ───────────────────────────────── */
+
+/* Navigation links */
+.nav-link {
+  font-family: serif;
+  font-size: 14px;
+  color: white;
+  white-space: nowrap;
+  padding: 4px 0;
+  border-bottom: 2px solid transparent;
+  transition: color 0.15s, border-color 0.15s;
+}
+.nav-link:hover {
+  color: #e2231a;
+  border-bottom-color: #e2231a;
+}
+
+.mobile-nav-link {
+  font-size: 16px;
+  font-family: serif;
+  font-weight: 700;
+  color: #111;
+  border-bottom: 1px solid #e5e5e5;
+  padding: 1rem;
+  display: block;
+}
+.mobile-nav-link:hover {
+  color: #e2231a;
+}
+
+/* Sticky nav */
+#site-nav.sticky {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 1000;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+  animation: slideDown 0.2s ease-out;
+}
+
+@keyframes slideDown {
+  from { transform: translateY(-100%); }
+  to { transform: translateY(0); }
+}
+
+/* Line clamp utility (Tailwind plugin fallback) */
+.line-clamp-2 {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.line-clamp-3 {
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.line-clamp-4 {
+  display: -webkit-box;
+  -webkit-line-clamp: 4;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* ── Reset / base ─────────────────────────────────────────── */
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: 'NotoSerifBengali', serif, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  color: #333;
+  background: #fff;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: 'NotoSerifBengali', serif;
+  color: #1a1a1a;
+  letter-spacing: -0.01em;
+}
+
+a {
+  text-decoration: none;
+  color: inherit;
+}
+
+img {
+  max-width: 100%;
+  height: auto;
+  display: block;
+}
+
+button {
+  cursor: pointer;
+  border: none;
+  background: none;
+  font: inherit;
+}
