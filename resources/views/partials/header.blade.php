@@ -1,6 +1,6 @@
 <header class="w-full bg-bg flex flex-col font-serif dark:bg-surface" id="site-header">
 
-  {{-- Top Bar: Logo + Date + Right Icons --}}
+  {{-- Top Bar: Logo + Right Side --}}
   <div class="w-full max-w-screen-xl mx-auto px-4 py-3">
     <div class="flex items-center justify-between">
       
@@ -10,24 +10,22 @@
         <img src="{{ asset('images/dhaka-magazine-white-logo.svg') }}" class="logo logo-dark h-10 md:h-12" alt="Dhaka Magazine" />
       </a>
 
-      {{-- Center: Date --}}
-      <div class="hidden md:block text-fg-secondary text-[13px]">
-        <span class="font-bengali">{{ \App\Helpers\DateHelper::getBengaliDate() }}</span>
-      </div>
-
-      {{-- Right Icons: Search, E-paper, Hamburger --}}
+      {{-- Right: Date + E-paper + Search + Hamburger --}}
       <div class="flex items-center gap-3 md:gap-4">
         
+        {{-- Date + E-paper (stacked, right aligned) - Desktop only --}}
+        <div class="hidden md:flex flex-col items-end">
+          <span class="text-fg-secondary text-[13px] font-bengali">{{ \App\Helpers\DateHelper::getBengaliDate() }}</span>
+          <a href="#" class="flex items-center gap-1 text-fg-secondary hover:text-fg transition-colors">
+            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect width="18" height="18" x="3" y="4" rx="2" ry="2"/><line x1="16" x2="16" y1="2" y2="6"/><line x1="8" x2="8" y1="2" y2="6"/><line x1="3" x2="21" y1="10" y2="10"/></svg>
+            <span class="text-[12px]">ই-পেপার</span>
+          </a>
+        </div>
+
         {{-- Search --}}
         <button class="flex items-center gap-1 text-fg-secondary hover:text-fg transition-colors" aria-label="Search">
           <svg xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
         </button>
-
-        {{-- E-paper --}}
-        <a href="#" class="flex items-center gap-1 text-fg-secondary hover:text-fg transition-colors">
-          <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect width="18" height="18" x="3" y="4" rx="2" ry="2"/><line x1="16" x2="16" y1="2" y2="6"/><line x1="8" x2="8" y1="2" y2="6"/><line x1="3" x2="21" y1="10" y2="10"/></svg>
-          <span class="hidden lg:inline text-[13px]">ই-পেপার</span>
-        </a>
 
         {{-- Hamburger (mobile only) --}}
         <button id="hamburger-btn" class="p-1 text-fg hover:text-fg-secondary md:hidden" aria-label="Toggle menu">
@@ -35,7 +33,6 @@
           <svg id="icon-close" xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="hidden"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
         </button>
 
-        
       </div>
     </div>
   </div>
