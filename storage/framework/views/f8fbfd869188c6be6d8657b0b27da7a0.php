@@ -256,6 +256,27 @@
     </div>
   </div>
 
+  <?php if (isset($component)) { $__componentOriginalbd062117debf97e45556e0fb3873aba5 = $component; } ?>
+<?php if (isset($attributes)) { $__attributesOriginalbd062117debf97e45556e0fb3873aba5 = $attributes; } ?>
+<?php $component = Illuminate\View\AnonymousComponent::resolve(['view' => 'components.photo-news-block','data' => ['carouselArticles' => $photoNewsArticles,'latestArticles' => $photoNewsLatest,'popularArticles' => $photoNewsPopular]] + (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag ? $attributes->all() : [])); ?>
+<?php $component->withName('photo-news-block'); ?>
+<?php if ($component->shouldRender()): ?>
+<?php $__env->startComponent($component->resolveView(), $component->data()); ?>
+<?php if (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag): ?>
+<?php $attributes = $attributes->except(\Illuminate\View\AnonymousComponent::ignoredParameterNames()); ?>
+<?php endif; ?>
+<?php $component->withAttributes(['carousel-articles' => \Illuminate\View\Compilers\BladeCompiler::sanitizeComponentAttribute($photoNewsArticles),'latest-articles' => \Illuminate\View\Compilers\BladeCompiler::sanitizeComponentAttribute($photoNewsLatest),'popular-articles' => \Illuminate\View\Compilers\BladeCompiler::sanitizeComponentAttribute($photoNewsPopular)]); ?>
+<?php echo $__env->renderComponent(); ?>
+<?php endif; ?>
+<?php if (isset($__attributesOriginalbd062117debf97e45556e0fb3873aba5)): ?>
+<?php $attributes = $__attributesOriginalbd062117debf97e45556e0fb3873aba5; ?>
+<?php unset($__attributesOriginalbd062117debf97e45556e0fb3873aba5); ?>
+<?php endif; ?>
+<?php if (isset($__componentOriginalbd062117debf97e45556e0fb3873aba5)): ?>
+<?php $component = $__componentOriginalbd062117debf97e45556e0fb3873aba5; ?>
+<?php unset($__componentOriginalbd062117debf97e45556e0fb3873aba5); ?>
+<?php endif; ?>
+
   <div class="border-t-4 border-border"></div>
 
   

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\File;
 
 class HomeController extends Controller
 {
@@ -81,6 +82,12 @@ class HomeController extends Controller
         // ══ POPULAR NEWS (sidebar) ═══════════════════════════════
         $popularNews = array_slice($articles, 5, 5);
 
+        // ══ PHOTO NEWS (local images driven) ════════════════════
+        $photoStoryPayload = $this->buildPhotoStoryPayload($articles);
+        $photoNewsArticles = $photoStoryPayload['carousel'];
+        $photoNewsLatest   = $photoStoryPayload['latest'];
+        $photoNewsPopular  = $photoStoryPayload['popular'];
+
         return view('pages.home', compact(
             'breakingStories',
             'categories',
@@ -109,7 +116,66 @@ class HomeController extends Controller
             'healthArticles',
             'specialArticles',
             'popularNews',
+            'photoNewsArticles',
+            'photoNewsLatest',
+            'photoNewsPopular',
+            'photoStoryPayload',
         ));
+    }
+
+    public function photoStoryData()
+    {
+        return response()->json($this->buildPhotoStoryPayload($this->sampleArticles()));
+    }
+
+    private function buildPhotoStoryPayload(array $articles): array
+    {
+        $allowedExtensions = ['jpg', 'jpeg', 'png', 'webp'];
+        $imageFiles = collect(File::files(public_path('images')))
+            ->filter(fn($file) => in_array(strtolower($file->getExtension()), $allowedExtensions, true))
+            ->sortBy(fn($file) => $file->getFilename())
+            ->values();
+
+        if ($imageFiles->isEmpty()) {
+            $imageFiles = collect(['a.jpg', 'b.jpg', 'c.jpg'])->map(fn($name) => (object) ['name' => $name]);
+        }
+
+        $carousel = $imageFiles->take(10)->values()->map(function ($file, $index) use ($articles) {
+            $article = $articles[$index % count($articles)];
+            $filename = method_exists($file, 'getFilename') ? $file->getFilename() : $file->name;
+
+            return [
+                'id' => $index + 1,
+                'headline' => $article['title'],
+                'slug' => $article['slug'],
+                'timestamp' => $article['time_ago'],
+                'image_url' => asset('images/' . $filename),
+            ];
+        })->all();
+
+        $latest = collect($articles)->take(8)->values()->map(function ($article, $index) {
+            return [
+                'id' => $index + 1,
+                'headline' => $article['title'],
+                'slug' => $article['slug'],
+                'timestamp' => $article['time_ago'],
+            ];
+        })->all();
+
+        $popular = collect($articles)->slice(8, 8)->values()->map(function ($article, $index) {
+            return [
+                'id' => $index + 1,
+                'headline' => $article['title'],
+                'slug' => $article['slug'],
+                'timestamp' => $article['time_ago'],
+            ];
+        })->all();
+
+        return [
+            'carousel' => $carousel,
+            'latest' => $latest,
+            'popular' => $popular,
+        ];
     }
 
     private function sampleArticles()

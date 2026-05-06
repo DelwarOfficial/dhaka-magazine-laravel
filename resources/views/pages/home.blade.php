@@ -212,6 +212,12 @@
     </div>
   </div>
 
+  <x-photo-news-block 
+    :carousel-articles="$photoNewsArticles" 
+    :latest-articles="$photoNewsLatest" 
+    :popular-articles="$photoNewsPopular" 
+  />
+
   <div class="border-t-4 border-border"></div>
 
   {{-- ══ SARADESH (সারাদেশ) — 3-column layout ═══════════════ --}}
