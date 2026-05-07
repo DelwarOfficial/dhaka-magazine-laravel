@@ -1,9 +1,11 @@
 <footer class="w-full bg-[#1d2640] text-white mt-16 border-t-[3px] border-[#e2231a] font-serif">
-  <div class="container mx-auto px-4 pt-12 pb-6">
+  <div class="w-full max-w-screen-xl mx-auto px-4 pt-12 pb-6">
     <div class="grid grid-cols-1 md:grid-cols-4 gap-8 mb-10">
 
       <div class="col-span-1">
-        <a href="<?php echo e(route('home')); ?>" class="text-3xl font-serif font-bold text-white tracking-tight mb-6 block">ঢাকা ম্যাগাজিন</a>
+        <a href="<?php echo e(route('home')); ?>" class="block mb-6" aria-label="Dhaka Magazine">
+          <img src="<?php echo e(asset('images/dhaka-magazine-white-logo.svg')); ?>" class="h-8 w-auto opacity-90 hover:opacity-100 transition-opacity" alt="Dhaka Magazine" />
+        </a>
         <div class="flex space-x-3 mb-6">
           <a href="#" class="w-8 h-8 rounded-full bg-[#333] flex items-center justify-center hover:bg-[#e2231a] transition-colors text-white">
             <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></svg>
