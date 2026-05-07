@@ -193,14 +193,21 @@
 
   {{-- ── ADVERTISEMENT BANNER ─────────────────────────────────── --}}
   <div class="w-full max-w-screen-xl mx-auto px-4 py-3">
-    <div class="w-full bg-surface border border-border flex items-center justify-center h-[90px]">
+    <div class="w-full bg-surface border border-border flex items-center justify-center h-[90px] rounded-lg">
       <span class="text-fg-muted text-[12px] tracking-widest uppercase">বিজ্ঞাপন</span>
     </div>
   </div>
 
+  {{-- 1. PHOTO NEWS (ফটো সংবাদ) --}}
+  <x-photo-news-block 
+    :carousel-articles="$photoNewsArticles" 
+    :latest-articles="$photoNewsLatest" 
+    :popular-articles="$photoNewsPopular" 
+  />
+
   <div class="border-t-4 border-border"></div>
 
-  {{-- ══ BANGLADESH ════════════════════════════════════════════ --}}
+  {{-- 2. BANGLADESH ════════════════════════════════════════════ --}}
   <div class="w-full max-w-screen-xl mx-auto px-4 py-5">
     <x-section-header title="বাংলাদেশ" :moreUrl="route('category.show', 'জাতীয়')" />
     <div class="grid grid-cols-2 md:grid-cols-4 gap-5">
@@ -211,12 +218,6 @@
       @endif
     </div>
   </div>
-
-  <x-photo-news-block 
-    :carousel-articles="$photoNewsArticles" 
-    :latest-articles="$photoNewsLatest" 
-    :popular-articles="$photoNewsPopular" 
-  />
 
   <div class="border-t-4 border-border"></div>
 
@@ -375,7 +376,7 @@
     </div>
   </div>
 
-
+  <div class="border-t-4 border-border"></div>
 
   {{-- ══ SPORTS (খেলাধুলা) — 3 panel ════════════════════════ --}}
   <x-sports-block 
@@ -596,7 +597,7 @@
       @php
         $bottomCols = [
           ['name' => 'ধর্ম', 'articles' => $religionArticles ?? []],
-          ['name' => 'তথ্য-প্রযুক্তি', 'articles' => $itArticles ?? []],
+          ['name' => 'রাজধানী', 'articles' => $rajdhaniArticles ?? []],
           ['name' => 'শিক্ষা', 'articles' => $educationArticles ?? []],
           ['name' => 'প্রবাস', 'articles' => $probashArticles ?? []],
         ];

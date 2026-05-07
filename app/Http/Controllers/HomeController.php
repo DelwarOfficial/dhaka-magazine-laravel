@@ -88,9 +88,9 @@ class HomeController extends Controller
         $photoNewsLatest   = $photoStoryPayload['latest'];
         $photoNewsPopular  = $photoStoryPayload['popular'];
 
-        // ══ BOTTOM 4-COL BLOCK (ধর্ম, তথ্য-প্রযুক্তি, শিক্ষা, প্রবাস) ════
+        // ══ BOTTOM 4-COL BLOCK (ধর্ম, রাজধানী, শিক্ষা, প্রবাস) ════
         $religionArticles  = [$articles[2], $articles[8], $articles[14], $articles[5]];
-        $itArticles        = [$articles[9], $articles[12], $articles[19], $articles[1]];
+        $rajdhaniArticles  = [$articles[9], $articles[12], $articles[19], $articles[1]];
         $educationArticles = [$articles[11], $articles[3], $articles[15], $articles[7]];
         $probashArticles   = [$articles[17], $articles[0], $articles[6], $articles[13]];
 
@@ -127,7 +127,7 @@ class HomeController extends Controller
             'photoNewsPopular',
             'photoStoryPayload',
             'religionArticles',
-            'itArticles',
+            'rajdhaniArticles',
             'educationArticles',
             'probashArticles'
         ));
