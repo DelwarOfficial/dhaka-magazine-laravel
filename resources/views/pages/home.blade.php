@@ -513,60 +513,10 @@
   <div class="border-t-4 border-border"></div>
 
   {{-- ══ VIDEO — dark bg, 1 large left + 3 small right ════════ --}}
-  <div class="w-full bg-[#1d2640] py-6">
-    <div class="max-w-screen-xl mx-auto px-4">
-      <div class="flex items-center justify-between mb-4 pb-2 border-b border-[#333]">
-        <h2 class="font-serif font-bold text-[18px] text-white flex items-center gap-2">
-          <svg viewBox="0 0 24 24" fill="#e2231a" class="w-5 h-5"><path d="M8 5v14l11-7z" /></svg>
-          ভিডিও
-        </h2>
-        <a href="{{ route('category.show', 'বিনোদন') }}" class="text-[#e2231a] text-[13px] font-bold hover:underline">সব ভিডিও &rarr;</a>
-      </div>
-      <div class="grid grid-cols-1 md:grid-cols-[1fr_320px] gap-6">
-        @if(isset($videoFeatured))
-          <a href="{{ route('article.show', $videoFeatured['slug']) }}" class="group flex flex-col">
-            <div class="w-full overflow-hidden mb-2 relative aspect-video">
-              <img src="{{ $videoFeatured['image_url'] }}" alt="{{ $videoFeatured['title'] }}" loading="lazy"
-                class="w-full h-full object-cover transition-transform duration-300 group-hover:scale-[1.03]" />
-              <div class="absolute inset-0 flex items-center justify-center">
-                <div class="bg-[#e2231a] rounded-full flex items-center justify-center opacity-90 group-hover:opacity-100 transition-opacity w-14 h-14">
-                  <svg viewBox="0 0 24 24" fill="white" class="w-7 h-7 ml-1"><path d="M8 5v14l11-7z" /></svg>
-                </div>
-              </div>
-            </div>
-            <h3 class="font-serif font-bold text-[18px] text-white leading-tight group-hover:text-[#f8a0a0] transition-colors line-clamp-2">
-              {{ $videoFeatured['title'] }}
-            </h3>
-            <div class="text-[11px] text-fg-muted mt-1">{{ $videoFeatured['time_ago'] }}</div>
-          </a>
-        @endif
-        @if(isset($videoSmall))
-          <div class="flex flex-col gap-4 border-l-0 md:border-l border-[#333] md:pl-6">
-            @foreach($videoSmall as $a)
-              <a href="{{ route('article.show', $a['slug']) }}"
-                class="group flex items-start gap-3">
-                <div class="w-[110px] h-[62px] shrink-0 overflow-hidden relative">
-                  <img src="{{ $a['image_url'] }}" alt="{{ $a['title'] }}" loading="lazy"
-                    class="w-full h-full object-cover transition-transform duration-300 group-hover:scale-[1.03]" />
-                  <div class="absolute inset-0 flex items-center justify-center">
-                    <div class="w-8 h-8 bg-[#e2231a] rounded-full flex items-center justify-center opacity-90">
-                      <svg viewBox="0 0 24 24" fill="white" class="w-4 h-4 ml-0.5"><path d="M8 5v14l11-7z" /></svg>
-                    </div>
-                  </div>
-                </div>
-                <div class="flex-1">
-                  <h3 class="font-serif font-bold text-[14px] text-white leading-tight group-hover:text-[#f8a0a0] transition-colors line-clamp-3">
-                    {{ $a['title'] }}
-                  </h3>
-                  <div class="text-[11px] text-fg-muted mt-1">{{ $a['time_ago'] }}</div>
-                </div>
-              </a>
-            @endforeach
-          </div>
-        @endif
-      </div>
-    </div>
-  </div>
+  <x-video-block 
+    :video-featured="$videoFeatured ?? null" 
+    :video-small="$videoSmall ?? null" 
+  />
 
   <div class="border-t-4 border-border"></div>
 

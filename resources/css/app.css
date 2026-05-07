@@ -348,3 +348,30 @@ button {
     /* background: darkgray; */
     font: inherit;
 }
+
+/* ── Mobile Horizontal Scroll Nav ────────────────────────── */
+.mobile-nav-scroll-wrapper::-webkit-scrollbar {
+    display: none;
+}
+
+.mobile-scroll-nav-item {
+    display: inline-flex;
+    align-items: center;
+    padding: 4px 14px;
+    color: rgba(255,255,255,0.85);
+    font-size: 13px;
+    font-weight: 600;
+    white-space: nowrap;
+    text-decoration: none;
+    transition: color 0.2s;
+    border-right: 1px solid rgba(255,255,255,0.1);
+}
+
+.mobile-scroll-nav-item:last-child {
+    border-right: none;
+}
+
+.mobile-scroll-nav-item:hover,
+.mobile-scroll-nav-item:active {
+    color: #e2231a;
+}

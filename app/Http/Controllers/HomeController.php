@@ -65,7 +65,7 @@ class HomeController extends Controller
 
         // ══ VIDEO ════════════════════════════════════════════════
         $videoFeatured = $articles[6];
-        $videoSmall    = [$articles[14], $articles[0], $articles[2]];
+        $videoSmall    = [$articles[14], $articles[0], $articles[2], $articles[15]];
 
         // ══ ENTERTAINMENT ════════════════════════════════════════
         $entertainmentLeft  = [$articles[6], $articles[14], $articles[18]];
