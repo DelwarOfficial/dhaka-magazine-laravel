@@ -99,38 +99,54 @@
 }
 
 /* ── Premium Global Soft Corner UI Strategy ────────────────── */
-/* 1. Standardize all common rounding classes to exactly 10px */
-.rounded-sm,
-.rounded,
-.rounded-md,
-.rounded-lg,
-.rounded-xl {
-    border-radius: 10px !important;
+/* 1. Base default: 4px is perfect for small thumbnails and standard lists without looking like a pill */
+.rounded-sm { border-radius: 4px !important; }
+.rounded { border-radius: 6px !important; }
+.rounded-md { border-radius: 8px !important; }
+.rounded-lg, .rounded-xl { border-radius: 10px !important; }
+
+/* 2. Standardize all image wrappers with a safe 4px radius and premium soft borders */
+div[class*="overflow-hidden"]:has(img) {
+    border-radius: 4px !important;
+    overflow: hidden !important;
+    border: 1px solid var(--color-border) !important;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03) !important;
+}
+.dark div[class*="overflow-hidden"]:has(img) {
+    border: 1px solid rgba(255, 255, 255, 0.05) !important;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2) !important;
 }
 
-/* 2. Apply strict overflow and premium shadows/borders to all image thumbnails and widgets */
-div[class*="overflow-hidden"]:has(img),
+/* 3. Upgrade large Hero Images and full-width cards to the premium 10px radius */
+div[class*="aspect-\[16\/9\]"],
 .bg-surface,
 .widget-card {
     border-radius: 10px !important;
-    overflow: hidden !important;
     border: 1px solid var(--color-border) !important;
     box-shadow: 0 4px 24px rgba(0, 0, 0, 0.04) !important;
 }
-.dark div[class*="overflow-hidden"]:has(img),
+.dark div[class*="aspect-\[16\/9\]"],
 .dark .bg-surface {
     border: 1px solid rgba(255, 255, 255, 0.06) !important;
     box-shadow: 0 4px 24px rgba(0, 0, 0, 0.2) !important;
 }
 
-/* 3. Ensure nested images inside padded widgets have a slightly smaller inner radius (8px) */
+/* 4. Harmonize nested images inside 10px widgets */
 .bg-surface img {
     border-radius: 8px !important;
 }
 
-/* 4. Strip radius from images strictly nested inside tight border-radius wrappers to avoid double-radius gaps */
+/* 5. Strip radius from images strictly nested inside wrappers to prevent double rounding */
 div[class*="overflow-hidden"] > img {
     border-radius: 0 !important;
+}
+
+/* ── Advertisement Units ────────────────────────────────────── */
+.ad-container { 
+    width: 300px; 
+    height: 250px; 
+    overflow: hidden; 
+    border-radius: 10px; /* To match the premium soft UI */
 }
 
 /* ── Section Title Icon ────────────────────────────────────── */

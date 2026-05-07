@@ -39,8 +39,7 @@ class HomeController extends Controller
 
         // ══ INTERNATIONAL ════════════════════════════════════════
         $internationalBig   = $articles[5];
-        $internationalSmall = [$articles[17], $articles[2], $articles[3], $articles[7]];
-        $internationalRight = $articles[9];
+        $internationalSmall = [$articles[17], $articles[2], $articles[3], $articles[7], $articles[1]];
 
         // ══ OPINION ══════════════════════════════════════════════
         $opinionArticles = [$articles[8], $articles[16], $articles[3], $articles[12]];
@@ -108,7 +107,6 @@ class HomeController extends Controller
             'countryRight',
             'internationalBig',
             'internationalSmall',
-            'internationalRight',
             'opinionArticles',
             'opinionMeta',
             'sportsArticles',

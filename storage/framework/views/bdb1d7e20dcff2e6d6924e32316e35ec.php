@@ -450,26 +450,11 @@
       </div>
 
       
-      <div class="pl-6 flex flex-col gap-4">
-        <div class="w-full flex flex-col items-center justify-center bg-surface border border-border py-8 px-3">
-          <span class="text-[#e2231a] text-[11px] font-bold tracking-wide mb-1">বিজ্ঞাপন</span>
+      <div class="pl-6 flex flex-col items-center">
+        <div class="ad-container bg-surface border border-border flex flex-col items-center justify-center relative">
+          <span class="text-[#e2231a] text-[11px] font-bold tracking-wide mb-1 absolute top-2 right-2 z-10">বিজ্ঞাপন</span>
+          <img src="<?php echo e(asset('images/coming-soon-ad.webp')); ?>" alt="Advertisement" class="w-full h-full object-cover opacity-50" />
         </div>
-        <?php if(isset($internationalRight)): ?>
-          <a href="<?php echo e(route('article.show', $internationalRight['slug'])); ?>"
-            class="group flex items-start gap-3">
-            <div class="flex-1">
-              <h3 class="font-serif font-extrabold text-[14px] text-fg leading-snug group-hover:text-[#e2231a] transition-colors line-clamp-4">
-                <?php echo e($internationalRight['title']); ?>
-
-              </h3>
-              <div class="text-[11px] text-fg-muted mt-1"><?php echo e($internationalRight['time_ago']); ?></div>
-            </div>
-            <div class="w-[64px] h-[36px] shrink-0 overflow-hidden">
-              <img src="<?php echo e($internationalRight['image_url']); ?>" alt="<?php echo e($internationalRight['title']); ?>" loading="lazy"
-                class="w-full h-full object-cover transition-transform duration-300 group-hover:scale-[1.03]" />
-            </div>
-          </a>
-        <?php endif; ?>
       </div>
 
     </div>
