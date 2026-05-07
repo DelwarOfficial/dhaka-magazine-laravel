@@ -188,7 +188,6 @@
         @endif
       </div>
     </div>
-    </div>
   </div>
 
   {{-- ── ADVERTISEMENT BANNER ─────────────────────────────────── --}}
