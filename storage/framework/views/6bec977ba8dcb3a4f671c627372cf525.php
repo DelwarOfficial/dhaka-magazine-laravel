@@ -3,8 +3,8 @@
     <div class="grid grid-cols-1 md:grid-cols-4 gap-8 mb-10">
 
       <div class="col-span-1">
-        <a href="<?php echo e(route('home')); ?>" class="block mb-6" aria-label="Dhaka Magazine">
-          <img src="<?php echo e(asset('images/dhaka-magazine-white-logo.svg')); ?>" class="h-8 w-auto opacity-90 hover:opacity-100 transition-opacity" alt="Dhaka Magazine" />
+        <a href="<?php echo e(route('home')); ?>" class="block mb-6 w-[180px]" aria-label="Dhaka Magazine">
+          <img src="<?php echo e(asset('images/dhaka-magazine-white-logo.svg')); ?>" class="w-full h-auto opacity-90 hover:opacity-100 transition-opacity" alt="Dhaka Magazine" />
         </a>
         <div class="flex space-x-3 mb-6">
           <a href="#" class="w-8 h-8 rounded-full bg-[#333] flex items-center justify-center hover:bg-[#e2231a] transition-colors text-white">
