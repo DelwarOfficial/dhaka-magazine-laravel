@@ -72,9 +72,10 @@ class HomeController extends Controller
         $entertainmentHero  = $articles[7];
         $entertainmentRight = [$articles[1], $articles[11], $articles[4]];
 
-        // ══ ECONOMY + HEALTH ════════════════════════════════════
-        $economyArticles = [$articles[3], $articles[12]];
-        $healthArticles  = [$articles[4], $articles[15]];
+        // ══ ECONOMY + HEALTH + JOBS ═════════════════════════════
+        $economyArticles = [$articles[3], $articles[12], $articles[4], $articles[7]];
+        $healthArticles  = [$articles[4], $articles[15], $articles[1], $articles[8]];
+        $jobArticles     = [$articles[5], $articles[10], $articles[13], $articles[19]];
 
         // ══ SPECIAL ══════════════════════════════════════════════
         $specialArticles = [$articles[7], $articles[16], $articles[0], $articles[17], $articles[19]];
@@ -114,6 +115,7 @@ class HomeController extends Controller
             'entertainmentRight',
             'economyArticles',
             'healthArticles',
+            'jobArticles',
             'specialArticles',
             'popularNews',
             'photoNewsArticles',
@@ -137,12 +139,12 @@ class HomeController extends Controller
             ->values();
 
         if ($imageFiles->isEmpty()) {
-            $imageFiles = collect(['a.jpg', 'b.jpg', 'c.jpg'])->map(fn($name) => (object) ['name' => $name]);
+            $imageFiles = collect(['a.jpg', 'b.jpg', 'c.jpg'])->map(fn($name) => new \SplFileInfo(public_path('images/' . $name)));
         }
 
         $carousel = $imageFiles->take(10)->values()->map(function ($file, $index) use ($articles) {
             $article = $articles[$index % count($articles)];
-            $filename = method_exists($file, 'getFilename') ? $file->getFilename() : $file->name;
+            $filename = $file->getFilename();
 
             return [
                 'id' => $index + 1,
