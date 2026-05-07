@@ -121,142 +121,57 @@ unset($__defined_vars, $__key, $__value); ?>
         <span class="text-fg-muted text-[12px] tracking-widest uppercase">বিজ্ঞাপন</span>
       </div>
 
+      <?php if (isset($component)) { $__componentOriginal436399e29d00ce6b8f47e38277d39536 = $component; } ?>
+<?php if (isset($attributes)) { $__attributesOriginal436399e29d00ce6b8f47e38277d39536 = $attributes; } ?>
+<?php $component = Illuminate\View\AnonymousComponent::resolve(['view' => 'components.section-header','data' => ['title' => 'নামাজের সময়সূচি (ঢাকা)']] + (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag ? $attributes->all() : [])); ?>
+<?php $component->withName('section-header'); ?>
+<?php if ($component->shouldRender()): ?>
+<?php $__env->startComponent($component->resolveView(), $component->data()); ?>
+<?php if (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag): ?>
+<?php $attributes = $attributes->except(\Illuminate\View\AnonymousComponent::ignoredParameterNames()); ?>
+<?php endif; ?>
+<?php $component->withAttributes(['title' => 'নামাজের সময়সূচি (ঢাকা)']); ?>
+<?php echo $__env->renderComponent(); ?>
+<?php endif; ?>
+<?php if (isset($__attributesOriginal436399e29d00ce6b8f47e38277d39536)): ?>
+<?php $attributes = $__attributesOriginal436399e29d00ce6b8f47e38277d39536; ?>
+<?php unset($__attributesOriginal436399e29d00ce6b8f47e38277d39536); ?>
+<?php endif; ?>
+<?php if (isset($__componentOriginal436399e29d00ce6b8f47e38277d39536)): ?>
+<?php $component = $__componentOriginal436399e29d00ce6b8f47e38277d39536; ?>
+<?php unset($__componentOriginal436399e29d00ce6b8f47e38277d39536); ?>
+<?php endif; ?>
       
-      <div class="border border-border rounded-sm bg-surface shadow-sm overflow-hidden">
-        
-        <div class="py-3 text-center border-b border-border">
-          <h3 class="font-serif font-extrabold text-[20px] text-fg">নামাজের সময়সূচি</h3>
-        </div>
+      <div class="border border-border rounded-sm overflow-hidden bg-white mt-4">
+        <?php
+          $prayerTimes = [
+            ['name' => 'ফজর', 'time' => '৪:২০ ভো.'],
+            ['name' => 'সূর্যোদয়', 'time' => '৫:৪০ ভো.'],
+            ['name' => 'যোহর', 'time' => '১২:০৫ দু.'],
+            ['name' => 'আসর', 'time' => '৪:৩০ বি.'],
+            ['name' => 'মাগরিব', 'time' => '৬:৩০ স.'],
+            ['name' => 'এশা', 'time' => '৭:৪৫ রা.'],
+          ];
+        ?>
 
-        
-        <div class="bg-[#1d2640] text-white p-3 flex justify-between items-center">
-          <div class="font-serif font-bold">
-            <div class="text-white/80 text-[14px]">২১ জিলকদ ১৪৪৬</div>
-            <div class="text-white text-[14px] mt-0.5">শুক্রবার - ০৮ মে</div>
+        <?php $__currentLoopData = $prayerTimes; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $index => $prayer): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+          <div class="flex justify-between items-center py-3 px-4 border-b border-border last:border-b-0 <?php echo e($index % 2 === 0 ? 'bg-[#f8fafc]' : 'bg-white'); ?>">
+            <div class="flex items-center gap-2">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="w-4 h-4 text-fg-muted">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+              <span class="font-serif font-bold text-[15px] text-fg"><?php echo e($prayer['name']); ?></span>
+            </div>
+            <span class="font-serif font-bold text-[14px] text-[#e2231a] bg-[#fee2e2] px-2.5 py-1 rounded-sm tracking-wide">
+              <?php echo e($prayer['time']); ?>
+
+            </span>
           </div>
-          <div class="flex gap-4 text-center font-serif font-bold">
-            <div>
-              <div class="text-white/80 text-[13px]">সূর্যোদয়</div>
-              <div class="text-white text-[14px] mt-0.5">৫:২০</div>
-            </div>
-            <div>
-              <div class="text-white/80 text-[13px]">সূর্যাস্ত</div>
-              <div class="text-white text-[14px] mt-0.5">৬:৩০</div>
-            </div>
-          </div>
-        </div>
-
-        
-        <div class="p-4 grid grid-cols-[1fr_1.2fr] gap-4 items-center">
-          
-          
-          <div class="text-center border-r border-border pr-4">
-            <div id="upcoming-prayer-name" class="font-serif font-extrabold text-[28px] text-fg leading-none tracking-tight">লোড হচ্ছে...</div>
-            <div class="text-[12px] text-fg-muted mt-2">ওয়াক্তের সময় বাকি</div>
-            <div id="upcoming-prayer-countdown" class="font-serif font-bold text-[16px] text-fg mt-1">-- ঘণ্টা -- মিনিট</div>
-            
-            <div class="mt-4 text-[14px] text-fg-secondary font-bold space-y-1 font-serif">
-              <div>সেহরি শেষ ৩:৫২</div>
-              <div>ইফতার শুরু ৬:৩০</div>
-            </div>
-          </div>
-
-          
-          <div class="space-y-3 font-serif">
-            <div class="flex justify-between items-center text-[15px]">
-              <span class="text-fg-secondary font-bold">ফজর</span>
-              <span class="text-[#e2231a] font-extrabold tracking-wide">৩:৫৮ - <span class="text-fg">৫:১৫</span></span>
-            </div>
-            <div class="flex justify-between items-center text-[15px]">
-              <span class="text-fg-secondary font-bold">জোহর</span>
-              <span class="text-[#e2231a] font-extrabold tracking-wide">১১:৫৫ - <span class="text-fg">৪:২২</span></span>
-            </div>
-            <div class="flex justify-between items-center text-[15px]">
-              <span class="text-fg-secondary font-bold">আছর</span>
-              <span class="text-[#e2231a] font-extrabold tracking-wide">৪:৩২ - <span class="text-fg">৬:২৫</span></span>
-            </div>
-            <div class="flex justify-between items-center text-[15px]">
-              <span class="text-fg-secondary font-bold">মাগরিব</span>
-              <span class="text-[#e2231a] font-extrabold tracking-wide">৬:৩০ - <span class="text-fg">৭:৪৭</span></span>
-            </div>
-            <div class="flex justify-between items-center text-[15px]">
-              <span class="text-fg-secondary font-bold">ইশা</span>
-              <span class="text-[#e2231a] font-extrabold tracking-wide">৭:৫২ - <span class="text-fg">৩:৫৩</span></span>
-            </div>
-          </div>
-
-        </div>
-
-        
-        <div class="py-2.5 text-center border-t border-border">
-          <span class="text-[12px] font-serif text-fg-muted">*স্থানভেদে সময়ের পার্থক্য হতে পারে</span>
-        </div>
+        <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
       </div>
 
     </div>
 
   </div>
 </div>
-
-<script>
-document.addEventListener("DOMContentLoaded", function() {
-    // Prayer times configuration (24-hour format)
-    const times = [
-        { name: 'ফজর', time: '04:20' },
-        { name: 'যোহর', time: '12:05' },
-        { name: 'আসর', time: '16:30' },
-        { name: 'মাগরিব', time: '18:30' },
-        { name: 'এশা', time: '19:45' }
-    ];
-
-    function convertToMinutes(timeStr) {
-        let parts = timeStr.split(':');
-        return parseInt(parts[0]) * 60 + parseInt(parts[1]);
-    }
-
-    function banglaNumber(num) {
-        const banglaDigits = ['০','১','২','৩','৪','৫','৬','৭','৮','৯'];
-        return num.toString().replace(/\d/g, d => banglaDigits[d]);
-    }
-
-    function updateCountdown() {
-        const now = new Date();
-        const currentMinutes = now.getHours() * 60 + now.getMinutes();
-        
-        let upcoming = times[0]; // default to fajr next day
-        let diff = 0;
-        let found = false;
-
-        for (let i = 0; i < times.length; i++) {
-            let pMinutes = convertToMinutes(times[i].time);
-            if (pMinutes > currentMinutes) {
-                upcoming = times[i];
-                diff = pMinutes - currentMinutes;
-                found = true;
-                break;
-            }
-        }
-
-        if (!found) {
-            // Next prayer is Fajr tomorrow
-            let fajrMinutes = convertToMinutes(times[0].time);
-            diff = (24 * 60 - currentMinutes) + fajrMinutes;
-        }
-
-        let hours = Math.floor(diff / 60);
-        let mins = diff % 60;
-
-        const nameEl = document.getElementById('upcoming-prayer-name');
-        const countEl = document.getElementById('upcoming-prayer-countdown');
-        
-        if (nameEl && countEl) {
-            nameEl.innerText = upcoming.name;
-            countEl.innerText = banglaNumber(hours.toString().padStart(2, '0')) + ' ঘণ্টা ' + banglaNumber(mins.toString().padStart(2, '0')) + ' মিনিট';
-        }
-    }
-
-    updateCountdown();
-    setInterval(updateCountdown, 60000); // update every minute
-});
-</script>
 <?php /**PATH D:\websie\dhaka-magazine-laravel\resources\views/components/sports-block.blade.php ENDPATH**/ ?>
