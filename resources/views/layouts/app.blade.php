@@ -20,6 +20,7 @@
 </head>
 <body class="min-h-screen flex flex-col bg-bg text-fg">
 
+    @include('components.dhaka-magazine-scroll.scroll-nav')
     @include('partials.header')
 
     <main class="flex-1 w-full">

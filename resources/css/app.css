@@ -345,6 +345,6 @@ img {
 button {
     cursor: pointer;
     border: none;
-    background: none;
+    /* background: darkgray; */
     font: inherit;
 }
