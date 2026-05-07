@@ -601,7 +601,56 @@
       @endif
     </div>
   </div>
+  <div class="border-t-4 border-border"></div>
 
+  {{-- ══ BOTTOM 4 COLUMNS (ধর্ম, তথ্য-প্রযুক্তি, শিক্ষা, প্রবাস) ══════════════ --}}
+  <div class="w-full max-w-screen-xl mx-auto px-4 py-5">
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 lg:gap-8">
+      
+      @php
+        $bottomCols = [
+          ['name' => 'ধর্ম', 'articles' => $religionArticles ?? []],
+          ['name' => 'তথ্য-প্রযুক্তি', 'articles' => $itArticles ?? []],
+          ['name' => 'শিক্ষা', 'articles' => $educationArticles ?? []],
+          ['name' => 'প্রবাস', 'articles' => $probashArticles ?? []],
+        ];
+      @endphp
+
+      @foreach($bottomCols as $col)
+        <div class="flex flex-col">
+          @if(count($col['articles']) > 0)
+            {{-- Hero Post --}}
+            <a href="{{ route('article.show', $col['articles'][0]['slug']) }}" class="group flex flex-col mb-3">
+              <div class="relative w-full aspect-[16/9] overflow-hidden mb-3">
+                <img src="{{ $col['articles'][0]['image_url'] }}" alt="{{ $col['articles'][0]['title'] }}" loading="lazy" class="w-full h-full object-cover transition-transform duration-300 group-hover:scale-[1.03]" />
+                
+                {{-- Red bottom border & category tag --}}
+                <div class="absolute bottom-0 left-0 right-0 flex items-end">
+                  <span class="bg-[#e2231a] text-white text-[11px] font-bold px-2 py-0.5 z-10">{{ $col['name'] }}</span>
+                  <div class="flex-1 h-[2px] bg-[#e2231a] mb-0.5"></div>
+                </div>
+              </div>
+              <h3 class="font-serif font-extrabold text-[17px] text-fg leading-snug group-hover:text-[#e2231a] transition-colors line-clamp-3">
+                {{ $col['articles'][0]['title'] }}
+              </h3>
+            </a>
+
+            {{-- 3 text items --}}
+            <div class="flex flex-col">
+              @foreach(array_slice($col['articles'], 1, 3) as $a)
+                <a href="{{ route('article.show', $a['slug']) }}" class="group py-3 border-t border-border">
+                  <h3 class="font-serif font-bold text-[15px] text-fg leading-snug group-hover:text-[#e2231a] transition-colors line-clamp-3">
+                    {{ $a['title'] }}
+                  </h3>
+                </a>
+              @endforeach
+            </div>
+          @endif
+        </div>
+      @endforeach
+
+    </div>
+  </div>
   {{-- ── FOOTER AD ────────────────────────────────────────────── --}}
   <div class="w-full max-w-screen-xl mx-auto px-4 pb-4">
     <div class="w-full bg-surface border border-border flex items-center justify-center h-[80px]">
