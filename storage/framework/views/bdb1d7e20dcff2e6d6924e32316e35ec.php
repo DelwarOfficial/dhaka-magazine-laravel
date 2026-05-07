@@ -357,6 +357,54 @@
 
   
   <div class="w-full max-w-screen-xl mx-auto px-4 py-5">
+    <?php if (isset($component)) { $__componentOriginal436399e29d00ce6b8f47e38277d39536 = $component; } ?>
+<?php if (isset($attributes)) { $__attributesOriginal436399e29d00ce6b8f47e38277d39536 = $attributes; } ?>
+<?php $component = Illuminate\View\AnonymousComponent::resolve(['view' => 'components.section-header','data' => ['title' => 'রাজনীতি','moreUrl' => route('category.show', 'রাজনীতি')]] + (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag ? $attributes->all() : [])); ?>
+<?php $component->withName('section-header'); ?>
+<?php if ($component->shouldRender()): ?>
+<?php $__env->startComponent($component->resolveView(), $component->data()); ?>
+<?php if (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag): ?>
+<?php $attributes = $attributes->except(\Illuminate\View\AnonymousComponent::ignoredParameterNames()); ?>
+<?php endif; ?>
+<?php $component->withAttributes(['title' => 'রাজনীতি','moreUrl' => \Illuminate\View\Compilers\BladeCompiler::sanitizeComponentAttribute(route('category.show', 'রাজনীতি'))]); ?>
+<?php echo $__env->renderComponent(); ?>
+<?php endif; ?>
+<?php if (isset($__attributesOriginal436399e29d00ce6b8f47e38277d39536)): ?>
+<?php $attributes = $__attributesOriginal436399e29d00ce6b8f47e38277d39536; ?>
+<?php unset($__attributesOriginal436399e29d00ce6b8f47e38277d39536); ?>
+<?php endif; ?>
+<?php if (isset($__componentOriginal436399e29d00ce6b8f47e38277d39536)): ?>
+<?php $component = $__componentOriginal436399e29d00ce6b8f47e38277d39536; ?>
+<?php unset($__componentOriginal436399e29d00ce6b8f47e38277d39536); ?>
+<?php endif; ?>
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-5 divide-x divide-border">
+      <?php if(isset($opinionArticles)): ?>
+        <?php $__currentLoopData = $opinionArticles; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $i => $a): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+          <a href="<?php echo e(route('article.show', $a['slug'])); ?>"
+            class="group flex flex-col <?php echo e($i === 0 ? 'pr-5' : ($i === 3 ? 'pl-5' : 'px-5')); ?>">
+            <div class="w-full aspect-[16/9] overflow-hidden mb-2">
+              <img src="<?php echo e($a['image_url']); ?>" alt="<?php echo e($a['title']); ?>" loading="lazy"
+                class="w-full h-full object-cover transition-transform duration-300 group-hover:scale-[1.03]" />
+            </div>
+            <?php if(isset($opinionMeta) && isset($opinionMeta[$i])): ?>
+              <span class="text-[#e2231a] font-bold text-[11px] mb-0.5 uppercase tracking-wide"><?php echo e($opinionMeta[$i]['tag']); ?></span>
+              <p class="font-serif font-bold text-[13px] text-fg-secondary mb-1"><?php echo e($opinionMeta[$i]['name']); ?></p>
+            <?php endif; ?>
+            <h3 class="font-serif font-bold text-[15px] text-fg leading-tight group-hover:text-[#e2231a] transition-colors line-clamp-3">
+              <?php echo e($a['title']); ?>
+
+            </h3>
+            <div class="text-[11px] text-fg-muted mt-1"><?php echo e($a['time_ago']); ?></div>
+          </a>
+        <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+      <?php endif; ?>
+    </div>
+  </div>
+
+  <div class="border-t-4 border-border"></div>
+
+  
+  <div class="w-full max-w-screen-xl mx-auto px-4 py-5">
     <div class="flex items-center gap-3 mb-4 border-b border-border pb-2">
       <span class="section-icon"></span>
       <h2 class="font-serif font-extrabold text-[20px] text-fg">আন্তর্জাতিক</h2>
@@ -427,55 +475,7 @@
     </div>
   </div>
 
-  <div class="border-t-4 border-border"></div>
 
-  
-  <div class="w-full max-w-screen-xl mx-auto px-4 py-5">
-    <?php if (isset($component)) { $__componentOriginal436399e29d00ce6b8f47e38277d39536 = $component; } ?>
-<?php if (isset($attributes)) { $__attributesOriginal436399e29d00ce6b8f47e38277d39536 = $attributes; } ?>
-<?php $component = Illuminate\View\AnonymousComponent::resolve(['view' => 'components.section-header','data' => ['title' => 'মতামত','moreUrl' => route('category.show', 'মতামত')]] + (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag ? $attributes->all() : [])); ?>
-<?php $component->withName('section-header'); ?>
-<?php if ($component->shouldRender()): ?>
-<?php $__env->startComponent($component->resolveView(), $component->data()); ?>
-<?php if (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag): ?>
-<?php $attributes = $attributes->except(\Illuminate\View\AnonymousComponent::ignoredParameterNames()); ?>
-<?php endif; ?>
-<?php $component->withAttributes(['title' => 'মতামত','moreUrl' => \Illuminate\View\Compilers\BladeCompiler::sanitizeComponentAttribute(route('category.show', 'মতামত'))]); ?>
-<?php echo $__env->renderComponent(); ?>
-<?php endif; ?>
-<?php if (isset($__attributesOriginal436399e29d00ce6b8f47e38277d39536)): ?>
-<?php $attributes = $__attributesOriginal436399e29d00ce6b8f47e38277d39536; ?>
-<?php unset($__attributesOriginal436399e29d00ce6b8f47e38277d39536); ?>
-<?php endif; ?>
-<?php if (isset($__componentOriginal436399e29d00ce6b8f47e38277d39536)): ?>
-<?php $component = $__componentOriginal436399e29d00ce6b8f47e38277d39536; ?>
-<?php unset($__componentOriginal436399e29d00ce6b8f47e38277d39536); ?>
-<?php endif; ?>
-    <div class="grid grid-cols-2 md:grid-cols-4 gap-5 divide-x divide-border">
-      <?php if(isset($opinionArticles)): ?>
-        <?php $__currentLoopData = $opinionArticles; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $i => $a): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
-          <a href="<?php echo e(route('article.show', $a['slug'])); ?>"
-            class="group flex flex-col <?php echo e($i === 0 ? 'pr-5' : ($i === 3 ? 'pl-5' : 'px-5')); ?>">
-            <div class="w-full aspect-[16/9] overflow-hidden mb-2">
-              <img src="<?php echo e($a['image_url']); ?>" alt="<?php echo e($a['title']); ?>" loading="lazy"
-                class="w-full h-full object-cover transition-transform duration-300 group-hover:scale-[1.03]" />
-            </div>
-            <?php if(isset($opinionMeta) && isset($opinionMeta[$i])): ?>
-              <span class="text-[#e2231a] font-bold text-[11px] mb-0.5 uppercase tracking-wide"><?php echo e($opinionMeta[$i]['tag']); ?></span>
-              <p class="font-serif font-bold text-[13px] text-fg-secondary mb-1"><?php echo e($opinionMeta[$i]['name']); ?></p>
-            <?php endif; ?>
-            <h3 class="font-serif font-bold text-[15px] text-fg leading-tight group-hover:text-[#e2231a] transition-colors line-clamp-3">
-              <?php echo e($a['title']); ?>
-
-            </h3>
-            <div class="text-[11px] text-fg-muted mt-1"><?php echo e($a['time_ago']); ?></div>
-          </a>
-        <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
-      <?php endif; ?>
-    </div>
-  </div>
-
-  <div class="border-t-4 border-border"></div>
 
   
   <?php if (isset($component)) { $__componentOriginal78014fb567bf17a6b82f7d8f6c2e590f = $component; } ?>
@@ -600,7 +600,7 @@
 <?php unset($__componentOriginal436399e29d00ce6b8f47e38277d39536); ?>
 <?php endif; ?>
 
-    <div class="grid grid-cols-1 lg:grid-cols-[1fr_2.2fr_1fr] gap-0 lg:divide-x divide-border bg-surface border border-border">
+    <div class="grid grid-cols-1 lg:grid-cols-[1fr_1.5fr_1fr] gap-0 lg:divide-x divide-border bg-surface border border-border">
 
       
       <div class="flex flex-col p-4 pb-0">
@@ -608,11 +608,14 @@
           <?php $__currentLoopData = $entertainmentLeft; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $a): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
             <a href="<?php echo e(route('article.show', $a['slug'])); ?>"
               class="group flex items-start gap-3 py-4 border-b border-border first:pt-0 last:border-b-0 last:pb-4">
-              <h3 class="font-serif font-bold text-[15px] text-fg leading-snug group-hover:text-[#e2231a] transition-colors line-clamp-4 flex-1">
-                <?php echo e($a['title']); ?>
+              <div class="flex-1 min-w-0">
+                <h3 class="font-serif font-bold text-[15px] text-fg leading-snug group-hover:text-[#e2231a] transition-colors line-clamp-2">
+                  <?php echo e($a['title']); ?>
 
-              </h3>
-              <div class="w-[90px] aspect-square shrink-0 overflow-hidden">
+                </h3>
+                <p class="text-fg-secondary text-[13px] line-clamp-2 mt-1.5 leading-relaxed"><?php echo e($a['excerpt']); ?></p>
+              </div>
+              <div class="w-[90px] aspect-square shrink-0 overflow-hidden rounded-sm">
                 <img src="<?php echo e($a['image_url']); ?>" alt="<?php echo e($a['title']); ?>" loading="lazy"
                   class="w-full h-full object-cover transition-transform duration-300 group-hover:scale-[1.03]" />
               </div>
@@ -625,7 +628,7 @@
       <div class="p-4 flex flex-col">
         <?php if(isset($entertainmentHero)): ?>
           <a href="<?php echo e(route('article.show', $entertainmentHero['slug'])); ?>" class="group flex flex-col">
-            <div class="w-full overflow-hidden mb-4">
+            <div class="w-full overflow-hidden mb-4 rounded-sm">
               <div class="aspect-[16/9] w-full">
                 <img src="<?php echo e($entertainmentHero['image_url']); ?>" alt="<?php echo e($entertainmentHero['title']); ?>" loading="lazy"
                   class="w-full h-full object-cover transition-transform duration-300 group-hover:scale-[1.03]" />
@@ -649,11 +652,14 @@
           <?php $__currentLoopData = $entertainmentRight; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $a): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
             <a href="<?php echo e(route('article.show', $a['slug'])); ?>"
               class="group flex items-start gap-3 py-4 border-b border-border first:pt-0 last:border-b-0 last:pb-4">
-              <h3 class="font-serif font-bold text-[15px] text-fg leading-snug group-hover:text-[#e2231a] transition-colors line-clamp-4 flex-1">
-                <?php echo e($a['title']); ?>
+              <div class="flex-1 min-w-0">
+                <h3 class="font-serif font-bold text-[15px] text-fg leading-snug group-hover:text-[#e2231a] transition-colors line-clamp-2">
+                  <?php echo e($a['title']); ?>
 
-              </h3>
-              <div class="w-[90px] aspect-square shrink-0 overflow-hidden">
+                </h3>
+                <p class="text-fg-secondary text-[13px] line-clamp-2 mt-1.5 leading-relaxed"><?php echo e($a['excerpt']); ?></p>
+              </div>
+              <div class="w-[90px] aspect-square shrink-0 overflow-hidden rounded-sm">
                 <img src="<?php echo e($a['image_url']); ?>" alt="<?php echo e($a['title']); ?>" loading="lazy"
                   class="w-full h-full object-cover transition-transform duration-300 group-hover:scale-[1.03]" />
               </div>

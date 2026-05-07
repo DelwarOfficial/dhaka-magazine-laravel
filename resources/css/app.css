@@ -94,7 +94,9 @@
 }
 
 /* ── Custom utility classes ───────────────────────────────── */
-
+.border-t-4 {
+    border-top-width: 2px !important;
+}
 /* ── Section Title Icon ────────────────────────────────────── */
 .section-icon {
     display: inline-block;

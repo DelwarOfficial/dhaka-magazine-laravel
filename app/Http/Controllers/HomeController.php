@@ -35,7 +35,7 @@ class HomeController extends Controller
         // ══ সারাদেশ → Country ═════════════════════════════════
         $countryLeft  = [$articles[18], $articles[10]];
         $countryHero  = $articles[6];
-        $countryRight = [$articles[4], $articles[15], $articles[19], $articles[8]];
+        $countryRight = [$articles[4], $articles[15], $articles[19], $articles[8], $articles[2], $articles[11]];
 
         // ══ INTERNATIONAL ════════════════════════════════════════
         $internationalBig   = $articles[5];
