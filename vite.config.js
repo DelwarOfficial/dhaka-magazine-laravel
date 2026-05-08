@@ -11,6 +11,12 @@ export default defineConfig({
         tailwindcss(),
     ],
     server: {
+        host: '0.0.0.0',
+        origin: 'http://dhaka-magazine-laravel.test:5173',
+        cors: true,
+        hmr: {
+            host: 'dhaka-magazine-laravel.test',
+        },
         watch: {
             ignored: ['**/storage/framework/views/**'],
         },

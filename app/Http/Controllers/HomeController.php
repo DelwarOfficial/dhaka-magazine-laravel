@@ -59,8 +59,8 @@ class HomeController extends Controller
             ['article' => $articles[13], 'subcat' => 'আজকের খেলা'],
         ];
 
-        // ══ TECH ═════════════════════════════════════════════════
-        $techArticles = [$articles[2], $articles[9], $articles[13], $articles[15]];
+        // ══ POLITICS / রাজনীতি ═════════════════════════════════════════════════
+        $politicsArticles = [$articles[2], $articles[9], $articles[13], $articles[15]];
 
         // ══ VIDEO ════════════════════════════════════════════════
         $videoFeatured = $articles[6];
@@ -111,7 +111,7 @@ class HomeController extends Controller
             'opinionMeta',
             'sportsArticles',
             'sportsSubcatArticles',
-            'techArticles',
+            'politicsArticles',
             'videoFeatured',
             'videoSmall',
             'entertainmentLeft',

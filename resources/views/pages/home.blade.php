@@ -190,6 +190,7 @@
     </div>
   </div>
 
+
   {{-- ── ADVERTISEMENT BANNER ─────────────────────────────────── --}}
   <div class="w-full max-w-screen-xl mx-auto px-4 py-3">
     <div class="w-full bg-surface border border-border flex items-center justify-center h-[90px] rounded-lg">
@@ -385,12 +386,12 @@
 
   <div class="border-t-4 border-border"></div>
 
-  {{-- ══ TECH (প্রযুক্তি) ═════════════════════════════════════ --}}
+  {{-- ══ রাজনীতি ═════════════════════════════════════ --}}
   <div class="w-full max-w-screen-xl mx-auto px-4 py-5">
-    <x-section-header title="প্রযুক্তি" :moreUrl="route('category.show', 'প্রযুক্তি')" />
+    <x-section-header title="রাজনীতি" :moreUrl="route('category.show', 'রাজনীতি')" />
     <div class="grid grid-cols-2 md:grid-cols-4 gap-5">
-      @if(isset($techArticles))
-        @foreach($techArticles as $a)
+      @if(isset($politicsArticles))
+        @foreach($politicsArticles as $a)
           <x-cards.grid :article="$a" :titleSize="15" />
         @endforeach
       @endif
