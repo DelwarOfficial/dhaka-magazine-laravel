@@ -160,7 +160,7 @@ document.addEventListener("DOMContentLoaded", function() {
     ];
 
     function convertToMinutes(timeStr) {
-        let parts = timeStr.split(':');
+        const parts = timeStr.split(':');
         return parseInt(parts[0]) * 60 + parseInt(parts[1]);
     }
 
@@ -172,36 +172,58 @@ document.addEventListener("DOMContentLoaded", function() {
     function updateCountdown() {
         const now = new Date();
         const currentMinutes = now.getHours() * 60 + now.getMinutes();
-        
-        let upcoming = times[0]; // default to fajr next day
-        let diff = 0;
-        let found = false;
 
+        let runningPrayer = null;
+        let diff = 0;
+
+        // Find the currently RUNNING prayer:
+        // The prayer that has already started (currentMinutes >= its time)
+        // and the next prayer has not yet started.
         for (let i = 0; i < times.length; i++) {
-            let pMinutes = convertToMinutes(times[i].time);
-            if (pMinutes > currentMinutes) {
-                upcoming = times[i];
-                diff = pMinutes - currentMinutes;
-                found = true;
-                break;
+            const pMinutes = convertToMinutes(times[i].time);
+
+            if (currentMinutes >= pMinutes) {
+                // This prayer has started. Check if next prayer hasn't started yet.
+                const nextIndex = i + 1;
+                if (nextIndex < times.length) {
+                    const nextPMinutes = convertToMinutes(times[nextIndex].time);
+                    if (currentMinutes < nextPMinutes) {
+                        // ✅ Currently in this prayer's waqt
+                        runningPrayer = times[i];
+                        // সময় হতে বাকি = time until next prayer starts
+                        diff = nextPMinutes - currentMinutes;
+                        break;
+                    }
+                } else {
+                    // After Isha — running Isha, next is Fajr tomorrow
+                    runningPrayer = times[i];
+                    const fajrMinutes = convertToMinutes(times[0].time);
+                    diff = (24 * 60 - currentMinutes) + fajrMinutes;
+                    break;
+                }
             }
         }
 
-        if (!found) {
-            // Next prayer is Fajr tomorrow
-            let fajrMinutes = convertToMinutes(times[0].time);
-            diff = (24 * 60 - currentMinutes) + fajrMinutes;
+        if (!runningPrayer) {
+            // Before Fajr (midnight → Fajr time) — still in Isha from yesterday
+            runningPrayer = times[times.length - 1]; // এশা
+            const fajrMinutes = convertToMinutes(times[0].time);
+            diff = fajrMinutes - currentMinutes;
+            if (diff < 0) diff += 24 * 60;
         }
 
-        let hours = Math.floor(diff / 60);
-        let mins = diff % 60;
+        const hours = Math.floor(diff / 60);
+        const mins  = diff % 60;
 
-        const nameEl = document.getElementById('upcoming-prayer-name');
+        const nameEl  = document.getElementById('upcoming-prayer-name');
         const countEl = document.getElementById('upcoming-prayer-countdown');
-        
+
         if (nameEl && countEl) {
-            nameEl.innerText = upcoming.name;
-            countEl.innerText = banglaNumber(hours.toString().padStart(2, '0')) + ' ঘণ্টা ' + banglaNumber(mins.toString().padStart(2, '0')) + ' মিনিট';
+            nameEl.innerText  = runningPrayer.name;
+            countEl.innerText = banglaNumber(hours.toString().padStart(2, '0'))
+                              + ' ঘণ্টা '
+                              + banglaNumber(mins.toString().padStart(2, '0'))
+                              + ' মিনিট';
         }
     }
 
@@ -209,3 +231,4 @@ document.addEventListener("DOMContentLoaded", function() {
     setInterval(updateCountdown, 60000); // update every minute
 });
 </script>
+
