@@ -296,84 +296,60 @@
   {{-- ══ POLITICS / রাজনীতি ════════════════════════════════════════════ --}}
   <div class="w-full max-w-screen-xl mx-auto px-4 py-5">
 
-    {{-- Section header: title and more link both point to the politics category --}}
-    <div class="flex items-center justify-between gap-3 pb-2 mb-4 border-b border-border">
-      <h2 class="font-serif font-extrabold text-[20px] text-fg leading-none flex items-center gap-3">
-        <span class="section-icon"></span>
-        <a href="/category/bangladesh/politics" class="hover:text-[#e2231a] transition-colors">রাজনীতি</a>
+    <div class="flex items-center gap-3 mb-4 border-b border-border pb-2">
+      <span class="section-icon"></span>
+      <h2 class="font-serif font-extrabold text-[20px] text-fg">
+        <a href="{{ route('category.child', ['bangladesh', 'politics']) }}" class="hover:text-[#e2231a] transition-colors">রাজনীতি</a>
       </h2>
-      <a href="/category/bangladesh/politics" class="text-fg-secondary text-[13px] hover:text-primary transition-colors flex items-center gap-0.5">
-        আরও
-        <span class="text-[15px] leading-none ml-0.5">&rsaquo;</span>
-      </a>
     </div>
 
     @if(isset($opinionArticles) && count($opinionArticles) >= 1)
     @php
       $polFeatured = $opinionArticles[0];
-      $polMiddle   = array_slice($opinionArticles, 1, 2);
-      $polCompact  = array_slice($opinionArticles, 3, 4);
+      $polSmall = array_slice($opinionArticles, 1, 4);
     @endphp
 
-    {{--
-      Mobile  : single column
-      Tablet  : 2 columns with featured left and stacked content right
-      Desktop : 3 columns matching the screenshot
-    --}}
-    <div class="grid grid-cols-1 md:grid-cols-[2.5fr_1fr] lg:grid-cols-[2.5fr_1fr_1.5fr] gap-0">
+    <div class="grid grid-cols-1 md:grid-cols-[2fr_2fr_1fr] gap-0 divide-x divide-border">
 
-      {{-- COL 1: Large featured — big image, title, excerpt --}}
-      <div class="pb-5 border-b border-border md:border-b-0 md:border-r md:pr-5 md:pb-0 lg:border-r lg:pr-5">
-        <a href="{{ route('article.show', $polFeatured['slug']) }}" class="group flex flex-col">
-          <div class="w-full aspect-[3/2] overflow-hidden mb-3">
+      {{-- COL 1: featured politics post with image + title + excerpt --}}
+      <div class="pr-6">
+        <a href="{{ route('article.show', $polFeatured['slug']) }}" class="group block">
+          <div class="w-full aspect-[16/9] overflow-hidden mb-3">
             <img src="{{ $polFeatured['image_url'] }}" alt="{{ $polFeatured['title'] }}" loading="lazy"
               class="w-full h-full object-cover transition-transform duration-300 group-hover:scale-[1.03]" />
           </div>
-          <h3 class="font-serif font-extrabold text-[18px] text-fg leading-snug group-hover:text-[#e2231a] transition-colors line-clamp-2 mb-1.5">
+          <h3 class="font-serif font-extrabold text-[20px] text-fg leading-snug group-hover:text-[#e2231a] transition-colors mb-2 line-clamp-3">
             {{ $polFeatured['title'] }}
           </h3>
-          @if(!empty($polFeatured['excerpt']))
-            <p class="text-fg-secondary text-[13px] leading-relaxed line-clamp-2">
-              {{ $polFeatured['excerpt'] }}
-            </p>
+          <p class="text-fg-secondary text-[13px] leading-relaxed line-clamp-3">{{ $polFeatured['excerpt'] }}</p>
+          @if(!empty($polFeatured['time_ago']))
+            <div class="text-[11px] text-fg-muted mt-2">{{ $polFeatured['time_ago'] }}</div>
           @endif
         </a>
       </div>
 
-      {{-- COL 2 / 3: Right side wrapper — middle cards and compact rows --}}
-      <div class="grid grid-cols-1 gap-0 lg:grid-cols-[1fr_1fr] lg:gap-5 lg:col-span-2">
+      {{-- COL 2: stacked politics post list --}}
+      <div class="px-6 flex flex-col divide-y divide-border">
+        @foreach($polSmall as $a)
+          <a href="{{ route('article.show', $a['slug']) }}"
+            class="group flex items-center justify-between gap-3 py-3 first:pt-0 last:pb-0">
+            <h3 class="font-serif font-extrabold text-[15px] text-fg leading-snug group-hover:text-[#e2231a] transition-colors line-clamp-3 flex-1">
+              {{ $a['title'] }}
+            </h3>
+            <div class="w-[72px] h-[40px] shrink-0 overflow-hidden">
+              <img src="{{ $a['image_url'] }}" alt="{{ $a['title'] }}" loading="lazy"
+                class="w-full h-full object-cover transition-transform duration-300 group-hover:scale-[1.03]" />
+            </div>
+          </a>
+        @endforeach
+      </div>
 
-        {{-- Middle stacked posts — images on top, title below --}}
-        <div class="border-b border-border md:border-b-0 md:px-5 lg:border-r lg:px-5">
-          @foreach($polMiddle as $a)
-            <a href="{{ route('article.show', $a['slug']) }}" class="group flex flex-col py-5 first:pt-0 last:pb-0">
-              <div class="w-full aspect-[4/3] overflow-hidden mb-2">
-                <img src="{{ $a['image_url'] }}" alt="{{ $a['title'] }}" loading="lazy"
-                  class="w-full h-full object-cover transition-transform duration-300 group-hover:scale-[1.03]" />
-              </div>
-              <h3 class="font-serif font-bold text-[14px] text-fg leading-snug group-hover:text-[#e2231a] transition-colors line-clamp-3">
-                {{ $a['title'] }}
-              </h3>
-            </a>
-          @endforeach
+      {{-- COL 3: ad unit placeholder --}}
+      <div class="pl-6 flex flex-col items-center">
+        <div class="ad-container bg-surface border border-border flex flex-col items-center justify-center relative">
+          <span class="text-[#e2231a] text-[11px] font-bold tracking-wide mb-1 absolute top-2 right-2 z-10">বিজ্ঞাপন</span>
+          <img src="{{ asset('images/coming-soon-ad.webp') }}" alt="Advertisement" class="w-full h-full object-cover opacity-50" />
         </div>
-
-        {{-- Compact posts — title left, thumbnail right --}}
-        <div class="pt-5 md:pt-0 md:px-5 lg:pt-0 lg:pl-5 flex flex-col divide-y divide-border">
-          @foreach($polCompact as $a)
-            <a href="{{ route('article.show', $a['slug']) }}"
-              class="group flex items-start gap-3 py-3 first:pt-0 last:pb-0">
-              <h3 class="font-serif font-bold text-[14px] text-fg leading-snug group-hover:text-[#e2231a] transition-colors line-clamp-3 flex-1">
-                {{ $a['title'] }}
-              </h3>
-              <div class="w-[90px] h-[60px] shrink-0 overflow-hidden">
-                <img src="{{ $a['image_url'] }}" alt="{{ $a['title'] }}" loading="lazy"
-                  class="w-full h-full object-cover transition-transform duration-300 group-hover:scale-[1.03]" />
-              </div>
-            </a>
-          @endforeach
-        </div>
-
       </div>
 
     </div>
