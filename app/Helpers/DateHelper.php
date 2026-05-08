@@ -7,7 +7,7 @@ use Carbon\CarbonInterface;
 
 class DateHelper
 {
-    public static function getBengaliDate(?Carbon $date = null): string
+    public static function getBengaliDate(?CarbonInterface $date = null): string
     {
         $date = $date ?? Carbon::now();
         

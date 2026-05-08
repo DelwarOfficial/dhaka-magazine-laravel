@@ -31,7 +31,7 @@ class HomeController extends Controller
         $rightCol   = [$articles[5], $articles[9], $articles[3]];
 
         // ══ BANGLADESH ════════════════════════════════════════════
-        $bangladeshArticles = [$articles[0], $articles[7], $articles[10], $articles[18]];
+        $bangladeshArticles = $this->categoryArticles(['bangladesh', 'national', 'dhaka', 'crime', 'accidents', 'law-justice', 'politics'], 4);
 
         // ══ সারাদেশ → Country ═════════════════════════════════
         $countryLeft  = [$articles[18], $articles[10]];
@@ -39,11 +39,12 @@ class HomeController extends Controller
         $countryRight = [$articles[4], $articles[15], $articles[19], $articles[8], $articles[2], $articles[11]];
 
         // ══ INTERNATIONAL ════════════════════════════════════════
-        $internationalBig   = $articles[5];
-        $internationalSmall = [$articles[17], $articles[2], $articles[3], $articles[7], $articles[1]];
+        $worldArticles = $this->categoryArticles(['world'], 6);
+        $internationalBig = $worldArticles[0] ?? $articles[5];
+        $internationalSmall = array_slice($worldArticles, 1, 5);
 
         // ══ OPINION ══════════════════════════════════════════════
-        $opinionArticles = [$articles[8], $articles[16], $articles[3], $articles[12]];
+        $opinionArticles = $this->categoryArticles(['politics'], 7);
         $opinionMeta = [
             ['name' => 'ড. শফিকুল ইসলাম',    'tag' => 'কলাম'],
             ['name' => 'সৈয়দ আবুল মকসুদ',   'tag' => 'মতামত'],
@@ -52,30 +53,32 @@ class HomeController extends Controller
         ];
 
         // ══ SPORTS ═══════════════════════════════════════════════
-        $sportsArticles = [$articles[1], $articles[11], $articles[4], $articles[13]];
+        $sportsArticles = $this->categoryArticles(['sports', 'football', 'cricket', 'other-sports'], 4);
         $sportsSubcatArticles = [
-            ['article' => $articles[1],  'subcat' => 'ক্রিকেট'],
-            ['article' => $articles[11], 'subcat' => 'অলিম্পিক'],
-            ['article' => $articles[3],  'subcat' => 'ফুটবল'],
-            ['article' => $articles[13], 'subcat' => 'আজকের খেলা'],
+            ['article' => $this->firstCategoryArticle(['cricket'], $sportsArticles[0] ?? $articles[1]), 'subcat' => 'ক্রিকেট'],
+            ['article' => $this->firstCategoryArticle(['other-sports'], $sportsArticles[1] ?? $articles[11]), 'subcat' => 'অন্যান্য খেলা'],
+            ['article' => $this->firstCategoryArticle(['football'], $sportsArticles[2] ?? $articles[3]), 'subcat' => 'ফুটবল'],
+            ['article' => $this->firstCategoryArticle(['sports'], $sportsArticles[3] ?? $articles[13]), 'subcat' => 'আজকের খেলা'],
         ];
 
-        // ══ POLITICS / রাজনীতি ═════════════════════════════════════════════════
-        $politicsArticles = [$articles[2], $articles[9], $articles[13], $articles[15]];
+        // ══ OPINION / মতামত ═════════════════════════════════════════════════
+        $matamatArticles = $this->categoryArticles(['opinion'], 4);
 
         // ══ VIDEO ════════════════════════════════════════════════
-        $videoFeatured = $articles[6];
-        $videoSmall    = [$articles[14], $articles[0], $articles[2], $articles[15]];
+        $videoArticles = $this->categoryArticles(['videos'], 4);
+        $videoFeatured = $videoArticles[0] ?? $articles[6];
+        $videoSmall = array_slice($videoArticles, 1, 3);
 
         // ══ ENTERTAINMENT ════════════════════════════════════════
-        $entertainmentLeft  = [$articles[6], $articles[14], $articles[18]];
-        $entertainmentHero  = $articles[7];
-        $entertainmentRight = [$articles[1], $articles[11], $articles[4]];
+        $entertainmentArticles = $this->categoryArticles(['entertainment'], 7);
+        $entertainmentLeft = array_slice($entertainmentArticles, 0, 3);
+        $entertainmentHero = $entertainmentArticles[3] ?? $articles[7];
+        $entertainmentRight = array_slice($entertainmentArticles, 4, 3);
 
         // ══ ECONOMY + HEALTH + JOBS ═════════════════════════════
-        $economyArticles = [$articles[3], $articles[12], $articles[4], $articles[7]];
-        $healthArticles  = [$articles[4], $articles[15], $articles[1], $articles[8]];
-        $jobArticles     = [$articles[5], $articles[10], $articles[13], $articles[19]];
+        $economyArticles = $this->categoryArticles(['economy', 'stock-market', 'banking-insurance', 'industry', 'agriculture'], 4);
+        $healthArticles = $this->categoryArticles(['lifestyle', 'health', 'beauty', 'recipes'], 4);
+        $jobArticles = $this->categoryArticles(['jobs', 'government-jobs', 'private-jobs'], 4);
 
         // ══ SPECIAL ══════════════════════════════════════════════
         $specialArticles = [$articles[7], $articles[16], $articles[0], $articles[17], $articles[19]];
@@ -90,10 +93,10 @@ class HomeController extends Controller
         $photoNewsPopular  = $photoStoryPayload['popular'];
 
         // ══ BOTTOM 4-COL BLOCK (ধর্ম, রাজধানী, শিক্ষা, প্রবাস) ════
-        $religionArticles  = [$articles[2], $articles[8], $articles[14], $articles[5]];
-        $rajdhaniArticles  = [$articles[9], $articles[12], $articles[19], $articles[1]];
-        $educationArticles = [$articles[11], $articles[3], $articles[15], $articles[7]];
-        $probashArticles   = [$articles[17], $articles[0], $articles[6], $articles[13]];
+        $religionArticles = $this->categoryArticles(['religion'], 4);
+        $rajdhaniArticles = $this->categoryArticles(['dhaka'], 4);
+        $educationArticles = $this->categoryArticles(['education'], 4);
+        $probashArticles = $this->categoryArticles(['expatriates'], 4);
 
         return view('pages.home', compact(
             'breakingStories',
@@ -112,7 +115,7 @@ class HomeController extends Controller
             'opinionMeta',
             'sportsArticles',
             'sportsSubcatArticles',
-            'politicsArticles',
+            'matamatArticles',
             'videoFeatured',
             'videoSmall',
             'entertainmentLeft',
@@ -137,6 +140,16 @@ class HomeController extends Controller
     public function photoStoryData()
     {
         return response()->json($this->buildPhotoStoryPayload(ArticleFeed::homepageArticles($this->sampleArticles())));
+    }
+
+    private function categoryArticles(array $slugs, int $limit): array
+    {
+        return ArticleFeed::categoryArticles($slugs, $this->sampleArticles(), $limit);
+    }
+
+    private function firstCategoryArticle(array $slugs, array $fallback): array
+    {
+        return $this->categoryArticles($slugs, 1)[0] ?? $fallback;
     }
 
     public function fallbackArticles(): array

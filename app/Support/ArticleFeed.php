@@ -23,14 +23,7 @@ class ArticleFeed
 
     public static function categoryArticles(array $categorySlugs, array $fallbackArticles, int $limit = 30): array
     {
-        $posts = self::publicPosts()
-            ->filter(function (Post $post) use ($categorySlugs) {
-                $assignment = PostCategoryResolver::assignmentFor($post);
-
-                return in_array($assignment['subcategory_slug'] ?: $assignment['category_slug'], $categorySlugs, true)
-                    || in_array($assignment['category_slug'], $categorySlugs, true);
-            })
-            ->take($limit)
+        $posts = self::categoryPosts($categorySlugs, $limit)
             ->map(fn(Post $post) => self::toArticleArray($post));
 
         return $posts
@@ -85,6 +78,32 @@ class ArticleFeed
         }
     }
 
+    private static function categoryPosts(array $categorySlugs, int $limit): Collection
+    {
+        if (!self::postsTableReady()) {
+            return collect();
+        }
+
+        try {
+            return Post::query()
+                ->with(['category.parent', 'subcategory.parent'])
+                ->whereIn('status', self::publicStatuses())
+                ->where(function ($query) use ($categorySlugs) {
+                    $query
+                        ->whereIn('category_slug', $categorySlugs)
+                        ->orWhereIn('subcategory_slug', $categorySlugs)
+                        ->orWhereHas('category', fn ($categoryQuery) => $categoryQuery->whereIn('slug', $categorySlugs))
+                        ->orWhereHas('subcategory', fn ($categoryQuery) => $categoryQuery->whereIn('slug', $categorySlugs));
+                })
+                ->latest('published_at')
+                ->latest('id')
+                ->take($limit)
+                ->get();
+        } catch (\Throwable) {
+            return collect();
+        }
+    }
+
     private static function postsTableReady(): bool
     {
         try {
@@ -104,6 +123,8 @@ class ArticleFeed
         $category = PostCategoryResolver::categoryFor($post);
         $categoryRoute = PostCategoryResolver::categoryRoute($category);
 
+        $publishedAt = $post->published_at ?: $post->created_at;
+
         $article = [
             'id' => $post->id,
             'slug' => $post->slug,
@@ -113,8 +134,8 @@ class ArticleFeed
             'category_url' => $categoryRoute,
             'excerpt' => $post->excerpt,
             'author' => $post->source_name ?: 'ঢাকা ম্যাগাজিন ডেস্ক',
-            'date' => optional($post->published_at ?: $post->created_at)->format('d M, Y'),
-            'time_ago' => DateHelper::timeAgo($post->published_at ?: $post->created_at),
+            'date' => DateHelper::getBengaliDate($publishedAt),
+            'time_ago' => DateHelper::timeAgo($publishedAt),
             'image_url' => self::imageUrl($post->featured_image),
             'tags' => [],
         ];

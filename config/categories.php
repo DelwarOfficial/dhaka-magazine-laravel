@@ -29,6 +29,14 @@ return [
             ],
         ],
         ['name_bn' => 'আন্তর্জাতিক', 'name_en' => 'World', 'slug' => 'world', 'meta_description' => 'বিশ্ব রাজনীতি, সংঘাত, কূটনীতি, অর্থনীতি ও আন্তর্জাতিক ঘটনাপ্রবাহের গুরুত্বপূর্ণ খবর নির্ভরযোগ্যভাবে পড়ুন Dhaka Magazine-এ।', 'children' => []],
+        [
+            'name_bn' => 'সারাদেশ',
+            'name_en' => 'Country News',
+            'slug' => 'country-news',
+            'meta_title' => 'সারাদেশ সংবাদ | Dhaka Magazine',
+            'meta_description' => 'দেশের বিভিন্ন জেলা ও অঞ্চলের সর্বশেষ খবর, ঘটনা, জনজীবন ও স্থানীয় আপডেট পড়ুন Dhaka Magazine-এ।',
+            'children' => [],
+        ],
         ['name_bn' => 'বিনোদন', 'name_en' => 'Entertainment', 'slug' => 'entertainment', 'meta_description' => 'সিনেমা, নাটক, গান, তারকা, ওটিটি ও সংস্কৃতি অঙ্গনের নতুন খবর ও আলোচিত ঘটনা পড়ুন Dhaka Magazine বিনোদনে।', 'children' => []],
         [
             'name_bn' => 'খেলাধুলা',
@@ -63,6 +71,14 @@ return [
             ],
         ],
         ['name_bn' => 'ভিডিও', 'name_en' => 'Videos', 'slug' => 'videos', 'meta_description' => 'দেশ-বিদেশ, বিনোদন, খেলাধুলা ও বিশেষ ঘটনার নির্বাচিত ভিডিও সংবাদ ও প্রতিবেদন দেখুন Dhaka Magazine ভিডিও বিভাগে।', 'children' => []],
+        [
+            'name_bn' => 'বিশেষ',
+            'name_en' => 'Special',
+            'slug' => 'dhaka-magazine-special',
+            'meta_title' => 'বিশেষ প্রতিবেদন | Dhaka Magazine',
+            'meta_description' => 'গুরুত্বপূর্ণ ঘটনা, বিশেষ প্রতিবেদন, বিশ্লেষণ ও অনুসন্ধানধর্মী সংবাদ পড়ুন Dhaka Magazine-এ।',
+            'children' => [],
+        ],
         [
             'name_bn' => 'অন্যান্য',
             'name_en' => 'Others News',
@@ -109,5 +125,8 @@ return [
         'মতামত' => 'others-news/opinion',
         'প্রবাস' => 'others-news/expatriates',
         'country' => 'bangladesh',
+        'সারাদেশ' => 'country-news',
+        'বিশেষ' => 'dhaka-magazine-special',
+        'বিশেষ-প্রতিবেদন' => 'dhaka-magazine-special',
     ],
 ];

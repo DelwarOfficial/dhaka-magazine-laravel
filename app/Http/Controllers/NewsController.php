@@ -75,7 +75,7 @@ class NewsController extends Controller
             'category_url' => PostCategoryResolver::categoryRoute($category),
             'excerpt' => Str::limit(strip_tags((string) ($post->excerpt ?: $post->body)), 170),
             'author' => $post->source_name ?: 'ঢাকা ম্যাগাজিন ডেস্ক',
-            'date' => optional($publishedAt)->format('d M, Y'),
+            'date' => DateHelper::getBengaliDate($publishedAt),
             'time_ago' => DateHelper::timeAgo($publishedAt),
             'image_url' => $this->imageUrl($post->featured_image),
             'views' => $this->viewCount($post),
