@@ -1,7 +1,7 @@
 @props(['videoFeatured' => null, 'videoSmall' => []])
 
 <div class="w-full max-w-screen-xl mx-auto px-4 py-5">
-  <x-section-header title="ভিডিও" :moreUrl="route('category.show', 'বিনোদন')" />
+  <x-section-header title="ভিডিও" :moreUrl="route('category.parent', 'videos')" />
   
   <div class="grid grid-cols-1 lg:grid-cols-[1.5fr_1fr] gap-6 lg:gap-8">
     

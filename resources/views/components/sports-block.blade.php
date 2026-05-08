@@ -5,7 +5,7 @@
 
     {{-- PRIMARY COLUMN: Sports Component --}}
     <div class="lg:pr-4">
-      <x-section-header title="খেলা" :moreUrl="route('category.show', 'খেলা')" />
+      <x-section-header title="খেলা" :moreUrl="route('category.parent', 'sports')" />
       
       <div class="grid grid-cols-1 md:grid-cols-2 gap-6 lg:gap-8 mt-4">
         {{-- Left: Hero Sports --}}
@@ -231,4 +231,3 @@ document.addEventListener("DOMContentLoaded", function() {
     setInterval(updateCountdown, 60000); // update every minute
 });
 </script>
-

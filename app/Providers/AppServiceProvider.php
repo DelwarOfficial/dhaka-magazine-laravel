@@ -4,6 +4,7 @@ namespace App\Providers;
 
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Facades\View;
+use App\Support\CategoryRepository;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -51,6 +52,7 @@ class AppServiceProvider extends ServiceProvider
             ];
 
             $view->with('tickerHeadlines', $headlines);
+            $view->with('siteCategories', CategoryRepository::parents());
         });
     }
 }

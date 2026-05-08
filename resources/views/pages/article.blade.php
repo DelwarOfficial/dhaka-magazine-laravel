@@ -13,7 +13,7 @@
 
         {{-- Category Breadcrumb --}}
         <div class="mb-4">
-          <a href="{{ route('category.show', $article['category']) }}"
+          <a href="{{ route('category.parent', 'bangladesh') }}"
              class="text-[14px] font-bold text-[#e2231a] hover:underline font-serif">
             {{ $article['category'] }}
           </a>
@@ -106,7 +106,7 @@
         @if(!empty($relatedArticles))
           <section class="border-t-2 border-[#111] pt-5 mb-8">
             <div class="flex items-center gap-2 mb-4">
-              <a href="{{ route('category.show', $article['category']) }}" class="text-[#e2231a] text-[14px] font-bold hover:underline">
+              <a href="{{ route('category.parent', 'bangladesh') }}" class="text-[#e2231a] text-[14px] font-bold hover:underline">
                 {{ $article['category'] }}
               </a>
               <span class="text-[14px] text-fg-secondary">থেকে আরও পড়ুন</span>

@@ -209,7 +209,7 @@
 
   {{-- 2. BANGLADESH ════════════════════════════════════════════ --}}
   <div class="w-full max-w-screen-xl mx-auto px-4 py-5">
-    <x-section-header title="বাংলাদেশ" :moreUrl="route('category.show', 'জাতীয়')" />
+    <x-section-header title="বাংলাদেশ" :moreUrl="route('category.parent', 'bangladesh')" />
     <div class="grid grid-cols-2 md:grid-cols-4 gap-5">
       @if(isset($bangladeshArticles))
         @foreach($bangladeshArticles as $a)
@@ -228,7 +228,7 @@
         <span class="section-icon"></span>
         <h2 class="font-serif font-extrabold text-[20px] text-[#e2231a] leading-none">সারাদেশ</h2>
       </div>
-      <a href="{{ route('category.show', 'country') }}" class="text-fg-secondary text-[13px] hover:text-[#e2231a] transition-colors flex items-center gap-0.5">
+      <a href="{{ route('category.parent', 'bangladesh') }}" class="text-fg-secondary text-[13px] hover:text-[#e2231a] transition-colors flex items-center gap-0.5">
         আরও <span class="text-[15px] leading-none ml-0.5">&rsaquo;</span>
       </a>
     </div>
@@ -295,7 +295,7 @@
 
   {{-- ══ OPINION / POLITICS (রাজনীতি) ═════════════════════════════════════ --}}
   <div class="w-full max-w-screen-xl mx-auto px-4 py-5">
-    <x-section-header title="রাজনীতি" :moreUrl="route('category.show', 'রাজনীতি')" />
+    <x-section-header title="রাজনীতি" :moreUrl="route('category.child', ['bangladesh', 'politics'])" />
     <div class="grid grid-cols-2 md:grid-cols-4 gap-5 divide-x divide-border">
       @if(isset($opinionArticles))
         @foreach($opinionArticles as $i => $a)
@@ -388,7 +388,7 @@
 
   {{-- ══ রাজনীতি ═════════════════════════════════════ --}}
   <div class="w-full max-w-screen-xl mx-auto px-4 py-5">
-    <x-section-header title="রাজনীতি" :moreUrl="route('category.show', 'রাজনীতি')" />
+    <x-section-header title="রাজনীতি" :moreUrl="route('category.child', ['bangladesh', 'politics'])" />
     <div class="grid grid-cols-2 md:grid-cols-4 gap-5">
       @if(isset($politicsArticles))
         @foreach($politicsArticles as $a)
@@ -410,7 +410,7 @@
 
   {{-- ══ ENTERTAINMENT (বিনোদন) ═══════════════════════════════ --}}
   <div class="w-full max-w-screen-xl mx-auto px-4 py-5">
-    <x-section-header title="বিনোদন" :moreUrl="route('category.show', 'বিনোদন')" />
+    <x-section-header title="বিনোদন" :moreUrl="route('category.parent', 'entertainment')" />
 
     <div class="grid grid-cols-1 lg:grid-cols-[1fr_1.5fr_1fr] gap-0 lg:divide-x divide-border bg-surface border border-border">
 
@@ -487,7 +487,7 @@
       
       {{-- Column 1: Economy --}}
       <div class="lg:pr-6">
-        <x-section-header title="অর্থনীতি" :moreUrl="route('category.show', 'অর্থনীতি')" />
+        <x-section-header title="অর্থনীতি" :moreUrl="route('category.parent', 'economy')" />
         @if(isset($economyArticles))
           @foreach($economyArticles as $a)
             <a href="{{ route('article.show', $a['slug']) }}"
@@ -511,7 +511,7 @@
 
       {{-- Column 2: Lifestyle --}}
       <div class="lg:px-6">
-        <x-section-header title="লাইফস্টাইল" :moreUrl="route('category.show', 'লাইফস্টাইল')" />
+        <x-section-header title="লাইফস্টাইল" :moreUrl="route('category.parent', 'lifestyle')" />
         @if(isset($healthArticles))
           @foreach($healthArticles as $a)
             <a href="{{ route('article.show', $a['slug']) }}"
@@ -535,7 +535,7 @@
 
       {{-- Column 3: Jobs --}}
       <div class="lg:pl-6 md:col-span-2 lg:col-span-1 mt-2 md:mt-0">
-        <x-section-header title="চাকরি" :moreUrl="route('category.show', 'চাকরি')" />
+        <x-section-header title="চাকরি" :moreUrl="route('category.parent', 'jobs')" />
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-1 gap-0 md:gap-6 lg:gap-0">
           @if(isset($jobArticles))
             @foreach($jobArticles as $a)

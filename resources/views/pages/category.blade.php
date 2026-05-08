@@ -1,9 +1,25 @@
 @extends('layouts.app')
 
-@section('title', $categoryName . ' - ঢাকা ম্যাগাজিন')
+@section('title', $metaTitle ?? ($categoryName . ' সংবাদ | Dhaka Magazine'))
+@section('meta_description', $metaDescription ?? '')
 
 @section('content')
   <main class="flex-1 container mx-auto px-4 py-8">
+
+    @if(!empty($breadcrumbs))
+      <nav class="mb-4 text-[13px] text-fg-secondary" aria-label="Breadcrumb">
+        @foreach($breadcrumbs as $index => $crumb)
+          @if($index > 0)
+            <span class="mx-2">/</span>
+          @endif
+          @if($index < count($breadcrumbs) - 1)
+            <a href="{{ $crumb['url'] }}" class="hover:text-[#e2231a] transition-colors">{{ $crumb['title'] }}</a>
+          @else
+            <span class="text-fg">{{ $crumb['title'] }}</span>
+          @endif
+        @endforeach
+      </nav>
+    @endif
 
     <div class="mb-8 border-b-2 border-border pb-2 inline-block">
       <h1 class="text-[32px] md:text-[40px] font-serif font-bold text-fg">
@@ -36,7 +52,7 @@
                     </p>
                   @endif
                   <div class="text-[12px] text-gray-500 mt-auto">
-                    {{ $featured['author'] ?? '' }}{{ $featured['author'] ? ' • ' : '' }}{{ $featured['date'] ?? '' }}
+                    {{ $featured['author'] ?? '' }}{{ !empty($featured['author']) ? ' • ' : '' }}{{ $featured['date'] ?? '' }}
                   </div>
                 </div>
               </a>
@@ -85,7 +101,7 @@
           </div>
         @else
           <div class="text-center py-16 bg-surface border border-border">
-            <h3 class="text-[20px] font-serif text-gray-500">এই বিভাগে এখনো কোনো সংবাদ প্রকাশিত হয়নি।</h3>
+            <h3 class="text-[20px] font-serif text-gray-500">এই বিভাগে এখনো কোনো সংবাদ প্রকাশিত হয়নি।</h3>
           </div>
         @endif
 

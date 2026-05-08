@@ -3,10 +3,23 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>@yield('title', 'ঢাকা ম্যাগাজিন')</title>
-    <meta name="description" content="@yield('meta_description', 'ঢাকা ম্যাগাজিন - বাংলাদেশের নির্ভরযোগ্য অনলাইন নিউজ পোর্টাল')">
+    @php
+        $pageTitle = trim($__env->yieldContent('title', $metaTitle ?? 'ঢাকা ম্যাগাজিন'));
+        $pageDescription = trim($__env->yieldContent('meta_description', $metaDescription ?? 'ঢাকা ম্যাগাজিন - বাংলাদেশের নির্ভরযোগ্য অনলাইন নিউজ পোর্টাল'));
+        $pageCanonical = $canonicalUrl ?? url()->current();
+    @endphp
+    <title>{{ $pageTitle }}</title>
+    <meta name="description" content="{{ $pageDescription }}">
+    <link rel="canonical" href="{{ $pageCanonical }}">
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="{{ $pageTitle }}">
+    <meta property="og:description" content="{{ $pageDescription }}">
+    <meta property="og:url" content="{{ $pageCanonical }}">
+    <meta property="og:site_name" content="Dhaka Magazine">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="{{ $pageTitle }}">
+    <meta name="twitter:description" content="{{ $pageDescription }}">
     <script>
-        // Prevent flash of wrong theme
         (function() {
             const theme = localStorage.getItem('theme');
             if (theme === 'dark' || (!theme && window.matchMedia('(prefers-color-scheme: dark)').matches)) {

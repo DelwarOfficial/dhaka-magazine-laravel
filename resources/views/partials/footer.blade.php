@@ -25,9 +25,9 @@
       <div>
         <h3 class="text-[14px] font-bold mb-4 text-white uppercase">বিভাগসমূহ</h3>
         <ul class="grid grid-cols-2 gap-y-2 gap-x-4 text-fg-muted text-sm">
-          @if(isset($categories))
-            @foreach($categories as $cat)
-              <li><a href="{{ route('category.show', $cat) }}" class="hover:text-white transition-colors">{{ $cat }}</a></li>
+          @if(isset($siteCategories))
+            @foreach($siteCategories as $cat)
+              <li><a href="{{ \App\Support\CategoryRepository::route($cat) }}" class="hover:text-white transition-colors">{{ $cat['name_bn'] }}</a></li>
             @endforeach
           @endif
         </ul>
