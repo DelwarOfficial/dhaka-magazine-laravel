@@ -3,6 +3,7 @@
 namespace App\Helpers;
 
 use Carbon\Carbon;
+use Carbon\CarbonInterface;
 
 class DateHelper
 {
@@ -48,7 +49,35 @@ class DateHelper
         return $bengaliDay . ', ' . $day . ' ' . $bengaliMonth . ' ' . $year;
     }
 
-    private static function convertToBengali(string $number): string
+    public static function timeAgo(CarbonInterface|string|null $date): string
+    {
+        if (!$date) {
+            return '';
+        }
+
+        $date = $date instanceof CarbonInterface ? $date : Carbon::parse($date);
+        $seconds = abs($date->diffInSeconds(now()));
+
+        if ($seconds < 10) {
+            return 'এইমাত্র';
+        }
+
+        [$value, $unit] = match (true) {
+            $seconds >= 31536000 => [floor($seconds / 31536000), 'বছর'],
+            $seconds >= 2592000 => [floor($seconds / 2592000), 'মাস'],
+            $seconds >= 604800 => [floor($seconds / 604800), 'সপ্তাহ'],
+            $seconds >= 86400 => [floor($seconds / 86400), 'দিন'],
+            $seconds >= 3600 => [floor($seconds / 3600), 'ঘণ্টা'],
+            $seconds >= 60 => [floor($seconds / 60), 'মিনিট'],
+            default => [$seconds, 'সেকেন্ড'],
+        };
+
+        $suffix = $date->isFuture() ? 'পর' : 'আগে';
+
+        return self::convertToBengali((string) $value) . " {$unit} {$suffix}";
+    }
+
+    public static function convertToBengali(string $number): string
     {
         $eng = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'];
         $ben = ['০', '১', '২', '৩', '৪', '৫', '৬', '৭', '৮', '৯'];

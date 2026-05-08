@@ -2,9 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Helpers\DateHelper;
 use App\Models\Post;
 use App\Support\ArticleFeed;
-use App\Support\CategoryRepository;
+use App\Support\PostCategoryResolver;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Str;
@@ -64,19 +65,18 @@ class NewsController extends Controller
 
     private function toNewsItem(Post $post): array
     {
-        $category = CategoryRepository::flat()->firstWhere('slug', $post->subcategory_slug ?: $post->category_slug)
-            ?: CategoryRepository::flat()->firstWhere('slug', $post->category_slug);
+        $category = PostCategoryResolver::categoryFor($post);
         $publishedAt = $post->published_at ?: $post->created_at;
 
         return [
             'slug' => $post->slug,
             'title' => $post->title,
-            'category' => $category['name_bn'] ?? $post->subcategory_slug ?? $post->category_slug,
-            'category_url' => $category ? CategoryRepository::route($category) : null,
+            'category' => $category['name_bn'] ?? PostCategoryResolver::fallbackCategory()['name_bn'],
+            'category_url' => PostCategoryResolver::categoryRoute($category),
             'excerpt' => Str::limit(strip_tags((string) ($post->excerpt ?: $post->body)), 170),
             'author' => $post->source_name ?: 'ঢাকা ম্যাগাজিন ডেস্ক',
             'date' => optional($publishedAt)->format('d M, Y'),
-            'time_ago' => optional($publishedAt)->diffForHumans(),
+            'time_ago' => DateHelper::timeAgo($publishedAt),
             'image_url' => $this->imageUrl($post->featured_image),
             'views' => $this->viewCount($post),
         ];
@@ -90,6 +90,14 @@ class NewsController extends Controller
 
         if (Str::startsWith($path, ['http://', 'https://', '//'])) {
             return $path;
+        }
+
+        if (Str::startsWith($path, ['/images/', 'images/'])) {
+            return asset(ltrim($path, '/'));
+        }
+
+        if (! Str::contains($path, '/') && file_exists(public_path("images/{$path}"))) {
+            return asset("images/{$path}");
         }
 
         return asset('storage/' . ltrim($path, '/'));
@@ -108,8 +116,8 @@ class NewsController extends Controller
 
     private function availableRelations(): array
     {
-        return collect(['category', 'author'])
-            ->filter(fn (string $relation) => method_exists(Post::class, $relation))
+        return collect(['category.parent', 'subcategory.parent', 'author'])
+            ->filter(fn (string $relation) => method_exists(Post::class, explode('.', $relation)[0]))
             ->values()
             ->all();
     }

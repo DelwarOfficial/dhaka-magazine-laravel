@@ -2,6 +2,7 @@
 
 namespace App\Support;
 
+use App\Helpers\DateHelper;
 use App\Models\Post;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Schema;
@@ -23,8 +24,12 @@ class ArticleFeed
     public static function categoryArticles(array $categorySlugs, array $fallbackArticles, int $limit = 30): array
     {
         $posts = self::publicPosts()
-            ->filter(fn(Post $post) => in_array($post->subcategory_slug ?: $post->category_slug, $categorySlugs, true)
-                || in_array($post->category_slug, $categorySlugs, true))
+            ->filter(function (Post $post) use ($categorySlugs) {
+                $assignment = PostCategoryResolver::assignmentFor($post);
+
+                return in_array($assignment['subcategory_slug'] ?: $assignment['category_slug'], $categorySlugs, true)
+                    || in_array($assignment['category_slug'], $categorySlugs, true);
+            })
             ->take($limit)
             ->map(fn(Post $post) => self::toArticleArray($post));
 
@@ -69,6 +74,7 @@ class ArticleFeed
 
         try {
             return Post::query()
+                ->with(['category.parent', 'subcategory.parent'])
                 ->whereIn('status', self::publicStatuses())
                 ->latest('published_at')
                 ->latest('id')
@@ -95,20 +101,21 @@ class ArticleFeed
 
     private static function toArticleArray(Post $post, bool $includeBody = false): array
     {
-        $category = CategoryRepository::flat()->firstWhere('slug', $post->subcategory_slug ?: $post->category_slug)
-            ?: CategoryRepository::flat()->firstWhere('slug', $post->category_slug);
+        $category = PostCategoryResolver::categoryFor($post);
+        $categoryRoute = PostCategoryResolver::categoryRoute($category);
 
         $article = [
             'id' => $post->id,
             'slug' => $post->slug,
             'title' => $post->title,
-            'category' => $category['name_bn'] ?? $post->subcategory_slug ?? $post->category_slug,
-            'category_slug' => $post->subcategory_slug ?: $post->category_slug,
+            'category' => $category['name_bn'] ?? PostCategoryResolver::fallbackCategory()['name_bn'],
+            'category_slug' => $category['slug'] ?? PostCategoryResolver::FALLBACK_SLUG,
+            'category_url' => $categoryRoute,
             'excerpt' => $post->excerpt,
             'author' => $post->source_name ?: 'ঢাকা ম্যাগাজিন ডেস্ক',
             'date' => optional($post->published_at ?: $post->created_at)->format('d M, Y'),
-            'time_ago' => optional($post->published_at ?: $post->created_at)->diffForHumans(),
-            'image_url' => $post->featured_image ? asset('storage/' . $post->featured_image) : asset('images/news-1.jpg'),
+            'time_ago' => DateHelper::timeAgo($post->published_at ?: $post->created_at),
+            'image_url' => self::imageUrl($post->featured_image),
             'tags' => [],
         ];
 
@@ -124,5 +131,24 @@ class ArticleFeed
         }
 
         return $article;
+    }
+
+    private static function imageUrl(?string $path): string
+    {
+        if (! $path) {
+            return asset('images/news-1.jpg');
+        }
+
+        if (Str::startsWith($path, ['http://', 'https://', '//', '/images/', 'images/'])) {
+            return Str::startsWith($path, ['http://', 'https://', '//'])
+                ? $path
+                : asset(ltrim($path, '/'));
+        }
+
+        if (! Str::contains($path, '/') && file_exists(public_path("images/{$path}"))) {
+            return asset("images/{$path}");
+        }
+
+        return asset('storage/' . ltrim($path, '/'));
     }
 }
