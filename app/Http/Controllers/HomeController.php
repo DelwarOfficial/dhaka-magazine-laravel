@@ -160,6 +160,7 @@ class HomeController extends Controller
                 'slug' => $article['slug'],
                 'timestamp' => $article['time_ago'],
                 'image_url' => asset('images/' . $filename),
+                'tags' => [],
             ];
         })->all();
 
@@ -200,6 +201,7 @@ class HomeController extends Controller
                 'excerpt' => 'যানজটের নগরী ঢাকায় স্বস্তির এক নতুন দ্বার উন্মোচিত হলো। আজ সকালে মেট্রোরেলের নতুন রুটের উদ্বোধন করা হয়েছে।',
                 'author' => 'নিজস্ব প্রতিবেদক', 'date' => '১২ মে, ২০২৪', 'time_ago' => '৩০ মিনিট আগে',
                 'image_url' => $img(1),
+                'tags' => [],
             ],
             [
                 'id' => 2, 'slug' => 'cricket-world-cup-win',
@@ -208,6 +210,7 @@ class HomeController extends Controller
                 'excerpt' => 'টানটান উত্তেজনার এক ম্যাচে প্রতিপক্ষকে বড় ব্যবধানে হারিয়েছে বাংলাদেশ ক্রিকেট দল।',
                 'author' => 'ক্রীড়া প্রতিবেদক', 'date' => '১১ মে, ২০২৪', 'time_ago' => '১ ঘণ্টা আগে',
                 'image_url' => $img(2),
+                'tags' => [],
             ],
             [
                 'id' => 3, 'slug' => 'ai-new-development',
@@ -216,6 +219,7 @@ class HomeController extends Controller
                 'excerpt' => 'সম্প্রতি এক নতুন এআই মডেল উন্মোচন করা হয়েছে যা মানুষের মতো চিন্তা করতে সক্ষম বলে দাবি করা হচ্ছে।',
                 'author' => 'প্রযুক্তি ডেস্ক', 'date' => '১০ মে, ২০২৪', 'time_ago' => '২ ঘণ্টা আগে',
                 'image_url' => $img(3),
+                'tags' => [],
             ],
             [
                 'id' => 4, 'slug' => 'economic-growth-report',
@@ -224,6 +228,7 @@ class HomeController extends Controller
                 'excerpt' => 'চলতি অর্থবছরে দেশের অর্থনৈতিক প্রবৃদ্ধি সকল রেকর্ড ছাড়িয়ে গেছে। রপ্তানি আয়েও দেখা গেছে বড় লাফ।',
                 'author' => 'বাণিজ্য প্রতিবেদক', 'date' => '০৯ মে, ২০২৪', 'time_ago' => '৩ ঘণ্টা আগে',
                 'image_url' => $img(4),
+                'tags' => [],
             ],
             [
                 'id' => 5, 'slug' => 'new-hospital-dhaka',
@@ -232,6 +237,7 @@ class HomeController extends Controller
                 'excerpt' => 'সর্বাধুনিক চিকিৎসাসুবিধা নিয়ে ঢাকায় যাত্রা শুরু করলো এক নতুন হাসপাতাল।',
                 'author' => 'স্বাস্থ্য প্রতিবেদক', 'date' => '০৮ মে, ২০২৪', 'time_ago' => '৪ ঘণ্টা আগে',
                 'image_url' => $img(5),
+                'tags' => [],
             ],
             [
                 'id' => 6, 'slug' => 'international-climate-summit',
@@ -240,6 +246,7 @@ class HomeController extends Controller
                 'excerpt' => 'বৈশ্বিক উষ্ণতা রোধে এখনই কার্যকর পদক্ষেপ না নিলে ভয়াবহ পরিণতির সতর্কবার্তা দিয়েছেন বিশ্ব নেতারা।',
                 'author' => 'আন্তর্জাতিক ডেস্ক', 'date' => '০৭ মে, ২০২৪', 'time_ago' => '৫ ঘণ্টা আগে',
                 'image_url' => $img(6),
+                'tags' => [],
             ],
             [
                 'id' => 7, 'slug' => 'new-movie-release',
@@ -248,6 +255,7 @@ class HomeController extends Controller
                 'excerpt' => 'দীর্ঘদিন ধরে আলোচনায় থাকা সিনেমা \'স্বপ্নযাত্রা\' অবশেষে এই ঈদে প্রেক্ষাগৃহে আসছে।',
                 'author' => 'বিনোদন ডেস্ক', 'date' => '০৬ মে, ২০২৪', 'time_ago' => '৬ ঘণ্টা আগে',
                 'image_url' => $img(7),
+                'tags' => [],
             ],
             [
                 'id' => 8, 'slug' => 'student-protest-update',
@@ -256,6 +264,7 @@ class HomeController extends Controller
                 'excerpt' => 'নিরাপদ সড়কের দাবিতে শিক্ষার্থীদের আন্দোলন আজ তৃতীয় দিনে গড়িয়েছে।',
                 'author' => 'নিজস্ব প্রতিবেদক', 'date' => '০৫ মে, ২০২৪', 'time_ago' => '৭ ঘণ্টা আগে',
                 'image_url' => $img(8),
+                'tags' => [],
             ],
             [
                 'id' => 9, 'slug' => 'opinion-education-system',
@@ -264,6 +273,7 @@ class HomeController extends Controller
                 'excerpt' => 'বর্তমান শিক্ষা ব্যবস্থা কি যুগের চাহিদার সাথে তাল মেলাতে পারছে? এই নিয়ে বিস্তারিত আলোচনা।',
                 'author' => 'ড. শফিকুল ইসলাম', 'date' => '০৪ মে, ২০২৪', 'time_ago' => '৮ ঘণ্টা আগে',
                 'image_url' => $img(1),
+                'tags' => [],
             ],
             [
                 'id' => 10, 'slug' => 'tech-startup-funding',
@@ -272,6 +282,7 @@ class HomeController extends Controller
                 'excerpt' => 'বাংলাদেশের এক তরুণ স্টার্টআপ কোম্পানি বিদেশি বিনিয়োগকারীদের কাছ থেকে বিশাল অঙ্কের তহবিল সংগ্রহ করেছে।',
                 'author' => 'প্রযুক্তি প্রতিবেদক', 'date' => '০৩ মে, ২০২৪', 'time_ago' => '৯ ঘণ্টা আগে',
                 'image_url' => $img(3),
+                'tags' => [],
             ],
             [
                 'id' => 11, 'slug' => 'agricultural-innovation',
@@ -280,6 +291,7 @@ class HomeController extends Controller
                 'excerpt' => 'আধুনিক কৃষি যন্ত্রপাতি ব্যবহারের ফলে উৎপাদন বেড়েছে বহুগুণ, যার ফলে কৃষকরা আর্থিকভাবে লাভবান হচ্ছেন।',
                 'author' => 'কৃষি প্রতিবেদক', 'date' => '০২ মে, ২০২৪', 'time_ago' => '১০ ঘণ্টা আগে',
                 'image_url' => $img(4),
+                'tags' => [],
             ],
             [
                 'id' => 12, 'slug' => 'olympic-preparation',
@@ -288,6 +300,7 @@ class HomeController extends Controller
                 'excerpt' => 'আগামী অলিম্পিক গেমসে ভালো ফলাফল করার লক্ষ্যে এখন থেকেই প্রস্তুতি শুরু করেছে অ্যাথলেটরা।',
                 'author' => 'ক্রীড়া ডেস্ক', 'date' => '০১ মে, ২০২৪', 'time_ago' => '১১ ঘণ্টা আগে',
                 'image_url' => $img(2),
+                'tags' => [],
             ],
             [
                 'id' => 13, 'slug' => 'global-market-crisis',
@@ -296,6 +309,7 @@ class HomeController extends Controller
                 'excerpt' => 'বিশ্ববাজারে জ্বালানি তেল এবং নিত্যপ্রয়োজনীয় পণ্যের দাম বৃদ্ধিতে দেশের অর্থনীতিতে নেতিবাচক প্রভাব পড়ছে।',
                 'author' => 'অর্থনীতি ডেস্ক', 'date' => '৩০ এপ্রিল, ২০২৪', 'time_ago' => '১২ ঘণ্টা আগে',
                 'image_url' => $img(4),
+                'tags' => [],
             ],
             [
                 'id' => 14, 'slug' => 'new-smart-phone-launch',
@@ -304,6 +318,7 @@ class HomeController extends Controller
                 'excerpt' => 'অত্যাধুনিক সব ফিচার নিয়ে বাজারে এসেছে নতুন একটি ফ্লাগশিপ স্মার্টফোন, যা প্রযুক্তিপ্রেমীদের মাঝে ব্যাপক আগ্রহ তৈরি করেছে।',
                 'author' => 'গ্যাজেট রিভিউয়ার', 'date' => '২৯ এপ্রিল, ২০২৪', 'time_ago' => '১৩ ঘণ্টা আগে',
                 'image_url' => $img(3),
+                'tags' => [],
             ],
             [
                 'id' => 15, 'slug' => 'music-concert-dhaka',
@@ -312,6 +327,7 @@ class HomeController extends Controller
                 'excerpt' => 'দেশি-বিদেশি জনপ্রিয় শিল্পীদের অংশগ্রহণে ঢাকায় একটি বিশাল কনসার্ট অনুষ্ঠিত হয়েছে, যেখানে তরুণদের উপচে পড়া ভিড় ছিল।',
                 'author' => 'কালচারাল ডেস্ক', 'date' => '২৮ এপ্রিল, ২০২৪', 'time_ago' => '১ দিন আগে',
                 'image_url' => $img(7),
+                'tags' => [],
             ],
             [
                 'id' => 16, 'slug' => 'health-tips-summer',
@@ -320,6 +336,7 @@ class HomeController extends Controller
                 'excerpt' => 'প্রচণ্ড গরমে সুস্থ থাকতে চিকিৎসকদের কিছু জরুরি পরামর্শ মেনে চলা প্রয়োজন।',
                 'author' => 'স্বাস্থ্য পরামর্শক', 'date' => '২৭ এপ্রিল, ২০২৪', 'time_ago' => '১ দিন আগে',
                 'image_url' => $img(5),
+                'tags' => [],
             ],
             [
                 'id' => 17, 'slug' => 'opinion-traffic-jam',
@@ -328,6 +345,7 @@ class HomeController extends Controller
                 'excerpt' => 'রাজধানীর অন্যতম প্রধান সমস্যা যানজট। এর সমাধানে কী কী পদক্ষেপ নেওয়া যেতে পারে, তা নিয়ে বিশেষজ্ঞদের মতামত।',
                 'author' => 'সৈয়দ আবুল মকসুদ', 'date' => '২৬ এপ্রিল, ২০২৪', 'time_ago' => '২ দিন আগে',
                 'image_url' => $img(1),
+                'tags' => [],
             ],
             [
                 'id' => 18, 'slug' => 'international-peace-treaty',
@@ -336,6 +354,7 @@ class HomeController extends Controller
                 'excerpt' => 'অবশেষে দুই প্রতিবেশী দেশের মধ্যে দীর্ঘদিনের সীমান্ত সংঘাতের অবসান ঘটিয়ে একটি ঐতিহাসিক শান্তি চুক্তি স্বাক্ষরিত হয়েছে।',
                 'author' => 'আন্তর্জাতিক সম্পর্ক বিশ্লেষক', 'date' => '২৫ এপ্রিল, ২০২৪', 'time_ago' => '২ দিন আগে',
                 'image_url' => $img(6),
+                'tags' => [],
             ],
             [
                 'id' => 19, 'slug' => 'national-award-ceremony',
@@ -344,6 +363,7 @@ class HomeController extends Controller
                 'excerpt' => 'চলচ্চিত্র শিল্পে বিশেষ অবদানের স্বীকৃতিস্বরূপ আজ প্রধানমন্ত্রী বিজয়ীদের হাতে জাতীয় চলচ্চিত্র পুরস্কার তুলে দিয়েছেন।',
                 'author' => 'সংস্কৃতি বিষয়ক প্রতিবেদক', 'date' => '২৪ এপ্রিল, ২০২৪', 'time_ago' => '৩ দিন আগে',
                 'image_url' => $img(7),
+                'tags' => [],
             ],
             [
                 'id' => 20, 'slug' => 'new-bridge-inauguration',
@@ -352,6 +372,7 @@ class HomeController extends Controller
                 'excerpt' => 'যোগাযোগ ব্যবস্থায় নতুন মাইলফলক। দক্ষিণাঞ্চলের মানুষের দীর্ঘদিনের স্বপ্নের নতুন সেতু আজ উন্মুক্ত করা হলো।',
                 'author' => 'উন্নয়ন প্রতিবেদক', 'date' => '২৩ এপ্রিল, ২০২৪', 'time_ago' => '৩ দিন আগে',
                 'image_url' => $img(1),
+                'tags' => [],
             ],
         ];
     }

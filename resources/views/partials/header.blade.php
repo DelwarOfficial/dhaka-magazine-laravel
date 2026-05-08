@@ -61,18 +61,7 @@
           </div>
         </div>
 
-        {{-- রাজনীতি with Dropdown --}}
-        <div class="nav-dropdown">
-          <a href="{{ route('category.show', 'রাজনীতি') }}" class="nav-item flex items-center gap-1">
-            রাজনীতি
-            <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
-          </a>
-          <div class="nav-dropdown-menu">
-            <a href="{{ route('category.show', 'আওয়ামী-লীগ') }}" class="nav-dropdown-item">আওয়ামী লীগ</a>
-            <a href="{{ route('category.show', 'বিএনপি') }}" class="nav-dropdown-item">বিএনপি</a>
-            <a href="{{ route('category.show', 'জাতীয়-পার্টি') }}" class="nav-dropdown-item">জাতীয় পার্টি</a>
-          </div>
-        </div>
+        <a href="{{ route('category.show', 'রাজনীতি') }}" class="nav-item">রাজনীতি</a>
 
         {{-- অর্থনীতি with Dropdown --}}
         <div class="nav-dropdown">
@@ -90,19 +79,7 @@
 
         <a href="{{ route('category.show', 'বিশ্ব') }}" class="nav-item">আন্তর্জাতিক</a>
 
-        {{-- বিনোদন with Dropdown --}}
-        <div class="nav-dropdown">
-          <a href="{{ route('category.show', 'বিনোদন') }}" class="nav-item flex items-center gap-1">
-            বিনোদন
-            <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
-          </a>
-          <div class="nav-dropdown-menu">
-            <a href="{{ route('category.show', 'ঢালিউড') }}" class="nav-dropdown-item">ঢালিউড</a>
-            <a href="{{ route('category.show', 'বলিউড') }}" class="nav-dropdown-item">বলিউড</a>
-            <a href="{{ route('category.show', 'হলিউড') }}" class="nav-dropdown-item">হলিউড</a>
-            <a href="{{ route('category.show', 'টলিউড') }}" class="nav-dropdown-item">টলিউড</a>
-          </div>
-        </div>
+        <a href="{{ route('category.show', 'বিনোদন') }}" class="nav-item">বিনোদন</a>
 
         {{-- খেলাধুলা with Dropdown --}}
         <div class="nav-dropdown">
@@ -126,7 +103,6 @@
           <div class="nav-dropdown-menu">
             <a href="{{ route('category.show', 'সরকারি-চাকরি') }}" class="nav-dropdown-item">সরকারি</a>
             <a href="{{ route('category.show', 'বেসরকারি-চাকরি') }}" class="nav-dropdown-item">বেসরকারি</a>
-            <a href="{{ route('category.show', 'ব্যাংক-চাকরি') }}" class="nav-dropdown-item">ব্যাংক</a>
           </div>
         </div>
 

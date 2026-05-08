@@ -134,15 +134,23 @@
         @endif
 
         {{-- Topic Tags --}}
-        <div class="flex flex-wrap items-center gap-2 pt-4 border-t border-border">
-          <span class="text-[13px] font-bold text-fg mr-1">বিষয়:</span>
-          <span class="bg-surface px-3 py-1 text-[13px] text-fg-secondary rounded-sm hover:bg-surface transition-colors cursor-pointer">
-            {{ $article['category'] }}
-          </span>
-          <span class="bg-surface px-3 py-1 text-[13px] text-fg-secondary rounded-sm hover:bg-surface transition-colors cursor-pointer">
-            বাংলাদেশ
-          </span>
-        </div>
+        @if(!empty($article['tags']))
+          <div class="flex flex-wrap items-center gap-2 pt-4 border-t border-border">
+            <span class="text-[13px] font-bold text-fg mr-1">ট্যাগ:</span>
+            @foreach($article['tags'] as $tag)
+              <span class="bg-surface px-3 py-1 text-[13px] text-fg-secondary rounded-sm hover:bg-surface transition-colors cursor-pointer">
+                {{ $tag }}
+              </span>
+            @endforeach
+          </div>
+        @else
+          <div class="flex flex-wrap items-center gap-2 pt-4 border-t border-border">
+            <span class="text-[13px] font-bold text-fg mr-1">বিষয়:</span>
+            <span class="bg-surface px-3 py-1 text-[13px] text-fg-secondary rounded-sm hover:bg-surface transition-colors cursor-pointer">
+              {{ $article['category'] }}
+            </span>
+          </div>
+        @endif
 
       </article>
 
