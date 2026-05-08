@@ -149,6 +149,67 @@ div[class*="overflow-hidden"] > img {
     border-radius: 10px; /* To match the premium soft UI */
 }
 
+.ad-slot {
+    width: 100%;
+    max-width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    overflow: hidden;
+}
+
+.ad-slot__label {
+    color: var(--color-fg-muted);
+    font-size: 11px;
+    font-weight: 700;
+    line-height: 1;
+}
+
+.ad-slot__box {
+    width: min(100%, var(--ad-desktop-width));
+    min-height: var(--ad-desktop-height);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    border: 1px solid var(--color-border);
+    border-radius: 8px;
+    background:
+        repeating-linear-gradient(
+            -45deg,
+            color-mix(in srgb, var(--color-surface) 92%, transparent),
+            color-mix(in srgb, var(--color-surface) 92%, transparent) 10px,
+            color-mix(in srgb, var(--color-surface-alt) 92%, transparent) 10px,
+            color-mix(in srgb, var(--color-surface-alt) 92%, transparent) 20px
+        );
+}
+
+.ad-slot__box img,
+.ad-slot__link {
+    width: 100%;
+    height: 100%;
+    display: block;
+}
+
+.ad-slot__box img {
+    object-fit: cover;
+}
+
+.ad-slot__placeholder {
+    color: var(--color-fg-muted);
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0;
+}
+
+@media (max-width: 767px) {
+    .ad-slot__box {
+        width: min(100%, var(--ad-mobile-width));
+        min-height: var(--ad-mobile-height);
+    }
+}
+
 /* ── Section Title Icon ────────────────────────────────────── */
 .section-icon {
     display: inline-block;
@@ -239,6 +300,12 @@ a:hover h2, a:hover h3, a:hover h4, a:hover h5, a:hover h6 {
 .nav-item:hover {
     color: #e2231a;
     background: rgba(255,255,255,0.1);
+}
+
+.nav-item.is-active {
+    color: #ffffff;
+    background: rgba(226, 35, 26, 0.95);
+    border-bottom-color: #ffffff;
 }
 
 .nav-item svg {
@@ -425,6 +492,11 @@ button {
 }
 
 .mobile-scroll-nav-item:hover,
-.mobile-scroll-nav-item:active {
+.mobile-scroll-nav-item:active,
+.mobile-scroll-nav-item.is-active {
+    color: #e2231a;
+}
+
+.mobile-nav-item.is-active {
     color: #e2231a;
 }

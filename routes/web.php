@@ -4,8 +4,10 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\ArticleController;
+use App\Http\Controllers\NewsController;
 
 Route::get('/', [HomeController::class, 'index'])->name('home');
+Route::get('/latest', [NewsController::class, 'latest'])->name('news.latest');
 Route::get('/api/photo-story', [HomeController::class, 'photoStoryData'])->name('photo-story.data');
 Route::get('/category/{parentSlug}', [CategoryController::class, 'showParent'])->name('category.parent');
 Route::get('/category/{parentSlug}/{childSlug}', [CategoryController::class, 'showChild'])->name('category.child');

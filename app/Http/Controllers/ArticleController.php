@@ -3,20 +3,15 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use App\Support\ArticleFeed;
 
 class ArticleController extends Controller
 {
-    public function show($slug)
+    public function show(string $slug)
     {
-        $articles = $this->sampleArticles();
-
-        $article = null;
-        foreach ($articles as $a) {
-            if ($a['slug'] === $slug) {
-                $article = $a;
-                break;
-            }
-        }
+        $fallbackArticles = $this->sampleArticles();
+        $articles = ArticleFeed::allForRelated($fallbackArticles);
+        $article = ArticleFeed::findArticle($slug, $fallbackArticles);
 
         if (!$article) {
             abort(404);

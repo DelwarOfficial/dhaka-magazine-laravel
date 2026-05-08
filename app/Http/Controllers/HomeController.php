@@ -4,12 +4,13 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\File;
+use App\Support\ArticleFeed;
 
 class HomeController extends Controller
 {
     public function index()
     {
-        $articles = $this->sampleArticles();
+        $articles = ArticleFeed::homepageArticles($this->sampleArticles());
 
         // Breaking stories (header)
         $breakingStories = [
@@ -135,7 +136,12 @@ class HomeController extends Controller
 
     public function photoStoryData()
     {
-        return response()->json($this->buildPhotoStoryPayload($this->sampleArticles()));
+        return response()->json($this->buildPhotoStoryPayload(ArticleFeed::homepageArticles($this->sampleArticles())));
+    }
+
+    public function fallbackArticles(): array
+    {
+        return $this->sampleArticles();
     }
 
     private function buildPhotoStoryPayload(array $articles): array

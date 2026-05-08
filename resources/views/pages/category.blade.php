@@ -4,8 +4,7 @@
 @section('meta_description', $metaDescription ?? '')
 
 @section('content')
-  <main class="flex-1 container mx-auto px-4 py-8">
-
+  <main class="w-full max-w-screen-xl mx-auto px-4 py-5 md:py-6">
     @if(!empty($breadcrumbs))
       <nav class="mb-4 text-[13px] text-fg-secondary" aria-label="Breadcrumb">
         @foreach($breadcrumbs as $index => $crumb)
@@ -21,96 +20,56 @@
       </nav>
     @endif
 
-    <div class="mb-8 border-b-2 border-border pb-2 inline-block">
-      <h1 class="text-[32px] md:text-[40px] font-serif font-bold text-fg">
+    <header class="mb-6 border-b border-border pb-4 md:mb-8">
+      <p class="mb-1 text-[13px] font-bold text-[#e2231a]">বিভাগ</p>
+      <h1 class="font-serif text-[30px] font-extrabold leading-tight text-fg md:text-[42px]">
         {{ $categoryName }}
       </h1>
-    </div>
+    </header>
 
-    <div class="grid grid-cols-1 lg:grid-cols-12 gap-10">
+    <x-ads.ad-slot name="category-top" size="970x90" class="mb-6 md:mb-8" />
 
-      <div class="lg:col-span-8">
-
+    <div class="grid grid-cols-1 gap-8 lg:grid-cols-12 lg:gap-8">
+      <section class="min-w-0 lg:col-span-8">
         @if(count($categoryArticles) > 0)
-          <div class="space-y-8">
+          @php
+            $heroArticle = $categoryArticles[0];
+            $gridArticles = array_slice($categoryArticles, 1);
+          @endphp
 
-            <div class="border-b border-border pb-8">
-              @php $featured = $categoryArticles[0]; @endphp
-              <a href="{{ route('article.show', $featured['slug']) }}" class="group flex flex-col sm:flex-row space-y-3 sm:space-y-0 sm:space-x-4">
-                <div class="w-full sm:w-[35%] aspect-[16/9] shrink-0 overflow-hidden">
-                  <img src="{{ $featured['image_url'] }}" alt="{{ $featured['title'] }}" loading="lazy"
-                       class="w-full h-full object-cover transition-transform duration-400 ease-out group-hover:scale-[1.03]">
-                </div>
-                <div class="flex-1 flex flex-col justify-start">
-                  <span class="text-[#e2231a] font-bold text-[12px] uppercase mb-1 block">{{ $featured['category'] }}</span>
-                  <h3 class="font-serif font-bold text-[20px] md:text-[24px] text-fg leading-tight group-hover:text-[#e2231a] transition-colors mb-2">
-                    {{ $featured['title'] }}
-                  </h3>
-                  @if(!empty($featured['excerpt']))
-                    <p class="text-fg-secondary line-clamp-2 text-[14px] mb-2 leading-relaxed">
-                      {{ $featured['excerpt'] }}
-                    </p>
-                  @endif
-                  <div class="text-[12px] text-gray-500 mt-auto">
-                    {{ $featured['author'] ?? '' }}{{ !empty($featured['author']) ? ' • ' : '' }}{{ $featured['date'] ?? '' }}
-                  </div>
-                </div>
-              </a>
-            </div>
+          <x-news.hero-card :article="$heroArticle" />
 
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
-              @foreach(array_slice($categoryArticles, 1) as $idx => $article)
-                <div class="{{ $idx < count(array_slice($categoryArticles, 1)) - 3 ? 'border-b border-border pb-6' : '' }}">
-                  <a href="{{ route('article.show', $article['slug']) }}" class="group flex flex-col">
-                    <div class="w-full aspect-[16/9] overflow-hidden relative mb-3">
-                      <img src="{{ $article['image_url'] }}" alt="{{ $article['title'] }}" loading="lazy"
-                           class="w-full h-full object-cover transition-transform duration-400 ease-out group-hover:scale-[1.03]">
-                      <div class="absolute bottom-0 left-0 bg-[#e2231a] text-white text-[11px] font-bold px-2 py-[2px] uppercase">
-                        {{ $article['category'] }}
-                      </div>
-                    </div>
-                    <div>
-                      <h3 class="font-serif font-bold text-[18px] text-fg leading-snug group-hover:text-[#e2231a] transition-colors mb-2 line-clamp-2">
-                        {{ $article['title'] }}
-                      </h3>
-                      @if(!empty($article['excerpt']))
-                        <p class="text-fg-secondary line-clamp-2 text-[14px] mb-2 leading-relaxed">
-                          {{ $article['excerpt'] }}
-                        </p>
-                      @endif
-                      <div class="text-[12px] text-gray-500 mt-1">{{ $article['date'] ?? '' }}</div>
-                    </div>
-                  </a>
-                </div>
+          @if(count($gridArticles) > 0)
+            <div class="mt-6 grid min-w-0 grid-cols-1 gap-5 md:grid-cols-2 xl:grid-cols-3">
+              @foreach($gridArticles as $article)
+                <x-news.news-card :article="$article" />
+                @if($loop->iteration % 6 === 0 && ! $loop->last)
+                  <x-ads.ad-slot name="category-in-feed" size="336x280" class="md:col-span-2 xl:col-span-3" />
+                @endif
               @endforeach
             </div>
-
-            @if(count($categoryArticles) === 1)
-              <div class="text-center text-gray-500 py-10 bg-surface mt-8 text-[15px]">
-                এই বিভাগে আর কোনো সংবাদ নেই
-              </div>
-            @endif
-
-            @if(count($categoryArticles) > 3)
-              <div class="mt-10 text-center border-t border-border pt-8">
-                <button class="bg-white border border-border text-fg font-bold py-2 px-6 hover:bg-[#111] hover:text-white transition-colors uppercase text-[14px]">
-                  আরও সংবাদ
-                </button>
-              </div>
-            @endif
-          </div>
+          @else
+            <div class="mt-6 bg-surface px-4 py-10 text-center text-[15px] text-fg-secondary">
+              এই বিভাগে আর কোনো সংবাদ নেই।
+            </div>
+          @endif
         @else
-          <div class="text-center py-16 bg-surface border border-border">
-            <h3 class="text-[20px] font-serif text-gray-500">এই বিভাগে এখনো কোনো সংবাদ প্রকাশিত হয়নি।</h3>
+          <div class="bg-surface border border-border px-4 py-14 text-center">
+            <h2 class="text-[20px] font-bold text-fg">এই বিভাগে এখনো কোনো সংবাদ প্রকাশিত হয়নি।</h2>
           </div>
         @endif
 
-      </div>
+        <x-ads.ad-slot name="category-bottom" size="728x90" class="mt-8" />
+      </section>
 
-      <div class="lg:col-span-4">
-        @include('partials.sidebar', ['popularNews' => $popularNews ?? []])
-      </div>
-
+      <aside class="min-w-0 lg:col-span-4">
+        <div class="space-y-6 lg:sticky lg:top-20">
+          <x-widgets.most-read :articles="$popularNews ?? []" />
+          <x-ads.ad-slot name="sidebar-rectangle-1" size="300x250" />
+          <x-ads.ad-slot name="sidebar-half-page" size="300x600" />
+          <x-ads.ad-slot name="sidebar-rectangle-2" size="300x250" />
+        </div>
+      </aside>
     </div>
   </main>
 @endsection

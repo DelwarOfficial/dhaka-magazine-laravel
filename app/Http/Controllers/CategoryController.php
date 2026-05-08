@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Support\CategoryRepository;
+use App\Support\ArticleFeed;
 
 class CategoryController extends Controller
 {
@@ -14,13 +15,13 @@ class CategoryController extends Controller
 
         $category = CategoryRepository::findParent($parentSlug);
 
-        abort_unless($category, 404);
+        abort_unless($category !== null, 404);
 
         $categorySlugs = collect($category['children'])->pluck('slug')->push($category['slug'])->all();
 
         return $this->renderCategory(
             $category,
-            collect($this->sampleArticles())->whereIn('category_slug', $categorySlugs)->values()->all(),
+            ArticleFeed::categoryArticles($categorySlugs, $this->sampleArticles()),
             [
                 ['title' => 'হোম', 'url' => route('home')],
                 ['title' => $category['name_bn'], 'url' => CategoryRepository::route($category)],
@@ -37,7 +38,7 @@ class CategoryController extends Controller
 
         return $this->renderCategory(
             $category,
-            collect($this->sampleArticles())->where('category_slug', $category['slug'])->values()->all(),
+            ArticleFeed::categoryArticles([$category['slug']], $this->sampleArticles()),
             [
                 ['title' => 'হোম', 'url' => route('home')],
                 ['title' => $parent['name_bn'], 'url' => CategoryRepository::route($parent)],
@@ -61,11 +62,12 @@ class CategoryController extends Controller
 
     private function renderCategory(array $category, array $categoryArticles, array $breadcrumbs)
     {
-        $popularNews = array_slice($this->sampleArticles(), 0, 5);
+        $popularNews = array_slice(ArticleFeed::homepageArticles($this->sampleArticles()), 0, 5);
         $categoryName = $category['name_bn'];
         $metaTitle = $category['meta_title'];
         $metaDescription = $category['meta_description'];
         $canonicalUrl = CategoryRepository::route($category);
+        $pageImage = $categoryArticles[0]['image_url'] ?? asset('images/dhaka-magazine-color-logo.svg');
 
         return view('pages.category', compact(
             'category',
@@ -75,7 +77,8 @@ class CategoryController extends Controller
             'breadcrumbs',
             'metaTitle',
             'metaDescription',
-            'canonicalUrl'
+            'canonicalUrl',
+            'pageImage'
         ));
     }
 

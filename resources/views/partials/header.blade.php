@@ -30,7 +30,7 @@
             <img src="{{ asset('images/dhaka-magazine-white-logo.svg') }}" class="h-0 transition-all duration-300" alt="Dhaka Magazine">
           </a>
 
-          <a href="{{ route('home') }}" class="nav-item">সর্বশেষ</a>
+          <a href="{{ route('news.latest') }}" class="nav-item {{ request()->routeIs('news.latest') ? 'is-active' : '' }}">সর্বশেষ</a>
 
           @foreach(($siteCategories ?? collect()) as $cat)
             @if(!empty($cat['children']))
@@ -74,7 +74,7 @@
 
         <div class="mobile-nav-scroll-wrapper flex-1" style="overflow-x:auto;overflow-y:hidden;-webkit-overflow-scrolling:touch;scrollbar-width:none;">
           <div style="display:flex;align-items:center;gap:0;white-space:nowrap;padding-bottom:0px;">
-            <a href="{{ route('home') }}" class="mobile-scroll-nav-item">সর্বশেষ</a>
+            <a href="{{ route('news.latest') }}" class="mobile-scroll-nav-item {{ request()->routeIs('news.latest') ? 'is-active' : '' }}">সর্বশেষ</a>
             @foreach(($siteCategories ?? collect()) as $cat)
               <a href="{{ \App\Support\CategoryRepository::route($cat) }}" class="mobile-scroll-nav-item">{{ $cat['name_bn'] }}</a>
             @endforeach
@@ -95,7 +95,7 @@
         <input type="text" placeholder="খুঁজুন..." class="w-full px-4 py-2 border border-border rounded-lg bg-bg text-fg">
       </div>
 
-      <a href="{{ route('home') }}" class="mobile-nav-item">সর্বশেষ</a>
+      <a href="{{ route('news.latest') }}" class="mobile-nav-item {{ request()->routeIs('news.latest') ? 'is-active' : '' }}">সর্বশেষ</a>
 
       @foreach(($siteCategories ?? collect()) as $cat)
         @if(!empty($cat['children']))
