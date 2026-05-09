@@ -614,7 +614,7 @@
 
   {{-- ══ ঢাকা ম্যাগাজিন স্পেশাল ════════════════════════════ --}}
   <div class="w-full max-w-screen-xl mx-auto px-4 py-5">
-    <x-section-header title="ঢাকা ম্যাগাজিন স্পেশাল" :moreUrl="route('home')" />
+    <x-section-header title="ঢাকা ম্যাগাজিন স্পেশাল" :moreUrl="route('category.parent', 'dhaka-magazine-special')" />
 
     <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-0 divide-x divide-border">
       @if(isset($specialArticles))

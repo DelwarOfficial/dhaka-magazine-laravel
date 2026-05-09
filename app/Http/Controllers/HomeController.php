@@ -82,7 +82,7 @@ class HomeController extends Controller
         $jobArticles = $this->categoryArticles(['jobs', 'government-jobs', 'private-jobs'], 4);
 
         // ══ SPECIAL ══════════════════════════════════════════════
-        $specialArticles = [$articles[7], $articles[16], $articles[0], $articles[17], $articles[19]];
+        $specialArticles = $this->categoryArticles(['dhaka-magazine-special'], 5);
 
         // ══ POPULAR NEWS (sidebar) ═══════════════════════════════
         $popularNews = array_slice($articles, 5, 5);
