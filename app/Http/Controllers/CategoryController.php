@@ -4,10 +4,12 @@ namespace App\Http\Controllers;
 
 use App\Support\CategoryRepository;
 use App\Support\ArticleFeed;
+use App\Models\District;
+use Illuminate\Http\Request;
 
 class CategoryController extends Controller
 {
-    public function showParent(string $parentSlug)
+    public function showParent(Request $request, string $parentSlug)
     {
         if ($target = CategoryRepository::redirectTarget($parentSlug)) {
             return redirect('/category/' . $target, 301);
@@ -18,18 +20,39 @@ class CategoryController extends Controller
         abort_unless($category !== null, 404);
 
         $categorySlugs = collect($category['children'])->pluck('slug')->push($category['slug'])->all();
+        
+        $division = null;
+        $district = null;
+        $upazila = null;
+        $divisions = [];
+        
+        if ($parentSlug === 'country-news') {
+            $division = $request->input('division', '');
+            $district = $request->input('district', '');
+            $upazila = $request->input('upazila', '');
+            
+            try {
+                $divisions = District::allDivisions();
+            } catch (\Throwable) {
+                // Ignore
+            }
+        }
 
         return $this->renderCategory(
             $category,
-            ArticleFeed::categoryArticles($categorySlugs, $this->sampleArticles()),
+            ArticleFeed::categoryArticles($categorySlugs, $this->sampleArticles(), 30, $division, $district, $upazila),
             [
                 ['title' => 'হোম', 'url' => route('home')],
                 ['title' => $category['name_bn'], 'url' => CategoryRepository::route($category)],
-            ]
+            ],
+            $division,
+            $district,
+            $upazila,
+            $divisions
         );
     }
 
-    public function showChild(string $parentSlug, string $childSlug)
+    public function showChild(Request $request, string $parentSlug, string $childSlug)
     {
         $parent = CategoryRepository::findParent($parentSlug);
         $category = CategoryRepository::findChild($parentSlug, $childSlug);
@@ -60,12 +83,26 @@ class CategoryController extends Controller
             ->header('Content-Type', 'application/xml');
     }
 
-    private function renderCategory(array $category, array $categoryArticles, array $breadcrumbs)
+    private function renderCategory(array $category, array $categoryArticles, array $breadcrumbs, ?string $division = null, ?string $district = null, ?string $upazila = null, array $divisions = [])
     {
         $popularNews = array_slice(ArticleFeed::homepageArticles($this->sampleArticles()), 0, 5);
         $categoryName = $category['name_bn'];
-        $metaTitle = $category['meta_title'];
-        $metaDescription = $category['meta_description'];
+        
+        // Build meta title/description if location filtered
+        if ($upazila) {
+            $metaTitle = "{$upazila}-এর সর্বশেষ সংবাদ | Dhaka Magazine";
+            $metaDescription = "বাংলাদেশের {$upazila} উপজেলার সর্বশেষ খবর পড়ুন Dhaka Magazine-এ।";
+        } elseif ($district) {
+            $metaTitle = "{$district} জেলার সর্বশেষ সংবাদ | Dhaka Magazine";
+            $metaDescription = "বাংলাদেশের {$district} জেলার সর্বশেষ খবর পড়ুন Dhaka Magazine-এ।";
+        } elseif ($division) {
+            $metaTitle = "{$division} বিভাগের সর্বশেষ সংবাদ | Dhaka Magazine";
+            $metaDescription = "বাংলাদেশের {$division} বিভাগের সর্বশেষ খবর পড়ুন Dhaka Magazine-এ।";
+        } else {
+            $metaTitle = $category['meta_title'];
+            $metaDescription = $category['meta_description'];
+        }
+        
         $canonicalUrl = CategoryRepository::route($category);
         $pageImage = $categoryArticles[0]['image_url'] ?? asset('images/dhaka-magazine-color-logo.svg');
 
@@ -78,7 +115,11 @@ class CategoryController extends Controller
             'metaTitle',
             'metaDescription',
             'canonicalUrl',
-            'pageImage'
+            'pageImage',
+            'division',
+            'district',
+            'upazila',
+            'divisions'
         ));
     }
 
@@ -97,5 +138,67 @@ class CategoryController extends Controller
             ['slug' => 'health-tips-summer', 'title' => 'গরমে সুস্থ থাকার উপায়', 'category' => 'স্বাস্থ্য', 'category_slug' => 'health', 'excerpt' => 'চিকিৎসকেরা গরমে পানি, খাবার ও দৈনন্দিন অভ্যাসে কিছু সতর্কতা মানার পরামর্শ দিয়েছেন।', 'image_url' => $img(5), 'author' => 'স্বাস্থ্য ডেস্ক', 'date' => '২৭ এপ্রিল, ২০২৪'],
             ['slug' => 'ai-new-development', 'title' => 'কৃত্রিম বুদ্ধিমত্তার নতুন চমক', 'category' => 'তথ্য-প্রযুক্তি', 'category_slug' => 'technology', 'excerpt' => 'নতুন প্রযুক্তি উদ্ভাবন নিয়ে আলোচনা চলছে দেশি-বিদেশি প্রযুক্তি মহলে।', 'image_url' => $img(3), 'author' => 'প্রযুক্তি ডেস্ক', 'date' => '১০ মে, ২০২৪'],
         ];
+    }
+
+    public function districts(Request $request): \Illuminate\Http\JsonResponse
+    {
+        $division = trim($request->input('division', ''));
+
+        if (! $division) {
+            return response()->json([]);
+        }
+
+        $data = District::forDivision($division);
+
+        return response()->json($data);
+    }
+
+    public function upazilas(Request $request): \Illuminate\Http\JsonResponse
+    {
+        $division = trim($request->input('division', ''));
+        $district  = trim($request->input('district', ''));
+
+        if (! $division || ! $district) {
+            return response()->json([]);
+        }
+
+        $path = resource_path('data/bangladesh-locations.json');
+        if (! file_exists($path)) {
+            return response()->json([]);
+        }
+        
+        $locationData = json_decode(file_get_contents($path), true) ?? [];
+        $upazilas = $locationData[$division]['districts'][$district]['upazilas'] ?? [];
+
+        $bnMapPath = resource_path('data/upazila-name-bn-map.php');
+        $bnMap = file_exists($bnMapPath) ? (require $bnMapPath) : [];
+
+        $upazilas = collect($upazilas)
+            ->map(function ($upazila) use ($bnMap) {
+                if (is_array($upazila)) {
+                    $slug = $upazila['slug'] ?? ($upazila['name'] ?? '');
+                    $nameBn = $upazila['name_bn'] ?? $this->upazilaLabelBangla($slug, $bnMap);
+
+                    return [
+                        'slug' => $slug,
+                        'name_bn' => $nameBn,
+                    ];
+                }
+
+                return [
+                    'slug' => $upazila,
+                    'name_bn' => $this->upazilaLabelBangla($upazila, $bnMap),
+                ];
+            })
+            ->filter(fn($item) => ! empty($item['slug']))
+            ->values()
+            ->all();
+
+        return response()->json($upazilas);
+    }
+
+    private function upazilaLabelBangla(string $slug, array $bnMap): string
+    {
+        return $bnMap[$slug] ?? $slug;
     }
 }

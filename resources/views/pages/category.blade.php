@@ -27,6 +27,17 @@
       </h1>
     </header>
 
+    @if($category['slug'] === 'country-news')
+      <div class="mb-6 md:mb-8">
+        <x-location-news-filter
+          :divisions="$divisions ?? []"
+          :selected-division="$division ?? ''"
+          :selected-district="$district ?? ''"
+          :selected-upazila="$upazila ?? ''"
+        />
+      </div>
+    @endif
+
     <x-ads.ad-slot name="category-top" size="970x90" class="mb-6 md:mb-8" />
 
     <div class="grid grid-cols-1 gap-8 lg:grid-cols-12 lg:gap-8">

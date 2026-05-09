@@ -4,6 +4,8 @@
 
 # ----- Environment & Secrets --------------------------------
 .env
+.env.*
+!.env.example
 .env.backup
 .env.production
 .env.*.local
@@ -15,6 +17,8 @@
 /node_modules
 
 # ----- Laravel Generated / Cached ---------------------------
+/bootstrap/cache/*
+!/bootstrap/cache/.gitignore
 /bootstrap/cache/*.php
 /storage/framework/cache/data/*
 /storage/framework/sessions/*
@@ -22,15 +26,21 @@
 /storage/framework/testing/*
 /storage/pail
 /storage/logs/*.log
+/storage/logs/*.txt
 
 # ----- Build Artifacts --------------------------------------
 /public/build
 /public/hot
 /public/storage
+/public/mix-manifest.json
+/public/css/*.map
+/public/js/*.map
 
 # ----- IDE & OS Files ----------------------------------------
 .DS_Store
+._*
 Thumbs.db
+desktop.ini
 /.idea
 /.vscode
 /.nova
@@ -43,6 +53,7 @@ Thumbs.db
 .phpactor.json
 .phpunit.result.cache
 /.phpunit.cache
+/coverage
 _ide_helper.php
 Homestead.json
 Homestead.yaml
@@ -51,12 +62,28 @@ Homestead.yaml
 /database/*.sqlite
 /database/*.sqlite-journal
 
+# ----- Node / Package Manager Logs & Cache -------------------
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+/.npm
+/.yarn
+/.pnpm-store
+/.vite
+
 # ----- Temp & Archive Files ---------------------------------
 resources.zip
 *.tmp
+*.temp
 *.bak
 *.swp
 *.swo
+*.orig
+*.rej
+*.zip
+*.tar
+*.tar.gz
 
 # Keep placeholder .gitignore files inside storage directories
 !storage/app/.gitignore

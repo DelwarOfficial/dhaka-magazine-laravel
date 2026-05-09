@@ -21,9 +21,9 @@ class ArticleFeed
             ->all();
     }
 
-    public static function categoryArticles(array $categorySlugs, array $fallbackArticles, int $limit = 30): array
+    public static function categoryArticles(array $categorySlugs, array $fallbackArticles, int $limit = 30, ?string $division = null, ?string $district = null, ?string $upazila = null): array
     {
-        $posts = self::categoryPosts($categorySlugs, $limit)
+        $posts = self::categoryPosts($categorySlugs, $limit, $division, $district, $upazila)
             ->map(fn(Post $post) => self::toArticleArray($post));
 
         return $posts
@@ -78,14 +78,14 @@ class ArticleFeed
         }
     }
 
-    private static function categoryPosts(array $categorySlugs, int $limit): Collection
+    private static function categoryPosts(array $categorySlugs, int $limit, ?string $division = null, ?string $district = null, ?string $upazila = null): Collection
     {
         if (!self::postsTableReady()) {
             return collect();
         }
 
         try {
-            return Post::query()
+            $query = Post::query()
                 ->with(['category.parent', 'subcategory.parent'])
                 ->whereIn('status', self::publicStatuses())
                 ->where(function ($query) use ($categorySlugs) {
@@ -94,8 +94,17 @@ class ArticleFeed
                         ->orWhereIn('subcategory_slug', $categorySlugs)
                         ->orWhereHas('category', fn ($categoryQuery) => $categoryQuery->whereIn('slug', $categorySlugs))
                         ->orWhereHas('subcategory', fn ($categoryQuery) => $categoryQuery->whereIn('slug', $categorySlugs));
-                })
-                ->latest('published_at')
+                });
+                
+            if ($upazila) {
+                $query->where('upazila', $upazila);
+            } elseif ($district) {
+                $query->where('district', $district);
+            } elseif ($division) {
+                $query->where('division', $division);
+            }
+
+            return $query->latest('published_at')
                 ->latest('id')
                 ->take($limit)
                 ->get();

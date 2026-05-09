@@ -13,3 +13,7 @@ Route::get('/category/{parentSlug}', [CategoryController::class, 'showParent'])-
 Route::get('/category/{parentSlug}/{childSlug}', [CategoryController::class, 'showChild'])->name('category.child');
 Route::get('/sitemap.xml', [CategoryController::class, 'sitemap'])->name('sitemap');
 Route::get('/article/{slug}', [ArticleController::class, 'show'])->name('article.show');
+
+// AJAX endpoints – return JSON for dependent dropdowns (division → district → upazila)
+Route::get('/api/saradesh/districts', [CategoryController::class, 'districts'])->name('saradesh.districts');
+Route::get('/api/saradesh/upazilas', [CategoryController::class, 'upazilas'])->name('saradesh.upazilas');

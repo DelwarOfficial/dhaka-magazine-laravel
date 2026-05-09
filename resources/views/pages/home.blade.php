@@ -228,10 +228,18 @@
         <span class="section-icon"></span>
         <h2 class="font-serif font-extrabold text-[20px] text-[#e2231a] leading-none">সারাদেশ</h2>
       </div>
-      <a href="{{ route('category.parent', 'bangladesh') }}" class="text-fg-secondary text-[13px] hover:text-[#e2231a] transition-colors flex items-center gap-0.5">
+      <a href="{{ route('category.parent', 'country-news') }}" class="text-fg-secondary text-[13px] hover:text-[#e2231a] transition-colors flex items-center gap-0.5">
         আরও <span class="text-[15px] leading-none ml-0.5">&rsaquo;</span>
       </a>
     </div>
+
+    {{-- জেলার সংবাদ filter bar — divisions loaded from DB; form submits to /saradesh --}}
+    <x-location-news-filter
+      :divisions="$saradeshDivisions ?? []"
+      selected-division=""
+      selected-district=""
+      selected-upazila=""
+    />
 
     <div class="grid grid-cols-1 md:grid-cols-[1fr_2.2fr_1.3fr] gap-0 divide-x divide-border">
 

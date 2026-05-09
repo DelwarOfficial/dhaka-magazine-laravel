@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\File;
+use App\Models\District;
 use App\Support\ArticleFeed;
 
 class HomeController extends Controller
@@ -98,6 +99,13 @@ class HomeController extends Controller
         $educationArticles = $this->categoryArticles(['education'], 4);
         $probashArticles = $this->categoryArticles(['expatriates'], 4);
 
+        // ══ SARADESH FILTER — load divisions for the জেলার সংবাদ dropdown ═══
+        try {
+            $saradeshDivisions = District::allDivisions();
+        } catch (\Throwable) {
+            $saradeshDivisions = [];
+        }
+
         return view('pages.home', compact(
             'breakingStories',
             'categories',
@@ -133,7 +141,8 @@ class HomeController extends Controller
             'religionArticles',
             'rajdhaniArticles',
             'educationArticles',
-            'probashArticles'
+            'probashArticles',
+            'saradeshDivisions'
         ));
     }
 
