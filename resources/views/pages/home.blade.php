@@ -226,7 +226,7 @@
     <div class="flex items-center justify-between pb-2 mb-4 border-b border-border">
       <div class="flex items-center gap-3">
         <span class="section-icon"></span>
-        <h2 class="font-serif font-extrabold text-[20px] text-[#e2231a] leading-none">সারাদেশ</h2>
+        <h2 class="font-serif font-extrabold text-[20px] text-fg leading-none">সারাদেশ</h2>
       </div>
       <a href="{{ route('category.parent', 'country-news') }}" class="text-fg-secondary text-[13px] hover:text-[#e2231a] transition-colors flex items-center gap-0.5">
         আরও <span class="text-[15px] leading-none ml-0.5">&rsaquo;</span>
