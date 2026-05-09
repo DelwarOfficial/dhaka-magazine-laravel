@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Schema;
 
 /**
  * District Model
@@ -18,12 +19,24 @@ class District extends Model
      */
     public static function allDivisions(): array
     {
-        return static::query()
-            ->select('division', 'division_bangla')
-            ->distinct()
-            ->orderBy('division')
-            ->pluck('division_bangla', 'division')
-            ->toArray();
+        try {
+            if (Schema::hasTable('districts')) {
+                $divisions = static::query()
+                    ->select('division', 'division_bangla')
+                    ->distinct()
+                    ->orderBy('division')
+                    ->pluck('division_bangla', 'division')
+                    ->toArray();
+
+                if (! empty($divisions)) {
+                    return $divisions;
+                }
+            }
+        } catch (\Throwable) {
+            // Fall back to the bundled JSON data when the database is unavailable.
+        }
+
+        return static::fallbackDivisions();
     }
 
     /**
@@ -31,9 +44,62 @@ class District extends Model
      */
     public static function forDivision(string $division): array
     {
-        return static::where('division', $division)
-            ->orderBy('name')
-            ->get(['name', 'name_bangla'])
-            ->toArray();
+        try {
+            if (Schema::hasTable('districts')) {
+                $districts = static::query()
+                    ->where('division', $division)
+                    ->orderBy('name')
+                    ->get(['name', 'name_bangla'])
+                    ->toArray();
+
+                if (! empty($districts)) {
+                    return $districts;
+                }
+            }
+        } catch (\Throwable) {
+            // Fall back to the bundled JSON data when the database is unavailable.
+        }
+
+        return static::fallbackDistricts($division);
+    }
+
+    public static function belongsToDivision(string $division, string $district): bool
+    {
+        return collect(static::forDivision($division))->contains(
+            fn(array $item) => ($item['name'] ?? '') === $district
+        );
+    }
+
+    private static function fallbackDivisions(): array
+    {
+        return collect(static::locationData())
+            ->mapWithKeys(fn(array $divisionData, string $division) => [
+                $division => $divisionData['name_bn'] ?? $division,
+            ])
+            ->sortKeys()
+            ->all();
+    }
+
+    private static function fallbackDistricts(string $division): array
+    {
+        return collect(static::locationData()[$division]['districts'] ?? [])
+            ->map(fn(array $districtData, string $district) => [
+                'name' => $district,
+                'name_bangla' => $districtData['name_bn'] ?? $district,
+            ])
+            ->sortBy('name')
+            ->values()
+            ->all();
+    }
+
+    private static function locationData(): array
+    {
+        $path = resource_path('data/bangladesh-locations.json');
+
+        if (! file_exists($path)) {
+            return [];
+        }
+
+        return json_decode(file_get_contents($path), true) ?: [];
     }
 }

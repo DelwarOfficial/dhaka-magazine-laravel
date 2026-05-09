@@ -26,6 +26,10 @@ class ArticleFeed
         $posts = self::categoryPosts($categorySlugs, $limit, $division, $district, $upazila)
             ->map(fn(Post $post) => self::toArticleArray($post));
 
+        if (self::hasLocationFilter($division, $district, $upazila)) {
+            return $posts->values()->all();
+        }
+
         return $posts
             ->concat(collect($fallbackArticles)->whereIn('category_slug', $categorySlugs))
             ->values()
@@ -85,6 +89,12 @@ class ArticleFeed
         }
 
         try {
+            $hasLocationFilter = self::hasLocationFilter($division, $district, $upazila);
+
+            if ($hasLocationFilter && ! self::locationColumnsReady()) {
+                return collect();
+            }
+
             $query = Post::query()
                 ->with(['category.parent', 'subcategory.parent'])
                 ->whereIn('status', self::publicStatuses())
@@ -96,12 +106,16 @@ class ArticleFeed
                         ->orWhereHas('subcategory', fn ($categoryQuery) => $categoryQuery->whereIn('slug', $categorySlugs));
                 });
                 
+            if ($division) {
+                $query->where('division', $division);
+            }
+
+            if ($district) {
+                $query->where('district', $district);
+            }
+
             if ($upazila) {
                 $query->where('upazila', $upazila);
-            } elseif ($district) {
-                $query->where('district', $district);
-            } elseif ($division) {
-                $query->where('division', $division);
             }
 
             return $query->latest('published_at')
@@ -120,6 +134,22 @@ class ArticleFeed
         } catch (\Throwable) {
             return false;
         }
+    }
+
+    private static function locationColumnsReady(): bool
+    {
+        try {
+            return Schema::hasColumn('posts', 'division')
+                && Schema::hasColumn('posts', 'district')
+                && Schema::hasColumn('posts', 'upazila');
+        } catch (\Throwable) {
+            return false;
+        }
+    }
+
+    private static function hasLocationFilter(?string $division, ?string $district, ?string $upazila): bool
+    {
+        return filled($division) || filled($district) || filled($upazila);
     }
 
     private static function publicStatuses(): array

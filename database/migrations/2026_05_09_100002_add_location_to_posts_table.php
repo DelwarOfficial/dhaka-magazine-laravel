@@ -29,7 +29,13 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('posts', function (Blueprint $table) {
-            $table->dropColumn(['division', 'district', 'upazila']);
+            $columns = collect(['division', 'district', 'upazila'])
+                ->filter(fn (string $column) => Schema::hasColumn('posts', $column))
+                ->all();
+
+            if (! empty($columns)) {
+                $table->dropColumn($columns);
+            }
         });
     }
 };

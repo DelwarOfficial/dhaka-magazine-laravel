@@ -27,9 +27,7 @@ class CategoryController extends Controller
         $divisions = [];
         
         if ($parentSlug === 'country-news') {
-            $division = $request->input('division', '');
-            $district = $request->input('district', '');
-            $upazila = $request->input('upazila', '');
+            [$division, $district, $upazila] = $this->normalisedLocationFilters($request);
             
             try {
                 $divisions = District::allDivisions();
@@ -148,6 +146,14 @@ class CategoryController extends Controller
             return response()->json([]);
         }
 
+        $divisions = District::allDivisions();
+
+        if (! array_key_exists($division, $divisions)) {
+            return response()->json([
+                'message' => 'Invalid division selected.',
+            ], 422);
+        }
+
         $data = District::forDivision($division);
 
         return response()->json($data);
@@ -162,13 +168,15 @@ class CategoryController extends Controller
             return response()->json([]);
         }
 
-        $path = resource_path('data/bangladesh-locations.json');
-        if (! file_exists($path)) {
-            return response()->json([]);
+        $divisions = District::allDivisions();
+
+        if (! array_key_exists($division, $divisions) || ! District::belongsToDivision($division, $district)) {
+            return response()->json([
+                'message' => 'Invalid division or district selected.',
+            ], 422);
         }
-        
-        $locationData = json_decode(file_get_contents($path), true) ?? [];
-        $upazilas = $locationData[$division]['districts'][$district]['upazilas'] ?? [];
+
+        $upazilas = $this->upazilasFor($division, $district);
 
         $bnMapPath = resource_path('data/upazila-name-bn-map.php');
         $bnMap = file_exists($bnMapPath) ? (require $bnMapPath) : [];
@@ -200,5 +208,41 @@ class CategoryController extends Controller
     private function upazilaLabelBangla(string $slug, array $bnMap): string
     {
         return $bnMap[$slug] ?? $slug;
+    }
+
+    private function normalisedLocationFilters(Request $request): array
+    {
+        $division = trim((string) $request->query('division', ''));
+        $district = trim((string) $request->query('district', ''));
+        $upazila = trim((string) $request->query('upazila', ''));
+        $divisions = District::allDivisions();
+
+        if ($division === '' || ! array_key_exists($division, $divisions)) {
+            return ['', '', ''];
+        }
+
+        if ($district !== '' && ! District::belongsToDivision($division, $district)) {
+            $district = '';
+            $upazila = '';
+        }
+
+        if ($upazila !== '' && ($district === '' || ! in_array($upazila, $this->upazilasFor($division, $district), true))) {
+            $upazila = '';
+        }
+
+        return [$division, $district, $upazila];
+    }
+
+    private function upazilasFor(string $division, string $district): array
+    {
+        $path = resource_path('data/bangladesh-locations.json');
+
+        if (! file_exists($path)) {
+            return [];
+        }
+
+        $locationData = json_decode(file_get_contents($path), true) ?: [];
+
+        return $locationData[$division]['districts'][$district]['upazilas'] ?? [];
     }
 }
