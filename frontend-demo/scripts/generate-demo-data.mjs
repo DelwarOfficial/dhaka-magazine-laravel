@@ -43,7 +43,7 @@ const posts = Array.from({ length: 330 }, (_, index) => {
     published_at: published.toISOString(),
     is_breaking: index < 10,
     is_featured: index === 0,
-    is_sticky: index >= 1 && index <= 6,
+    is_body_news: index >= 1 && index <= 6,
     is_trending: index >= 7 && index <= 14,
     is_editor_pick: index >= 15 && index <= 20,
   };

@@ -62,12 +62,12 @@ function normalizePost(post) {
 function renderApp(posts) {
   const breaking = posts.filter((post) => post.is_breaking).slice(0, 10);
   const featured = posts.find((post) => post.is_featured) || posts[0];
-  const sticky = uniquePosts(posts.filter((post) => post.is_sticky), [featured?.id]).slice(0, 6);
-  const trending = uniquePosts(posts.filter((post) => post.is_trending), [featured?.id, ...sticky.map((post) => post.id)]).slice(0, 5);
+  const bodyNews = uniquePosts(posts.filter((post) => post.is_body_news), [featured?.id]).slice(0, 6);
+  const trending = uniquePosts(posts.filter((post) => post.is_trending), [featured?.id, ...bodyNews.map((post) => post.id)]).slice(0, 5);
   const editorPicks = uniquePosts(posts.filter((post) => post.is_editor_pick), [...trending.map((post) => post.id)]).slice(0, 3);
   const localNews = posts.filter((post) => post.category === 'local-news').slice(0, 9);
   const allPosts = posts.slice(0, 24);
-  const carousel = posts.slice(0, 10);
+  const photoNews = posts.slice(0, 10);
   const popular = [...posts].sort((a, b) => b.view_count - a.view_count).slice(0, 10);
 
   app.innerHTML = `
@@ -75,9 +75,9 @@ function renderApp(posts) {
     ${header()}
     ${nav()}
     <main>
-      ${heroSection({ featured, sticky, trending, editorPicks })}
+      ${heroSection({ featured, bodyNews, trending, editorPicks })}
       ${adSlot('homepage-top', '970x90')}
-      ${photoCarousel(carousel, posts.slice(0, 8), popular)}
+      ${photoCarousel(photoNews, posts.slice(0, 8), popular)}
       ${localNewsSection(localNews)}
       ${allPostsSection(allPosts, popular)}
     </main>
@@ -131,7 +131,7 @@ function nav() {
   `;
 }
 
-function heroSection({ featured, sticky, trending, editorPicks }) {
+function heroSection({ featured, bodyNews, trending, editorPicks }) {
   return `
     <section class="hero-section mx-auto w-full max-w-screen-xl px-4">
       <div class="hidden border-t border-border md:grid md:grid-cols-1 lg:grid-cols-[27%_46%_27%]">
@@ -141,7 +141,7 @@ function heroSection({ featured, sticky, trending, editorPicks }) {
         <div class="order-1 border-border py-4 px-0 lg:order-2 lg:border-r lg:px-5">
           ${featured ? heroCard(featured) : ''}
           <div class="grid grid-cols-3 gap-x-4 gap-y-4">
-            ${sticky.map(gridMiniCard).join('')}
+            ${bodyNews.map(gridMiniCard).join('')}
           </div>
         </div>
         <div class="order-3 py-4 pl-0 lg:pl-5">
@@ -153,7 +153,7 @@ function heroSection({ featured, sticky, trending, editorPicks }) {
       </div>
       <div class="grid grid-cols-1 gap-3 border-t border-border md:hidden">
         ${featured ? heroCard(featured) : ''}
-        <div class="grid grid-cols-3 gap-3 py-2">${sticky.map(gridMiniCard).join('')}</div>
+        <div class="grid grid-cols-3 gap-3 py-2">${bodyNews.map(gridMiniCard).join('')}</div>
         <div>${trending.map((post) => mobileSideItem(post)).join('')}</div>
         <div>${editorPicks.map((post) => mobileSideItem(post)).join('')}</div>
       </div>
