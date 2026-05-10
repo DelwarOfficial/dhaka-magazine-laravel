@@ -13,12 +13,10 @@ class HomeController extends Controller
     {
         $articles = ArticleFeed::homepageArticles($this->sampleArticles());
 
-        // Breaking stories (header)
-        $breakingStories = [
-            $articles[1],
-            $articles[2],
-            $articles[3],
-        ];
+        // Top rail: query by the Breaking News flag first, then fall back to
+        // the legacy ticker mapping only when the database has not been mapped.
+        $breakingStories = ArticleFeed::breakingNews($this->sampleArticles(), 10);
+        $usedHomepagePostIds = $this->articleIds($breakingStories);
 
         $categories = [
             'জাতীয়', 'রাজনীতি', 'অর্থনীতি', 'country', 'বিশ্ব',
@@ -26,18 +24,31 @@ class HomeController extends Controller
         ];
 
         // ══ HERO — 3 COLUMNS ═══════════════════════════════════════
-        $leftCol    = [$articles[4], $articles[7], $articles[10], $articles[16], $articles[19]];
-        $featured   = $articles[0];
-        $centerGrid = [$articles[1], $articles[2], $articles[6], $articles[7], $articles[8], $articles[3]];
-        $rightCol   = [$articles[5], $articles[9], $articles[3]];
+        // The first-screen sections are intentionally isolated by backend flags.
+        // As each section claims IDs, later sections exclude them so the same post
+        // cannot be rendered twice across the homepage hero area by accident.
+        $featured = ArticleFeed::featured($this->sampleArticles(), 1, $usedHomepagePostIds)[0] ?? null;
+        $usedHomepagePostIds = $this->mergeArticleIds($usedHomepagePostIds, [$featured]);
+
+        $centerGrid = ArticleFeed::sticky($this->sampleArticles(), 6, $usedHomepagePostIds);
+        $usedHomepagePostIds = $this->mergeArticleIds($usedHomepagePostIds, $centerGrid);
+
+        $leftCol = ArticleFeed::trending($this->sampleArticles(), 5, $usedHomepagePostIds);
+        $usedHomepagePostIds = $this->mergeArticleIds($usedHomepagePostIds, $leftCol);
+
+        $rightCol = ArticleFeed::editorsPick($this->sampleArticles(), 3, $usedHomepagePostIds);
+        $usedHomepagePostIds = $this->mergeArticleIds($usedHomepagePostIds, $rightCol);
 
         // ══ BANGLADESH ════════════════════════════════════════════
         $bangladeshArticles = $this->categoryArticles(['bangladesh', 'national', 'dhaka', 'crime', 'accidents', 'law-justice', 'politics'], 4);
 
-        // ══ সারাদেশ → Country ═════════════════════════════════
-        $countryLeft  = [$articles[18], $articles[10]];
-        $countryHero  = $articles[6];
-        $countryRight = [$articles[4], $articles[15], $articles[19], $articles[8], $articles[2], $articles[11]];
+        // ══ Local News / সারাদেশ ══════════════════════════════
+        // Local News is driven by complete CMS location IDs only. The mapper
+        // preserves the previous visible posts by assigning valid location IDs.
+        $localNewsArticles = ArticleFeed::localNews($this->sampleArticles(), 9);
+        $countryLeft = array_slice($localNewsArticles, 0, 2);
+        $countryHero = $localNewsArticles[2] ?? null;
+        $countryRight = array_slice($localNewsArticles, 3, 6);
 
         // ══ INTERNATIONAL ════════════════════════════════════════
         $worldArticles = $this->categoryArticles(['world'], 6);
@@ -159,6 +170,22 @@ class HomeController extends Controller
     private function firstCategoryArticle(array $slugs, array $fallback): array
     {
         return $this->categoryArticles($slugs, 1)[0] ?? $fallback;
+    }
+
+    private function mergeArticleIds(array $ids, array $articles): array
+    {
+        return array_values(array_unique(array_merge($ids, $this->articleIds($articles))));
+    }
+
+    private function articleIds(array $articles): array
+    {
+        return collect($articles)
+            ->filter()
+            ->pluck('id')
+            ->filter(fn($id) => filled($id))
+            ->map(fn($id) => (int) $id)
+            ->values()
+            ->all();
     }
 
     public function fallbackArticles(): array

@@ -5,6 +5,7 @@ namespace App\Providers;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Facades\View;
 use App\Support\CategoryRepository;
+use App\Support\ArticleFeed;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -51,7 +52,9 @@ class AppServiceProvider extends ServiceProvider
                 ['title' => 'কৃষিতে নতুন প্রযুক্তির ছোঁয়া, কৃষকদের মুখে হাসি',                  'slug' => 'agricultural-innovation'],
             ];
 
-            $view->with('tickerHeadlines', $headlines);
+            // The ticker is controlled by the Breaking News flag. The hard-coded
+            // list remains only as a legacy fallback for fresh or unmapped databases.
+            $view->with('tickerHeadlines', ArticleFeed::breakingNews($headlines, 10));
             $view->with('siteCategories', CategoryRepository::parents());
         });
     }

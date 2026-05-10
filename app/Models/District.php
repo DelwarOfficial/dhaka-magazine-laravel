@@ -3,6 +3,8 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Facades\Schema;
 
 /**
@@ -13,6 +15,16 @@ use Illuminate\Support\Facades\Schema;
 class District extends Model
 {
     protected $guarded = [];
+
+    public function divisionModel(): BelongsTo
+    {
+        return $this->belongsTo(Division::class, 'division_id');
+    }
+
+    public function upazilas(): HasMany
+    {
+        return $this->hasMany(Upazila::class);
+    }
 
     /**
      * Get all unique divisions as name => name_bangla pairs.
