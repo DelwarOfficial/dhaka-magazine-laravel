@@ -41,6 +41,8 @@ class NewsController extends Controller
         }
 
         try {
+            // All Posts is live database content. Eager loading author/category keeps
+            // the existing Blade loops unchanged while avoiding N+1 queries.
             $query = Post::query()
                 ->when($this->availableRelations(), fn ($query, array $relations) => $query->with($relations))
                 ->whereIn('status', ['published'])
@@ -73,11 +75,11 @@ class NewsController extends Controller
             'title' => $post->title,
             'category' => $category['name_bn'] ?? PostCategoryResolver::fallbackCategory()['name_bn'],
             'category_url' => PostCategoryResolver::categoryRoute($category),
-            'excerpt' => Str::limit(strip_tags((string) ($post->excerpt ?: $post->body)), 170),
-            'author' => $post->source_name ?: 'ঢাকা ম্যাগাজিন ডেস্ক',
+            'excerpt' => Str::limit(strip_tags((string) ($post->excerpt ?: $post->content ?: $post->body)), 170),
+            'author' => $post->author?->name ?: $post->source_name ?: 'ঢাকা ম্যাগাজিন ডেস্ক',
             'date' => DateHelper::getBengaliDate($publishedAt),
             'time_ago' => DateHelper::timeAgo($publishedAt),
-            'image_url' => $this->imageUrl($post->featured_image),
+            'image_url' => $this->postImageUrl($post),
             'views' => $this->viewCount($post),
         ];
     }
@@ -103,9 +105,33 @@ class NewsController extends Controller
         return asset('storage/' . ltrim($path, '/'));
     }
 
+    private function postImageUrl(Post $post): string
+    {
+        if ($post->image_path) {
+            $filename = basename($post->image_path);
+
+            return file_exists(public_path("images/{$filename}"))
+                ? asset("images/{$filename}")
+                : $this->placeholderImageUrl();
+        }
+
+        return $this->imageUrl($post->featured_image);
+    }
+
+    private function placeholderImageUrl(): string
+    {
+        foreach (['placeholder.jpg', 'news-1.jpg', 'coming-soon-ad.webp'] as $filename) {
+            if (file_exists(public_path("images/{$filename}"))) {
+                return asset("images/{$filename}");
+            }
+        }
+
+        return asset('images/news-1.jpg');
+    }
+
     private function viewCount(Post $post): ?int
     {
-        foreach (['views', 'view_count', 'hit_count'] as $column) {
+        foreach (['view_count', 'views', 'hit_count'] as $column) {
             if (isset($post->{$column}) && is_numeric($post->{$column})) {
                 return (int) $post->{$column};
             }

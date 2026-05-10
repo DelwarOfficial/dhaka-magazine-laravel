@@ -24,12 +24,15 @@ class PostCategoryResolver
 
     public static function categoryFor(Post $post): array
     {
-        if ($post->relationLoaded('subcategory') && $post->subcategory) {
-            return self::categoryArrayFromModel($post->subcategory);
+        if ($post->relationLoaded('subcategory') && $post->getRelation('subcategory')) {
+            return self::categoryArrayFromModel($post->getRelation('subcategory'));
         }
 
-        if ($post->relationLoaded('category') && $post->category) {
-            return self::categoryArrayFromModel($post->category);
+        if ($post->relationLoaded('category') && $post->getRelation('category')) {
+            // The posts table also has a scalar `category` compatibility column for
+            // live CMS data. Use the loaded relation explicitly so that column never
+            // shadows the Category model needed by the resolver.
+            return self::categoryArrayFromModel($post->getRelation('category'));
         }
 
         return self::findBySlug($post->subcategory_slug)

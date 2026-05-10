@@ -195,29 +195,24 @@ class HomeController extends Controller
 
     private function buildPhotoStoryPayload(array $articles): array
     {
-        $allowedExtensions = ['jpg', 'jpeg', 'png', 'webp'];
-        $imageFiles = collect(File::files(public_path('images')))
-            ->filter(fn($file) => in_array(strtolower($file->getExtension()), $allowedExtensions, true))
-            ->sortBy(fn($file) => $file->getFilename())
-            ->values();
-
-        if ($imageFiles->isEmpty()) {
-            $imageFiles = collect(['a.jpg', 'b.jpg', 'c.jpg'])->map(fn($name) => new \SplFileInfo(public_path('images/' . $name)));
-        }
-
-        $carousel = $imageFiles->take(10)->values()->map(function ($file, $index) use ($articles) {
-            $article = $articles[$index % count($articles)];
-            $filename = $file->getFilename();
-
+        // Hero carousel now follows live posts. ArticleFeed resolves image_path to
+        // public/images/{filename} and falls back to a placeholder if the file is absent.
+        $carousel = collect($articles)->take(10)->values()->map(function ($article, $index) {
             return [
-                'id' => $index + 1,
+                'id' => $article['id'] ?? $index + 1,
                 'headline' => $article['title'],
                 'slug' => $article['slug'],
                 'timestamp' => $article['time_ago'],
-                'image_url' => asset('images/' . $filename),
+                'image_url' => $article['image_url'],
                 'tags' => [],
             ];
-        })->all();
+        });
+
+        if ($carousel->isEmpty()) {
+            // Empty-database fallback scans public/images dynamically instead of relying
+            // on a seed file. This preserves carousel behavior without fake post data.
+            $carousel = $this->publicImageFallbackSlides();
+        }
 
         $latest = collect($articles)->take(8)->values()->map(function ($article, $index) {
             return [
@@ -238,10 +233,29 @@ class HomeController extends Controller
         })->all();
 
         return [
-            'carousel' => $carousel,
+            'carousel' => $carousel->values()->all(),
             'latest' => $latest,
             'popular' => $popular,
         ];
+    }
+
+    private function publicImageFallbackSlides(): \Illuminate\Support\Collection
+    {
+        $allowedExtensions = ['jpg', 'jpeg', 'png', 'webp'];
+
+        return collect(File::files(public_path('images')))
+            ->filter(fn($file) => in_array(strtolower($file->getExtension()), $allowedExtensions, true))
+            ->sortBy(fn($file) => $file->getFilename())
+            ->take(5)
+            ->values()
+            ->map(fn($file, $index) => [
+                'id' => $index + 1,
+                'headline' => 'Placeholder',
+                'slug' => '#',
+                'timestamp' => '',
+                'image_url' => asset('images/' . $file->getFilename()),
+                'tags' => [],
+            ]);
     }
 
     private function sampleArticles()

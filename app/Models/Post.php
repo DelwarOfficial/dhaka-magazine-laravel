@@ -72,6 +72,11 @@ class Post extends Model
         return $this->belongsTo(Category::class, 'subcategory_id');
     }
 
+    public function author(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'author_id');
+    }
+
     public function divisionLocation(): BelongsTo
     {
         return $this->belongsTo(Division::class, 'division_id');

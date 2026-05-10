@@ -21,13 +21,15 @@ class ArticleFeed
 
     public static function homepageArticles(array $fallbackArticles, int $limit = 40): array
     {
-        return self::publicPosts()
+        $posts = self::publicPosts()
             ->take($limit)
-            ->map(fn(Post $post) => self::toArticleArray($post))
-            ->concat($fallbackArticles)
-            ->take(max($limit, count($fallbackArticles)))
-            ->values()
-            ->all();
+            ->map(fn(Post $post) => self::toArticleArray($post));
+
+        if ($posts->isNotEmpty()) {
+            return $posts->values()->all();
+        }
+
+        return collect($fallbackArticles)->take($limit)->values()->all();
     }
 
     public static function breakingNews(array $fallbackArticles, int $limit = 10, array $exceptIds = []): array
@@ -131,7 +133,7 @@ class ArticleFeed
 
         try {
             return Post::query()
-                ->with(['category.parent', 'subcategory.parent'])
+                ->with(['author', 'category.parent', 'subcategory.parent'])
                 ->whereIn('status', self::publicStatuses())
                 ->latest('published_at')
                 ->latest('id')
@@ -172,7 +174,7 @@ class ArticleFeed
             $scope = $meta['scope'];
 
             return Post::query()
-                ->with(['category.parent', 'subcategory.parent'])
+                ->with(['author', 'category.parent', 'subcategory.parent'])
                 ->published()
                 ->{$scope}()
                 ->when($exceptIds !== [], function (Builder $query) use ($exceptIds) {
@@ -206,7 +208,7 @@ class ArticleFeed
             }
 
             $query = Post::query()
-                ->with(['category.parent', 'subcategory.parent'])
+                ->with(['author', 'category.parent', 'subcategory.parent'])
                 ->whereIn('status', self::publicStatuses())
                 ->where(function ($query) use ($categorySlugs) {
                     $query
@@ -246,6 +248,7 @@ class ArticleFeed
         try {
             return Post::query()
                 ->with([
+                    'author',
                     'category.parent',
                     'subcategory.parent',
                     'divisionLocation',
@@ -404,16 +407,17 @@ class ArticleFeed
             'category' => $category['name_bn'] ?? PostCategoryResolver::fallbackCategory()['name_bn'],
             'category_slug' => $category['slug'] ?? PostCategoryResolver::FALLBACK_SLUG,
             'category_url' => $categoryRoute,
-            'excerpt' => $post->excerpt,
-            'author' => $post->source_name ?: 'ঢাকা ম্যাগাজিন ডেস্ক',
+            'excerpt' => $post->excerpt ?: Str::limit(strip_tags((string) ($post->content ?: $post->body)), 170),
+            'author' => $post->author?->name ?: $post->source_name ?: 'ঢাকা ম্যাগাজিন ডেস্ক',
             'date' => DateHelper::getBengaliDate($publishedAt),
             'time_ago' => DateHelper::timeAgo($publishedAt),
-            'image_url' => self::imageUrl($post->featured_image),
+            'image_url' => self::postImageUrl($post),
+            'views' => (int) ($post->view_count ?? 0),
             'tags' => [],
         ];
 
         if ($includeBody) {
-            $article['body'] = collect(preg_split('/\R{2,}/', (string) $post->body))
+            $article['body'] = collect(preg_split('/\R{2,}/', (string) ($post->content ?: $post->body)))
                 ->map(fn(string $paragraph) => trim($paragraph))
                 ->filter()
                 ->values()
@@ -443,5 +447,29 @@ class ArticleFeed
         }
 
         return asset('storage/' . ltrim($path, '/'));
+    }
+
+    private static function postImageUrl(Post $post): string
+    {
+        if ($post->image_path) {
+            $filename = basename($post->image_path);
+
+            return file_exists(public_path("images/{$filename}"))
+                ? asset("images/{$filename}")
+                : self::placeholderImageUrl();
+        }
+
+        return self::imageUrl($post->featured_image);
+    }
+
+    private static function placeholderImageUrl(): string
+    {
+        foreach (['placeholder.jpg', 'news-1.jpg', 'coming-soon-ad.webp'] as $filename) {
+            if (file_exists(public_path("images/{$filename}"))) {
+                return asset("images/{$filename}");
+            }
+        }
+
+        return asset('images/news-1.jpg');
     }
 }
