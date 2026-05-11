@@ -8,7 +8,7 @@
 {{-- Location-fed section.
      Future CMS source: posts filtered by division_id -> district_id -> upazila_id. --}}
 <section class="w-full max-w-screen-xl mx-auto px-4 py-5">
-  <x-section-header title="à¦¸à¦¾à¦°à¦¾à¦¦à§‡à¦¶" :moreUrl="route('category.parent', 'country-news')" />
+  <x-section-header title="সারাদেশ" :moreUrl="route('category.parent', 'country-news')" />
 
   <x-location-news-filter
     :divisions="$divisions"

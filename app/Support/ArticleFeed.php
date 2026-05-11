@@ -6,6 +6,7 @@ use App\Helpers\DateHelper;
 use App\Models\Post;
 use Illuminate\Support\Collection;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Str;
 use App\Support\ImageResolver;
@@ -98,8 +99,17 @@ class ArticleFeed
             return $posts->values()->all();
         }
 
-        return $posts
-            ->concat(collect($fallbackArticles)->whereIn('category_slug', $categorySlugs))
+        if ($posts->isNotEmpty()) {
+            return $posts->values()->all();
+        }
+
+        return collect($fallbackArticles)->whereIn('category_slug', $categorySlugs)->values()->all();
+    }
+
+    public static function categoryRelationshipArticles(array $categorySlugs, int $limit = 30, ?string $division = null, ?string $district = null, ?string $upazila = null): array
+    {
+        return self::categoryPosts($categorySlugs, $limit, $division, $district, $upazila, relationshipOnly: true)
+            ->map(fn(Post $post) => self::toArticleArray($post))
             ->values()
             ->all();
     }
@@ -112,6 +122,8 @@ class ArticleFeed
 
         try {
             $post = Post::query()
+                ->withContentRelations()
+                ->with(['divisionLocation', 'districtLocation', 'upazilaLocation'])
                 ->whereIn('status', self::publicStatuses())
                 ->where('slug', $slug)
                 ->first();
@@ -140,7 +152,7 @@ class ArticleFeed
 
         try {
             return Post::query()
-                ->with(['author', 'category.parent', 'subcategory.parent'])
+                ->withContentRelations()
                 ->whereIn('status', self::publicStatuses())
                 ->latest('published_at')
                 ->latest('id')
@@ -182,7 +194,7 @@ class ArticleFeed
             $scope = $meta['scope'];
 
             return Post::query()
-                ->with(['author', 'category.parent', 'subcategory.parent'])
+                ->withContentRelations()
                 ->published()
                 ->{$scope}()
                 ->when($exceptIds !== [], function (Builder $query) use ($exceptIds) {
@@ -203,7 +215,7 @@ class ArticleFeed
         }
     }
 
-    private static function categoryPosts(array $categorySlugs, int $limit, ?string $division = null, ?string $district = null, ?string $upazila = null): Collection
+    private static function categoryPosts(array $categorySlugs, int $limit, ?string $division = null, ?string $district = null, ?string $upazila = null, bool $relationshipOnly = false): Collection
     {
         if (!self::postsTableReady()) {
             return collect();
@@ -217,27 +229,11 @@ class ArticleFeed
             }
 
             $query = Post::query()
-                ->with(['author', 'category.parent', 'subcategory.parent'])
-                ->whereIn('status', self::publicStatuses())
-                ->where(function ($query) use ($categorySlugs) {
-                    $query
-                        ->whereIn('category_slug', $categorySlugs)
-                        ->orWhereIn('subcategory_slug', $categorySlugs)
-                        ->orWhereHas('category', fn ($categoryQuery) => $categoryQuery->whereIn('slug', $categorySlugs))
-                        ->orWhereHas('subcategory', fn ($categoryQuery) => $categoryQuery->whereIn('slug', $categorySlugs));
-                });
-                
-            if ($division) {
-                $query->where('division', $division);
-            }
+                ->withContentRelations()
+                ->whereIn('status', self::publicStatuses());
 
-            if ($district) {
-                $query->where('district', $district);
-            }
-
-            if ($upazila) {
-                $query->where('upazila', $upazila);
-            }
+            self::applyCategoryFilter($query, $categorySlugs, $relationshipOnly);
+            self::applyLocationFilter($query, $division, $district, $upazila);
 
             return $query->latest('published_at')
                 ->latest('id')
@@ -257,27 +253,10 @@ class ArticleFeed
 
         try {
             return Post::query()
-                ->with([
-                    'author',
-                    'category.parent',
-                    'subcategory.parent',
-                    'divisionLocation',
-                    'districtLocation',
-                    'upazilaLocation',
-                ])
+                ->withContentRelations()
+                ->with(['divisionLocation', 'districtLocation', 'upazilaLocation'])
                 ->published()
-                // Local News is location-based, not just category-based: a post
-                // must have all three CMS location selections saved as IDs.
-                ->whereNotNull('division_id')
-                ->whereNotNull('district_id')
-                ->whereNotNull('upazila_id')
-                ->whereHas('districtLocation', function (Builder $query) {
-                    $query->whereColumn('districts.division_id', 'posts.division_id');
-                })
-                ->whereHas('upazilaLocation', function (Builder $query) {
-                    $query->whereColumn('upazilas.division_id', 'posts.division_id')
-                        ->whereColumn('upazilas.district_id', 'posts.district_id');
-                })
+                ->localLocated()
                 ->orderByRaw('COALESCE(published_at, created_at) DESC')
                 ->latest('id')
                 ->take($limit)
@@ -328,12 +307,11 @@ class ArticleFeed
         }
 
         try {
-            return self::$locationColumnsReady = Schema::hasColumn('posts', 'division')
+            return Schema::hasColumn('posts', 'division')
                 && Schema::hasColumn('posts', 'district')
                 && Schema::hasColumn('posts', 'upazila');
-        } catch (\Exception $e) {
-            \Illuminate\Support\Facades\Log::error("Schema check failed for location columns: " . $e->getMessage());
-            return self::$locationColumnsReady = false;
+        } catch (\Throwable) {
+            return false;
         }
     }
 
@@ -364,6 +342,138 @@ class ArticleFeed
     private static function publicStatuses(): array
     {
         return ['published'];
+    }
+
+    private static function applyCategoryFilter(Builder $query, array $categorySlugs, bool $relationshipOnly = false): void
+    {
+        $categorySlugs = array_values(array_filter($categorySlugs));
+
+        if ($categorySlugs === []) {
+            return;
+        }
+
+        if (self::categoryRelationshipReady()) {
+            $query->where(function (Builder $categoryQuery) use ($categorySlugs) {
+                $categoryQuery
+                    ->whereHas('categories', fn (Builder $relationQuery) => $relationQuery->whereIn('slug', $categorySlugs))
+                    ->orWhereHas('primaryCategory', fn (Builder $relationQuery) => $relationQuery->whereIn('slug', $categorySlugs));
+            });
+
+            return;
+        }
+
+        if ($relationshipOnly) {
+            $query->whereRaw('1 = 0');
+            return;
+        }
+
+        $query->where(function (Builder $legacyQuery) use ($categorySlugs) {
+            $legacyQuery
+                ->whereIn('category_slug', $categorySlugs)
+                ->orWhereIn('subcategory_slug', $categorySlugs)
+                ->orWhereHas('category', fn (Builder $categoryQuery) => $categoryQuery->whereIn('slug', $categorySlugs))
+                ->orWhereHas('subcategory', fn (Builder $categoryQuery) => $categoryQuery->whereIn('slug', $categorySlugs));
+        });
+    }
+
+    private static function applyLocationFilter(Builder $query, ?string $division = null, ?string $district = null, ?string $upazila = null): void
+    {
+        if (! self::hasLocationFilter($division, $district, $upazila)) {
+            return;
+        }
+
+        if (self::locationIdColumnsReady()) {
+            $divisionId = self::divisionId($division);
+            $districtId = self::districtId($district, $divisionId);
+            $upazilaId = self::upazilaId($upazila, $districtId);
+
+            if ($division && ! $divisionId) {
+                $query->whereRaw('1 = 0');
+                return;
+            }
+
+            if ($district && ! $districtId) {
+                $query->whereRaw('1 = 0');
+                return;
+            }
+
+            if ($upazila && ! $upazilaId) {
+                $query->whereRaw('1 = 0');
+                return;
+            }
+
+            $query
+                ->when($divisionId, fn (Builder $query) => $query->where('division_id', $divisionId))
+                ->when($districtId, fn (Builder $query) => $query->where('district_id', $districtId))
+                ->when($upazilaId, fn (Builder $query) => $query->where('upazila_id', $upazilaId));
+
+            return;
+        }
+
+        $query
+            ->when($division, fn (Builder $query) => $query->where('division', $division))
+            ->when($district, fn (Builder $query) => $query->where('district', $district))
+            ->when($upazila, fn (Builder $query) => $query->where('upazila', $upazila));
+    }
+
+    private static function categoryRelationshipReady(): bool
+    {
+        try {
+            return Schema::hasTable('post_category')
+                && Schema::hasColumn('posts', 'primary_category_id');
+        } catch (\Throwable) {
+            return false;
+        }
+    }
+
+    private static function locationIdColumnsReady(): bool
+    {
+        try {
+            return Schema::hasColumn('posts', 'division_id')
+                && Schema::hasColumn('posts', 'district_id')
+                && Schema::hasColumn('posts', 'upazila_id')
+                && Schema::hasTable('divisions')
+                && Schema::hasTable('districts')
+                && Schema::hasTable('upazilas');
+        } catch (\Throwable) {
+            return false;
+        }
+    }
+
+    private static function divisionId(?string $division): ?int
+    {
+        if (! $division) {
+            return null;
+        }
+
+        return DB::table('divisions')
+            ->where('name', $division)
+            ->orWhere('name_bangla', $division)
+            ->value('id');
+    }
+
+    private static function districtId(?string $district, ?int $divisionId): ?int
+    {
+        if (! $district) {
+            return null;
+        }
+
+        return DB::table('districts')
+            ->when($divisionId, fn ($query) => $query->where('division_id', $divisionId))
+            ->where(fn ($query) => $query->where('name', $district)->orWhere('name_bangla', $district))
+            ->value('id');
+    }
+
+    private static function upazilaId(?string $upazila, ?int $districtId): ?int
+    {
+        if (! $upazila) {
+            return null;
+        }
+
+        return DB::table('upazilas')
+            ->when($districtId, fn ($query) => $query->where('district_id', $districtId))
+            ->where(fn ($query) => $query->where('name', $upazila)->orWhere('name_bangla', $upazila))
+            ->value('id');
     }
 
     private static function legacyHomepageSection(string $section, array $articles, array $fallbackArticles): array
@@ -444,7 +554,7 @@ class ArticleFeed
             'time_ago' => DateHelper::timeAgo($publishedAt),
             'image_url' => ImageResolver::postImageUrl($post),
             'views' => (int) ($post->view_count ?? 0),
-            'tags' => [],
+            'tags' => $post->relationLoaded('tags') ? $post->tags->pluck('name')->values()->all() : [],
         ];
 
         if ($includeBody) {
@@ -454,6 +564,9 @@ class ArticleFeed
                 ->values()
                 ->all();
             $article['location'] = null;
+            if ($post->relationLoaded('districtLocation') && $post->districtLocation) {
+                $article['location'] = $post->districtLocation->name_bangla ?: $post->districtLocation->name;
+            }
             $article['meta_title'] = $post->meta_title ?: $post->title;
             $article['meta_description'] = $post->meta_description ?: Str::limit(strip_tags((string) $post->excerpt), 155);
         }
@@ -461,5 +574,46 @@ class ArticleFeed
         return $article;
     }
 
+    private static function imageUrl(?string $path): string
+    {
+        if (! $path) {
+            return asset('images/news-1.jpg');
+        }
 
+        if (Str::startsWith($path, ['http://', 'https://', '//', '/images/', 'images/'])) {
+            return Str::startsWith($path, ['http://', 'https://', '//'])
+                ? $path
+                : asset(ltrim($path, '/'));
+        }
+
+        if (! Str::contains($path, '/') && file_exists(public_path("images/{$path}"))) {
+            return asset("images/{$path}");
+        }
+
+        return asset('storage/' . ltrim($path, '/'));
+    }
+
+    private static function postImageUrl(Post $post): string
+    {
+        if ($post->image_path) {
+            $filename = basename($post->image_path);
+
+            return file_exists(public_path("images/{$filename}"))
+                ? asset("images/{$filename}")
+                : self::placeholderImageUrl();
+        }
+
+        return self::imageUrl($post->featured_image);
+    }
+
+    private static function placeholderImageUrl(): string
+    {
+        foreach (['placeholder.jpg', 'news-1.jpg', 'coming-soon-ad.webp'] as $filename) {
+            if (file_exists(public_path("images/{$filename}"))) {
+                return asset("images/{$filename}");
+            }
+        }
+
+        return asset('images/news-1.jpg');
+    }
 }
