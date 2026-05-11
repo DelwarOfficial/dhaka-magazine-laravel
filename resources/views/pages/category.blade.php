@@ -4,6 +4,12 @@
 @section('meta_description', $metaDescription ?? '')
 
 @section('content')
+  @php
+    // UI adapter for future normalized Category -> posts relationship.
+    // Controllers can later pass $posts directly without changing this layout.
+    $sectionPosts = collect($posts ?? $categoryArticles ?? [])->values();
+  @endphp
+
   <main class="w-full max-w-screen-xl mx-auto px-4 py-5 md:py-6">
     @if(!empty($breadcrumbs))
       <nav class="mb-4 text-[13px] text-fg-secondary" aria-label="Breadcrumb">
@@ -42,15 +48,15 @@
 
     <div class="grid grid-cols-1 gap-8 lg:grid-cols-12 lg:gap-8">
       <section class="min-w-0 lg:col-span-8">
-        @if(count($categoryArticles) > 0)
+        @if($sectionPosts->isNotEmpty())
           @php
-            $heroArticle = $categoryArticles[0];
-            $gridArticles = array_slice($categoryArticles, 1);
+            $heroArticle = $sectionPosts->first();
+            $gridArticles = $sectionPosts->slice(1)->values();
           @endphp
 
           <x-news.hero-card :article="$heroArticle" />
 
-          @if(count($gridArticles) > 0)
+          @if($gridArticles->isNotEmpty())
             <div class="mt-6 grid min-w-0 grid-cols-1 gap-5 md:grid-cols-2 xl:grid-cols-3">
               @foreach($gridArticles as $article)
                 <x-news.news-card :article="$article" />

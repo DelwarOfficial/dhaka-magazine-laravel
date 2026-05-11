@@ -4,7 +4,8 @@
 
 @section('content')
 
-  {{-- ══ HERO — 3 COLUMNS ═══════════════════════════════════════ --}}
+  {{-- Placement-fed hero.
+       Current source: post flags/order columns. Future CMS source: content_placements. --}}
   <div class="w-full max-w-screen-xl mx-auto px-4 hero-section">
     {{-- Mobile: 2-column grid for left+right --}}
     <div class="grid grid-cols-1 md:hidden gap-3 border-t border-border">
@@ -207,97 +208,20 @@
 
   <div class="border-t-4 border-border"></div>
 
-  {{-- 2. BANGLADESH ════════════════════════════════════════════ --}}
-  <div class="w-full max-w-screen-xl mx-auto px-4 py-5">
-    <x-section-header title="বাংলাদেশ" :moreUrl="route('category.parent', 'bangladesh')" />
-    <div class="grid grid-cols-2 md:grid-cols-4 gap-5">
-      @if(isset($bangladeshArticles))
-        @foreach($bangladeshArticles as $a)
-          <x-cards.grid :article="$a" :titleSize="15" />
-        @endforeach
-      @endif
-    </div>
-  </div>
+  <x-home.category-grid-section
+    title="বাংলাদেশ"
+    :posts="$bangladeshArticles ?? []"
+    :moreUrl="route('category.parent', 'bangladesh')"
+  />
 
   <div class="border-t-4 border-border"></div>
 
-  {{-- ══ SARADESH (সারাদেশ) — 3-column layout ═══════════════ --}}
-  <div class="w-full max-w-screen-xl mx-auto px-4 py-5">
-    <div class="flex items-center justify-between pb-2 mb-4 border-b border-border">
-      <div class="flex items-center gap-3">
-        <span class="section-icon"></span>
-        <h2 class="font-serif font-extrabold text-[20px] text-fg leading-none">সারাদেশ</h2>
-      </div>
-      <a href="{{ route('category.parent', 'country-news') }}" class="text-fg-secondary text-[13px] hover:text-[#e2231a] transition-colors flex items-center gap-0.5">
-        আরও <span class="text-[15px] leading-none ml-0.5">&rsaquo;</span>
-      </a>
-    </div>
-
-    {{-- জেলার সংবাদ filter bar — divisions loaded from DB; form submits to /saradesh --}}
-    <x-location-news-filter
-      :divisions="$saradeshDivisions ?? []"
-      selected-division=""
-      selected-district=""
-      selected-upazila=""
-    />
-
-    <div class="grid grid-cols-1 md:grid-cols-[1fr_2.2fr_1.3fr] gap-0 divide-x divide-border">
-
-      {{-- COL 1: grid cards (image + title only) --}}
-      <div class="pr-5 flex flex-col justify-between gap-5">
-        @if(isset($countryLeft))
-          @foreach($countryLeft as $a)
-            <a href="{{ route('article.show', $a['slug']) }}" class="group flex flex-col">
-              <div class="w-full aspect-[16/9] overflow-hidden mb-2">
-                <img src="{{ $a['image_url'] }}" alt="{{ $a['title'] }}" loading="lazy"
-                  class="w-full h-full object-cover transition-transform duration-300 group-hover:scale-[1.03]" />
-              </div>
-              <h3 class="font-serif font-bold text-[15px] text-fg leading-snug group-hover:text-[#e2231a] transition-colors line-clamp-3">
-                {{ $a['title'] }}
-              </h3>
-            </a>
-          @endforeach
-        @endif
-      </div>
-
-      {{-- COL 2: hero --}}
-      <div class="px-5">
-        @if(isset($countryHero))
-          <a href="{{ route('article.show', $countryHero['slug']) }}" class="group flex flex-col">
-            <div class="w-full aspect-[16/9] overflow-hidden mb-3">
-              <img src="{{ $countryHero['image_url'] }}" alt="{{ $countryHero['title'] }}" loading="lazy"
-                class="w-full h-full object-cover transition-transform duration-300 group-hover:scale-[1.03]" />
-            </div>
-            <h3 class="font-serif font-extrabold text-[21px] text-fg leading-snug group-hover:text-[#e2231a] transition-colors line-clamp-2 mb-2">
-              {{ $countryHero['title'] }}
-            </h3>
-            <p class="text-fg-secondary text-[13px] leading-relaxed line-clamp-2">
-              {{ $countryHero['excerpt'] }}
-            </p>
-          </a>
-        @endif
-      </div>
-
-      {{-- COL 3: horizontal list (title + small image, no category/time) --}}
-      <div class="pl-5 flex flex-col divide-y divide-border">
-        @if(isset($countryRight))
-          @foreach($countryRight as $a)
-            <a href="{{ route('article.show', $a['slug']) }}"
-              class="group flex items-start gap-3 py-3 first:pt-0 last:pb-0">
-              <h3 class="font-serif font-bold text-[14px] text-fg leading-snug group-hover:text-[#e2231a] transition-colors line-clamp-3 flex-1">
-                {{ $a['title'] }}
-              </h3>
-              <div class="w-[68px] h-[38px] shrink-0 overflow-hidden">
-                <img src="{{ $a['image_url'] }}" alt="{{ $a['title'] }}" loading="lazy"
-                  class="w-full h-full object-cover transition-transform duration-300 group-hover:scale-[1.03]" />
-              </div>
-            </a>
-          @endforeach
-        @endif
-      </div>
-
-    </div>
-  </div>
+  <x-home.local-news-section
+    :left-posts="$countryLeft ?? []"
+    :hero-post="$countryHero ?? null"
+    :right-posts="$countryRight ?? []"
+    :divisions="$saradeshDivisions ?? []"
+  />
 
   <div class="border-t-4 border-border"></div>
 

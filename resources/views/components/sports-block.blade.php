@@ -1,5 +1,8 @@
 @props(['sportsArticles' => [], 'sportsSubcatArticles' => []])
 
+{{-- Category-fed sports block.
+     Future CMS source: Sports category plus child-category collections. --}}
+
 <div class="w-full max-w-screen-xl mx-auto px-4 py-5">
   <div class="grid grid-cols-1 lg:grid-cols-[2fr_1fr] gap-6 lg:gap-8 lg:divide-x divide-border">
 

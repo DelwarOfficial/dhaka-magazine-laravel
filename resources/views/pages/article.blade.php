@@ -3,6 +3,11 @@
 @section('title', $article['title'] . ' - ঢাকা ম্যাগাজিন')
 
 @section('content')
+  @php
+    // UI adapter for future normalized Post -> categories relationship.
+    $primaryCategoryUrl = $article['category_url'] ?? route('category.parent', $article['category_slug'] ?? 'bangladesh');
+    $sectionPosts = collect($relatedArticles ?? [])->values();
+  @endphp
 
   {{-- Article Container — Prothom Alo style --}}
   <div class="w-full max-w-screen-xl mx-auto px-4 py-6">
@@ -13,7 +18,7 @@
 
         {{-- Category Breadcrumb --}}
         <div class="mb-4">
-          <a href="{{ route('category.parent', 'bangladesh') }}"
+          <a href="{{ $primaryCategoryUrl }}"
              class="text-[14px] font-bold text-[#e2231a] hover:underline font-serif">
             {{ $article['category'] }}
           </a>
@@ -103,17 +108,17 @@
         </div>
 
         {{-- More from Category --}}
-        @if(!empty($relatedArticles))
+        @if($sectionPosts->isNotEmpty())
           <section class="border-t-2 border-[#111] pt-5 mb-8">
             <div class="flex items-center gap-2 mb-4">
-              <a href="{{ route('category.parent', 'bangladesh') }}" class="text-[#e2231a] text-[14px] font-bold hover:underline">
+              <a href="{{ $primaryCategoryUrl }}" class="text-[#e2231a] text-[14px] font-bold hover:underline">
                 {{ $article['category'] }}
               </a>
               <span class="text-[14px] text-fg-secondary">থেকে আরও পড়ুন</span>
             </div>
 
             <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-5">
-              @foreach($relatedArticles as $related)
+              @foreach($sectionPosts as $related)
                 <a href="{{ route('article.show', $related['slug']) }}" class="group flex flex-col">
                   @if(!empty($related['image_url']))
                     <div class="w-full aspect-[16/9] overflow-hidden mb-2">

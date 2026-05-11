@@ -1,5 +1,8 @@
 @props(['videoFeatured' => null, 'videoSmall' => []])
 
+{{-- Category-fed video block.
+     Future CMS source: Videos category posts; a placement can still pin the first item later. --}}
+
 <div class="w-full max-w-screen-xl mx-auto px-4 py-5">
   <x-section-header title="ভিডিও" :moreUrl="route('category.parent', 'videos')" />
   

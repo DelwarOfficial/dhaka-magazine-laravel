@@ -1,5 +1,8 @@
 @props(['carouselArticles' => [], 'latestArticles' => [], 'popularArticles' => []])
 
+{{-- Media-heavy category block.
+     Future CMS source: posts with featured media or a Photo News category/feed. --}}
+
 @php
     $blockId = 'photo-news-' . Str::random(6);
     $fallback = ['a.jpg', 'b.jpg', 'c.jpg', 'd.jpg', 'e.jpg', 'f.jpg', 'g.jpg', 'h.jpg', 'i.jpg', 'j.jpg'];
