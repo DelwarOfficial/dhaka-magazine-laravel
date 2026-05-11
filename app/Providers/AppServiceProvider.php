@@ -6,6 +6,7 @@ use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Facades\View;
 use App\Support\CategoryRepository;
 use App\Support\ArticleFeed;
+use App\Support\FallbackDataService;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -39,22 +40,9 @@ class AppServiceProvider extends ServiceProvider
         |
         */
         View::composer('layouts.app', function ($view) {
-            $headlines = [
-                ['title' => 'মেট্রোরেলের নতুন রুট চালু, স্বস্তিতে যাত্রীরা',                     'slug' => 'metro-rail-new-route'],
-                ['title' => 'বিশ্বকাপের প্রথম ম্যাচে বাংলাদেশের দুর্দান্ত জয়',                  'slug' => 'cricket-world-cup-win'],
-                ['title' => 'কৃত্রিম বুদ্ধিমত্তার নতুন চমক, চিন্তায় প্রযুক্তি বিশ্ব',            'slug' => 'ai-new-development'],
-                ['title' => 'অর্থনৈতিক প্রবৃদ্ধিতে নতুন রেকর্ড, আশাবাদী বিশেষজ্ঞরা',            'slug' => 'economic-growth-report'],
-                ['title' => 'রাজধানীতে আন্তর্জাতিক মানের নতুন হাসপাতাল উদ্বোধন',                 'slug' => 'new-hospital-dhaka'],
-                ['title' => 'জলবায়ু সম্মেলনে বিশ্ব নেতাদের কড়া বার্তা',                        'slug' => 'international-climate-summit'],
-                ['title' => 'ঈদে মুক্তি পাচ্ছে বহুল প্রতীক্ষিত সিনেমা \'স্বপ্নযাত্রা\'',        'slug' => 'new-movie-release'],
-                ['title' => 'দাবি আদায়ে শিক্ষার্থীদের আন্দোলন অব্যাহত',                         'slug' => 'student-protest-update'],
-                ['title' => 'দেশীয় স্টার্টআপে বিশাল বিদেশি বিনিয়োগ',                           'slug' => 'tech-startup-funding'],
-                ['title' => 'কৃষিতে নতুন প্রযুক্তির ছোঁয়া, কৃষকদের মুখে হাসি',                  'slug' => 'agricultural-innovation'],
-            ];
-
             // The ticker is controlled by the Breaking News flag. The hard-coded
             // list remains only as a legacy fallback for fresh or unmapped databases.
-            $view->with('tickerHeadlines', ArticleFeed::breakingNews($headlines, 10));
+            $view->with('tickerHeadlines', ArticleFeed::breakingNews(FallbackDataService::getArticles(), 10));
             $view->with('siteCategories', CategoryRepository::parents());
         });
     }

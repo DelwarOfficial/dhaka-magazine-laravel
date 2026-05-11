@@ -44,7 +44,8 @@ class District extends Model
                     return $divisions;
                 }
             }
-        } catch (\Throwable) {
+        } catch (\Exception $e) {
+            \Illuminate\Support\Facades\Log::error("Failed to fetch divisions from database: " . $e->getMessage());
             // Fall back to the bundled JSON data when the database is unavailable.
         }
 
@@ -68,7 +69,8 @@ class District extends Model
                     return $districts;
                 }
             }
-        } catch (\Throwable) {
+        } catch (\Exception $e) {
+            \Illuminate\Support\Facades\Log::error("Failed to fetch districts for division [{$division}]: " . $e->getMessage());
             // Fall back to the bundled JSON data when the database is unavailable.
         }
 
@@ -106,12 +108,6 @@ class District extends Model
 
     private static function locationData(): array
     {
-        $path = resource_path('data/bangladesh-locations.json');
-
-        if (! file_exists($path)) {
-            return [];
-        }
-
-        return json_decode(file_get_contents($path), true) ?: [];
+        return \App\Support\LocationDataProvider::getLocationData();
     }
 }

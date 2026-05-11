@@ -8,9 +8,15 @@ use Illuminate\Support\Collection;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Str;
+use App\Support\ImageResolver;
 
 class ArticleFeed
 {
+    private static ?bool $postsTableReady = null;
+    private static ?bool $locationColumnsReady = null;
+    private static ?bool $localNewsColumnsReady = null;
+    private static array $sectionColumnsReady = [];
+
     private const SECTION_COLUMNS = [
         'breaking' => ['flag' => 'is_breaking_news', 'order' => 'breaking_news_order', 'scope' => 'breakingNews'],
         'featured' => ['flag' => 'is_featured', 'order' => 'featured_order', 'scope' => 'featured'],
@@ -109,7 +115,8 @@ class ArticleFeed
                 ->whereIn('status', self::publicStatuses())
                 ->where('slug', $slug)
                 ->first();
-        } catch (\Throwable) {
+        } catch (\Exception $e) {
+            \Illuminate\Support\Facades\Log::error("Failed to find article [{$slug}]: " . $e->getMessage());
             $post = null;
         }
 
@@ -139,7 +146,8 @@ class ArticleFeed
                 ->latest('id')
                 ->take(100)
                 ->get();
-        } catch (\Throwable) {
+        } catch (\Exception $e) {
+            \Illuminate\Support\Facades\Log::error("Failed to fetch public posts: " . $e->getMessage());
             return collect();
         }
     }
@@ -189,7 +197,8 @@ class ArticleFeed
                 ->latest('id')
                 ->take($limit)
                 ->get();
-        } catch (\Throwable) {
+        } catch (\Exception $e) {
+            \Illuminate\Support\Facades\Log::error("Failed to fetch section posts for [{$section}]: " . $e->getMessage());
             return collect();
         }
     }
@@ -234,7 +243,8 @@ class ArticleFeed
                 ->latest('id')
                 ->take($limit)
                 ->get();
-        } catch (\Throwable) {
+        } catch (\Exception $e) {
+            \Illuminate\Support\Facades\Log::error("Failed to fetch category posts: " . $e->getMessage());
             return collect();
         }
     }
@@ -272,56 +282,77 @@ class ArticleFeed
                 ->latest('id')
                 ->take($limit)
                 ->get();
-        } catch (\Throwable) {
+        } catch (\Exception $e) {
+            \Illuminate\Support\Facades\Log::error("Failed to fetch local news posts: " . $e->getMessage());
             return collect();
         }
     }
 
     private static function postsTableReady(): bool
     {
+        if (self::$postsTableReady !== null) {
+            return self::$postsTableReady;
+        }
+
         try {
-            return class_exists(Post::class) && Schema::hasTable('posts');
-        } catch (\Throwable) {
-            return false;
+            return self::$postsTableReady = class_exists(Post::class) && Schema::hasTable('posts');
+        } catch (\Exception $e) {
+            \Illuminate\Support\Facades\Log::error("Schema check failed for 'posts' table: " . $e->getMessage());
+            return self::$postsTableReady = false;
         }
     }
 
     private static function homepageSectionColumnsReady(string $section): bool
     {
+        if (isset(self::$sectionColumnsReady[$section])) {
+            return self::$sectionColumnsReady[$section];
+        }
+
         try {
             if (! self::postsTableReady() || ! isset(self::SECTION_COLUMNS[$section])) {
-                return false;
+                return self::$sectionColumnsReady[$section] = false;
             }
 
-            return Schema::hasColumn('posts', self::SECTION_COLUMNS[$section]['flag'])
+            return self::$sectionColumnsReady[$section] = Schema::hasColumn('posts', self::SECTION_COLUMNS[$section]['flag'])
                 && Schema::hasColumn('posts', self::SECTION_COLUMNS[$section]['order']);
-        } catch (\Throwable) {
-            return false;
+        } catch (\Exception $e) {
+            \Illuminate\Support\Facades\Log::error("Schema check failed for section '{$section}': " . $e->getMessage());
+            return self::$sectionColumnsReady[$section] = false;
         }
     }
 
     private static function locationColumnsReady(): bool
     {
+        if (self::$locationColumnsReady !== null) {
+            return self::$locationColumnsReady;
+        }
+
         try {
-            return Schema::hasColumn('posts', 'division')
+            return self::$locationColumnsReady = Schema::hasColumn('posts', 'division')
                 && Schema::hasColumn('posts', 'district')
                 && Schema::hasColumn('posts', 'upazila');
-        } catch (\Throwable) {
-            return false;
+        } catch (\Exception $e) {
+            \Illuminate\Support\Facades\Log::error("Schema check failed for location columns: " . $e->getMessage());
+            return self::$locationColumnsReady = false;
         }
     }
 
     private static function localNewsColumnsReady(): bool
     {
+        if (self::$localNewsColumnsReady !== null) {
+            return self::$localNewsColumnsReady;
+        }
+
         try {
-            return self::postsTableReady()
+            return self::$localNewsColumnsReady = self::postsTableReady()
                 && Schema::hasColumn('posts', 'division_id')
                 && Schema::hasColumn('posts', 'district_id')
                 && Schema::hasColumn('posts', 'upazila_id')
                 && Schema::hasTable('districts')
                 && Schema::hasTable('upazilas');
-        } catch (\Throwable) {
-            return false;
+        } catch (\Exception $e) {
+            \Illuminate\Support\Facades\Log::error("Schema check failed for local news columns: " . $e->getMessage());
+            return self::$localNewsColumnsReady = false;
         }
     }
 
@@ -411,7 +442,7 @@ class ArticleFeed
             'author' => $post->author?->name ?: $post->source_name ?: 'ঢাকা ম্যাগাজিন ডেস্ক',
             'date' => DateHelper::getBengaliDate($publishedAt),
             'time_ago' => DateHelper::timeAgo($publishedAt),
-            'image_url' => self::postImageUrl($post),
+            'image_url' => ImageResolver::postImageUrl($post),
             'views' => (int) ($post->view_count ?? 0),
             'tags' => [],
         ];
@@ -430,46 +461,5 @@ class ArticleFeed
         return $article;
     }
 
-    private static function imageUrl(?string $path): string
-    {
-        if (! $path) {
-            return asset('images/news-1.jpg');
-        }
 
-        if (Str::startsWith($path, ['http://', 'https://', '//', '/images/', 'images/'])) {
-            return Str::startsWith($path, ['http://', 'https://', '//'])
-                ? $path
-                : asset(ltrim($path, '/'));
-        }
-
-        if (! Str::contains($path, '/') && file_exists(public_path("images/{$path}"))) {
-            return asset("images/{$path}");
-        }
-
-        return asset('storage/' . ltrim($path, '/'));
-    }
-
-    private static function postImageUrl(Post $post): string
-    {
-        if ($post->image_path) {
-            $filename = basename($post->image_path);
-
-            return file_exists(public_path("images/{$filename}"))
-                ? asset("images/{$filename}")
-                : self::placeholderImageUrl();
-        }
-
-        return self::imageUrl($post->featured_image);
-    }
-
-    private static function placeholderImageUrl(): string
-    {
-        foreach (['placeholder.jpg', 'news-1.jpg', 'coming-soon-ad.webp'] as $filename) {
-            if (file_exists(public_path("images/{$filename}"))) {
-                return asset("images/{$filename}");
-            }
-        }
-
-        return asset('images/news-1.jpg');
-    }
 }

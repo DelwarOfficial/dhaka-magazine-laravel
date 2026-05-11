@@ -111,7 +111,8 @@ class PostCategoryResolver
     {
         try {
             return CategoryRepository::route($category);
-        } catch (\Throwable) {
+        } catch (\Exception $e) {
+            \Illuminate\Support\Facades\Log::error("Failed to generate category route: " . $e->getMessage());
             return null;
         }
     }

@@ -6,15 +6,18 @@ use App\Helpers\DateHelper;
 use App\Models\Post;
 use App\Support\ArticleFeed;
 use App\Support\PostCategoryResolver;
+use App\Support\FallbackDataService;
+use App\Support\ImageResolver;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Str;
 
 class NewsController extends Controller
-{
+    private static ?bool $postsTableReady = null;
+
     public function latest()
     {
-        $fallbackArticles = $this->fallbackArticles();
+        $fallbackArticles = FallbackDataService::getArticles();
         $posts = $this->latestPosts($fallbackArticles);
         $topStory = $posts->firstItem() === 1 ? $posts->getCollection()->first() : null;
         $popularNews = array_slice(ArticleFeed::homepageArticles($fallbackArticles, 20), 0, 5);
@@ -41,15 +44,11 @@ class NewsController extends Controller
         }
 
         try {
-            // All Posts is live database content. Eager loading author/category keeps
-            // the existing Blade loops unchanged while avoiding N+1 queries.
-            $query = Post::query()
-                ->when($this->availableRelations(), fn ($query, array $relations) => $query->with($relations))
+            $posts = Post::query()
+                ->with(['category.parent', 'subcategory.parent', 'author'])
                 ->whereIn('status', ['published'])
                 ->latest('published_at')
-                ->latest('id');
-
-            $posts = $query
+                ->latest('id')
                 ->paginate(20)
                 ->withQueryString();
 
@@ -60,7 +59,8 @@ class NewsController extends Controller
             }
 
             return $posts;
-        } catch (\Throwable) {
+        } catch (\Exception $e) {
+            \Illuminate\Support\Facades\Log::error("Failed to fetch latest posts: " . $e->getMessage());
             return $this->paginateArticles($fallbackArticles);
         }
     }
@@ -79,55 +79,12 @@ class NewsController extends Controller
             'author' => $post->author?->name ?: $post->source_name ?: 'ঢাকা ম্যাগাজিন ডেস্ক',
             'date' => DateHelper::getBengaliDate($publishedAt),
             'time_ago' => DateHelper::timeAgo($publishedAt),
-            'image_url' => $this->postImageUrl($post),
+            'image_url' => ImageResolver::postImageUrl($post),
             'views' => $this->viewCount($post),
         ];
     }
 
-    private function imageUrl(?string $path): string
-    {
-        if (! $path) {
-            return asset('images/news-1.jpg');
-        }
 
-        if (Str::startsWith($path, ['http://', 'https://', '//'])) {
-            return $path;
-        }
-
-        if (Str::startsWith($path, ['/images/', 'images/'])) {
-            return asset(ltrim($path, '/'));
-        }
-
-        if (! Str::contains($path, '/') && file_exists(public_path("images/{$path}"))) {
-            return asset("images/{$path}");
-        }
-
-        return asset('storage/' . ltrim($path, '/'));
-    }
-
-    private function postImageUrl(Post $post): string
-    {
-        if ($post->image_path) {
-            $filename = basename($post->image_path);
-
-            return file_exists(public_path("images/{$filename}"))
-                ? asset("images/{$filename}")
-                : $this->placeholderImageUrl();
-        }
-
-        return $this->imageUrl($post->featured_image);
-    }
-
-    private function placeholderImageUrl(): string
-    {
-        foreach (['placeholder.jpg', 'news-1.jpg', 'coming-soon-ad.webp'] as $filename) {
-            if (file_exists(public_path("images/{$filename}"))) {
-                return asset("images/{$filename}");
-            }
-        }
-
-        return asset('images/news-1.jpg');
-    }
 
     private function viewCount(Post $post): ?int
     {
@@ -138,19 +95,6 @@ class NewsController extends Controller
         }
 
         return null;
-    }
-
-    private function availableRelations(): array
-    {
-        return collect(['category.parent', 'subcategory.parent', 'author'])
-            ->filter(fn (string $relation) => method_exists(Post::class, explode('.', $relation)[0]))
-            ->values()
-            ->all();
-    }
-
-    private function fallbackArticles(): array
-    {
-        return app(HomeController::class)->fallbackArticles();
     }
 
     private function paginateArticles(array $articles): LengthAwarePaginator
@@ -178,10 +122,15 @@ class NewsController extends Controller
 
     private function postsTableReady(): bool
     {
+        if (self::$postsTableReady !== null) {
+            return self::$postsTableReady;
+        }
+
         try {
-            return class_exists(Post::class) && Schema::hasTable('posts');
-        } catch (\Throwable) {
-            return false;
+            return self::$postsTableReady = class_exists(Post::class) && Schema::hasTable('posts');
+        } catch (\Exception $e) {
+            \Illuminate\Support\Facades\Log::error("Schema check failed for 'posts' table in NewsController: " . $e->getMessage());
+            return self::$postsTableReady = false;
         }
     }
 
