@@ -21,9 +21,19 @@ class District extends Model
         return $this->belongsTo(Division::class, 'division_id');
     }
 
+    public function division(): BelongsTo
+    {
+        return $this->belongsTo(Division::class);
+    }
+
     public function upazilas(): HasMany
     {
         return $this->hasMany(Upazila::class);
+    }
+
+    public function posts(): HasMany
+    {
+        return $this->hasMany(Post::class);
     }
 
     /**

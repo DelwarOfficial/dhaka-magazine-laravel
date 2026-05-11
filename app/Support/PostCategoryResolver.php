@@ -24,6 +24,19 @@ class PostCategoryResolver
 
     public static function categoryFor(Post $post): array
     {
+        if ($post->relationLoaded('primaryCategory') && $post->getRelation('primaryCategory')) {
+            return self::categoryArrayFromModel($post->getRelation('primaryCategory'));
+        }
+
+        if ($post->relationLoaded('categories') && $post->getRelation('categories')->isNotEmpty()) {
+            $category = $post->getRelation('categories')->firstWhere('pivot.is_primary', true)
+                ?? $post->getRelation('categories')->first();
+
+            if ($category) {
+                return self::categoryArrayFromModel($category);
+            }
+        }
+
         if ($post->relationLoaded('subcategory') && $post->getRelation('subcategory')) {
             return self::categoryArrayFromModel($post->getRelation('subcategory'));
         }

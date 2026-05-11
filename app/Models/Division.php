@@ -18,4 +18,9 @@ class Division extends Model
     {
         return $this->hasMany(Upazila::class);
     }
+
+    public function posts(): HasMany
+    {
+        return $this->hasMany(Post::class);
+    }
 }

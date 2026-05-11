@@ -48,6 +48,7 @@
         <div>
           @if(isset($sportsSubcatArticles))
             @foreach($sportsSubcatArticles as $item)
+              @continue(empty($item['article']))
               <a href="{{ route('article.show', $item['article']['slug']) }}"
                 class="group flex items-start gap-3 py-3 border-b border-border last:border-b-0 first:pt-0">
                 <div class="flex-1 min-w-0">

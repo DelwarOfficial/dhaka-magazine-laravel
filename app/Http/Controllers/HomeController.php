@@ -50,9 +50,9 @@ class HomeController extends Controller
         $countryHero = $localNewsArticles[2] ?? null;
         $countryRight = array_slice($localNewsArticles, 3, 6);
 
-        // ══ INTERNATIONAL ════════════════════════════════════════
-        $worldArticles = $this->categoryArticles(['world'], 6);
-        $internationalBig = $worldArticles[0] ?? $articles[5];
+        // International is relationship-only: category_id / post_category drives the section.
+        $worldArticles = ArticleFeed::categoryRelationshipArticles(['world'], 6);
+        $internationalBig = $worldArticles[0] ?? null;
         $internationalSmall = array_slice($worldArticles, 1, 5);
 
         // ══ OPINION ══════════════════════════════════════════════
@@ -65,13 +65,15 @@ class HomeController extends Controller
         ];
 
         // ══ SPORTS ═══════════════════════════════════════════════
-        $sportsArticles = $this->categoryArticles(['sports', 'football', 'cricket', 'other-sports'], 4);
-        $sportsSubcatArticles = [
-            ['article' => $this->firstCategoryArticle(['cricket'], $sportsArticles[0] ?? $articles[1]), 'subcat' => 'ক্রিকেট'],
-            ['article' => $this->firstCategoryArticle(['other-sports'], $sportsArticles[1] ?? $articles[11]), 'subcat' => 'অন্যান্য খেলা'],
-            ['article' => $this->firstCategoryArticle(['football'], $sportsArticles[2] ?? $articles[3]), 'subcat' => 'ফুটবল'],
-            ['article' => $this->firstCategoryArticle(['sports'], $sportsArticles[3] ?? $articles[13]), 'subcat' => 'আজকের খেলা'],
-        ];
+        // Sports is intentionally relationship-only: posts must come from
+        // primary_category_id or post_category, never legacy category slug fields.
+        $sportsArticles = ArticleFeed::categoryRelationshipArticles(['sports', 'football', 'cricket', 'other-sports'], 4);
+        $sportsSubcatArticles = collect([
+            ['article' => $this->firstRelationshipCategoryArticle(['cricket']), 'subcat' => 'ক্রিকেট'],
+            ['article' => $this->firstRelationshipCategoryArticle(['other-sports']), 'subcat' => 'অন্যান্য খেলা'],
+            ['article' => $this->firstRelationshipCategoryArticle(['football']), 'subcat' => 'ফুটবল'],
+            ['article' => $this->firstRelationshipCategoryArticle(['sports']), 'subcat' => 'আজকের খেলা'],
+        ])->filter(fn (array $item) => ! empty($item['article']))->values()->all();
 
         // ══ OPINION / মতামত ═════════════════════════════════════════════════
         $matamatArticles = $this->categoryArticles(['opinion'], 4);
@@ -81,10 +83,10 @@ class HomeController extends Controller
         $videoFeatured = $videoArticles[0] ?? $articles[6];
         $videoSmall = array_slice($videoArticles, 1, 3);
 
-        // ══ ENTERTAINMENT ════════════════════════════════════════
-        $entertainmentArticles = $this->categoryArticles(['entertainment'], 7);
+        // Entertainment is relationship-only: category_id / post_category drives the section.
+        $entertainmentArticles = ArticleFeed::categoryRelationshipArticles(['entertainment'], 7);
         $entertainmentLeft = array_slice($entertainmentArticles, 0, 3);
-        $entertainmentHero = $entertainmentArticles[3] ?? $articles[7];
+        $entertainmentHero = $entertainmentArticles[3] ?? null;
         $entertainmentRight = array_slice($entertainmentArticles, 4, 3);
 
         // ══ ECONOMY + HEALTH + JOBS ═════════════════════════════
@@ -170,6 +172,11 @@ class HomeController extends Controller
     private function firstCategoryArticle(array $slugs, array $fallback): array
     {
         return $this->categoryArticles($slugs, 1)[0] ?? $fallback;
+    }
+
+    private function firstRelationshipCategoryArticle(array $slugs): ?array
+    {
+        return ArticleFeed::categoryRelationshipArticles($slugs, 1)[0] ?? null;
     }
 
     private function mergeArticleIds(array $ids, array $articles): array
