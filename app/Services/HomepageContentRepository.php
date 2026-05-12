@@ -44,9 +44,19 @@ class HomepageContentRepository
         return ArticleFeed::categoryArticles($slugs, $fallbackArticles, $limit);
     }
 
-    public function relationshipCategory(array $slugs, int $limit): array
+    public function relationshipCategory(array $slugs, int $limit, array $fallbackArticles = []): array
     {
-        return ArticleFeed::categoryRelationshipArticles($slugs, $limit);
+        $articles = ArticleFeed::categoryRelationshipArticles($slugs, $limit);
+
+        if ($articles !== []) {
+            return $articles;
+        }
+
+        return collect($fallbackArticles)
+            ->whereIn('category_slug', $slugs)
+            ->take($limit)
+            ->values()
+            ->all();
     }
 
     public function localNews(array $fallbackArticles, int $limit): array

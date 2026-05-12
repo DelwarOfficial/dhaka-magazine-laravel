@@ -55,7 +55,7 @@
   {{-- ══ INTERNATIONAL ════════════════════════════════════════ --}}
   <x-home.feature-list-section
     title="আন্তর্জাতিক"
-    :posts="array_filter(array_merge([$internationalBig ?? null], $internationalSmall ?? []))"
+    :posts="$internationalArticles ?? []"
     :moreUrl="route('category.parent', 'world')"
   />
 
@@ -70,21 +70,17 @@
   <div class="border-t-4 border-border"></div>
 
   {{-- ══ মতামত ═════════════════════════════════════ --}}
-  <div class="w-full max-w-screen-xl mx-auto px-4 py-5">
-    <x-section-header title="মতামত" :moreUrl="route('category.parent', 'opinion')" />
-    <div class="grid grid-cols-2 md:grid-cols-4 gap-5">
-      @if(isset($matamatArticles))
-        @foreach($matamatArticles as $a)
-          <x-cards.grid :article="$a" :titleSize="15" />
-        @endforeach
-      @endif
-    </div>
-  </div>
+  <x-home.opinion-section
+    title="মতামত"
+    :posts="$matamatArticles ?? []"
+    :moreUrl="route('category.parent', 'opinion')"
+  />
 
   <div class="border-t-4 border-border"></div>
 
   {{-- ══ VIDEO — dark bg, 1 large left + 3 small right ════════ --}}
   <x-video-block 
+    :articles="$videoArticles ?? []"
     :video-featured="$videoFeatured ?? null" 
     :video-small="$videoSmall ?? null" 
   />

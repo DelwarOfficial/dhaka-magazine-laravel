@@ -61,10 +61,10 @@ class HomeDataService
             (int) config('homepage.sections.local_news.limit', 9),
         );
 
-        $worldArticles = $sections['world']->articles;
+        $worldLayout = $this->featureListLayout($sections['world']->articles);
         $sportsArticles = $sections['sports']->articles;
-        $videoArticles = $sections['videos']->articles;
-        $entertainmentArticles = $sections['entertainment']->articles;
+        $videoLayout = $this->featureListLayout($sections['videos']->articles, 3);
+        $entertainmentLayout = $this->entertainmentLayout($sections['entertainment']->articles);
         $photoStoryPayload = $this->buildPhotoStoryPayload($articles);
 
         return [
@@ -79,18 +79,21 @@ class HomeDataService
             'countryLeft' => array_slice($localNewsArticles, 0, 2),
             'countryHero' => $localNewsArticles[2] ?? null,
             'countryRight' => array_slice($localNewsArticles, 3, 6),
-            'internationalBig' => $worldArticles[0] ?? ($articles[5] ?? null),
-            'internationalSmall' => array_slice($worldArticles, 1, 5),
+            'internationalArticles' => $worldLayout['posts'],
+            'internationalBig' => $worldLayout['featured'],
+            'internationalSmall' => $worldLayout['list'],
             'opinionArticles' => $sections['politics']->articles,
             'opinionMeta' => $this->opinionMeta(),
             'sportsArticles' => $sportsArticles,
-            'sportsSubcatArticles' => $this->sportsSubcategoryArticles($sportsArticles, $articles),
+            'sportsSubcatArticles' => $this->sportsSubcategoryArticles($sportsArticles, $fallbackArticles),
             'matamatArticles' => $sections['opinion']->articles,
-            'videoFeatured' => $videoArticles[0] ?? ($articles[6] ?? null),
-            'videoSmall' => array_slice($videoArticles, 1, 3),
-            'entertainmentLeft' => array_slice($entertainmentArticles, 0, 3),
-            'entertainmentHero' => $entertainmentArticles[3] ?? ($articles[7] ?? null),
-            'entertainmentRight' => array_slice($entertainmentArticles, 4, 3),
+            'videoArticles' => $videoLayout['posts'],
+            'videoFeatured' => $videoLayout['featured'],
+            'videoSmall' => $videoLayout['list'],
+            'entertainmentArticles' => $entertainmentLayout['posts'],
+            'entertainmentLeft' => $entertainmentLayout['left'],
+            'entertainmentHero' => $entertainmentLayout['hero'],
+            'entertainmentRight' => $entertainmentLayout['right'],
             'economyArticles' => $sections['economy']->articles,
             'healthArticles' => $sections['lifestyle']->articles,
             'jobArticles' => $sections['jobs']->articles,
@@ -117,7 +120,7 @@ class HomeDataService
                 $limit = (int) ($definition['limit'] ?? 4);
 
                 $articles = $source === 'relationship-category'
-                    ? $this->content->relationshipCategory($slugs, $limit)
+                    ? $this->content->relationshipCategory($slugs, $limit, $fallbackArticles)
                     : $this->content->category($slugs, $fallbackArticles, $limit);
 
                 return [$key => new HomepageSection($key, $source, $articles, $definition)];
@@ -138,20 +141,36 @@ class HomeDataService
         );
     }
 
-    private function sportsSubcategoryArticles(array $sportsArticles, array $articles): array
+    private function featureListLayout(array $articles, int $listLimit = 5): array
     {
-        $fallbacks = [
-            $sportsArticles[0] ?? ($articles[1] ?? null),
-            $sportsArticles[1] ?? ($articles[11] ?? null),
-            $sportsArticles[2] ?? ($articles[3] ?? null),
-            $sportsArticles[3] ?? ($articles[13] ?? null),
-        ];
+        $posts = array_values($articles);
 
+        return [
+            'posts' => $posts,
+            'featured' => $posts[0] ?? null,
+            'list' => array_slice($posts, 1, $listLimit),
+        ];
+    }
+
+    private function entertainmentLayout(array $articles): array
+    {
+        $posts = array_values($articles);
+
+        return [
+            'posts' => $posts,
+            'left' => array_slice($posts, 0, 3),
+            'hero' => $posts[3] ?? ($posts[0] ?? null),
+            'right' => array_slice($posts, 4, 3),
+        ];
+    }
+
+    private function sportsSubcategoryArticles(array $sportsArticles, array $fallbackArticles): array
+    {
         return collect(config('homepage.sections.sports_subcategories', []))
             ->values()
-            ->map(function (array $definition, int $index) use ($fallbacks) {
-                $article = $this->content->relationshipCategory($definition['slugs'] ?? [], 1)[0]
-                    ?? $fallbacks[$index]
+            ->map(function (array $definition, int $index) use ($sportsArticles, $fallbackArticles) {
+                $article = $this->content->relationshipCategory($definition['slugs'] ?? [], 1, $fallbackArticles)[0]
+                    ?? $sportsArticles[$index]
                     ?? null;
 
                 return [
