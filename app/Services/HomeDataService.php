@@ -43,7 +43,7 @@ class HomeDataService
         $countryRight = array_slice($localNewsArticles, 3, 6);
 
         // ══ INTERNATIONAL ════════════════════════════════════════
-        $worldArticles = $this->categoryArticles(['world'], 6);
+        $worldArticles = ArticleFeed::categoryRelationshipArticles(['world'], 6);
         $internationalBig = $worldArticles[0] ?? $articles[5];
         $internationalSmall = array_slice($worldArticles, 1, 5);
 
@@ -57,12 +57,12 @@ class HomeDataService
         ];
 
         // ══ SPORTS ═══════════════════════════════════════════════
-        $sportsArticles = $this->categoryArticles(['sports', 'football', 'cricket', 'other-sports'], 4);
+        $sportsArticles = ArticleFeed::categoryRelationshipArticles(['sports', 'football', 'cricket', 'other-sports'], 4);
         $sportsSubcatArticles = [
-            ['article' => $this->firstCategoryArticle(['cricket'], $sportsArticles[0] ?? $articles[1]), 'subcat' => 'ক্রিকেট'],
-            ['article' => $this->firstCategoryArticle(['other-sports'], $sportsArticles[1] ?? $articles[11]), 'subcat' => 'অন্যান্য খেলা'],
-            ['article' => $this->firstCategoryArticle(['football'], $sportsArticles[2] ?? $articles[3]), 'subcat' => 'ফুটবল'],
-            ['article' => $this->firstCategoryArticle(['sports'], $sportsArticles[3] ?? $articles[13]), 'subcat' => 'আজকের খেলা'],
+            ['article' => $this->firstRelationshipCategoryArticle(['cricket'], $sportsArticles[0] ?? $articles[1]), 'subcat' => 'ক্রিকেট'],
+            ['article' => $this->firstRelationshipCategoryArticle(['other-sports'], $sportsArticles[1] ?? $articles[11]), 'subcat' => 'অন্যান্য খেলা'],
+            ['article' => $this->firstRelationshipCategoryArticle(['football'], $sportsArticles[2] ?? $articles[3]), 'subcat' => 'ফুটবল'],
+            ['article' => $this->firstRelationshipCategoryArticle(['sports'], $sportsArticles[3] ?? $articles[13]), 'subcat' => 'আজকের খেলা'],
         ];
 
         // ══ OPINION / মতামত ═════════════════════════════════════════════════
@@ -74,7 +74,7 @@ class HomeDataService
         $videoSmall = array_slice($videoArticles, 1, 3);
 
         // ══ ENTERTAINMENT ════════════════════════════════════════
-        $entertainmentArticles = $this->categoryArticles(['entertainment'], 7);
+        $entertainmentArticles = ArticleFeed::categoryRelationshipArticles(['entertainment'], 7);
         $entertainmentLeft = array_slice($entertainmentArticles, 0, 3);
         $entertainmentHero = $entertainmentArticles[3] ?? $articles[7];
         $entertainmentRight = array_slice($entertainmentArticles, 4, 3);
@@ -163,6 +163,12 @@ class HomeDataService
     private function firstCategoryArticle(array $slugs, array $fallback): array
     {
         return $this->categoryArticles($slugs, 1)[0] ?? $fallback;
+    }
+
+    private function firstRelationshipCategoryArticle(array $slugs, array $fallback): array
+    {
+        $articles = ArticleFeed::categoryRelationshipArticles($slugs, 1);
+        return $articles[0] ?? $fallback;
     }
 
     private function mergeArticleIds(array $ids, array $articles): array

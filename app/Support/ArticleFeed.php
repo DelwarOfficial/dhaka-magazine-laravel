@@ -7,17 +7,11 @@ use App\Models\Post;
 use Illuminate\Support\Collection;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
-use App\Support\ImageResolver;
 
 class ArticleFeed
 {
-    private static ?bool $postsTableReady = null;
-    private static ?bool $locationColumnsReady = null;
-    private static ?bool $localNewsColumnsReady = null;
-    private static array $sectionColumnsReady = [];
-
     private const SECTION_COLUMNS = [
         'breaking' => ['flag' => 'is_breaking_news', 'order' => 'breaking_news_order', 'scope' => 'breakingNews'],
         'featured' => ['flag' => 'is_featured', 'order' => 'featured_order', 'scope' => 'featured'],
@@ -26,8 +20,10 @@ class ArticleFeed
         'editors_pick' => ['flag' => 'is_editors_pick', 'order' => 'editors_pick_order', 'scope' => 'editorsPick'],
     ];
 
-    public static function homepageArticles(array $fallbackArticles, int $limit = 40): array
+    public static function homepageArticles(?array $fallbackArticles = null, int $limit = 40): array
     {
+        $fallbackArticles ??= FallbackDataService::getArticles();
+
         $posts = self::publicPosts()
             ->take($limit)
             ->map(fn(Post $post) => self::toArticleArray($post));
@@ -39,33 +35,35 @@ class ArticleFeed
         return collect($fallbackArticles)->take($limit)->values()->all();
     }
 
-    public static function breakingNews(array $fallbackArticles, int $limit = 10, array $exceptIds = []): array
+    public static function breakingNews(?array $fallbackArticles = null, int $limit = 10, array $exceptIds = []): array
     {
         return self::homepageSection('breaking', $fallbackArticles, $limit, $exceptIds);
     }
 
-    public static function featured(array $fallbackArticles, int $limit = 1, array $exceptIds = []): array
+    public static function featured(?array $fallbackArticles = null, int $limit = 1, array $exceptIds = []): array
     {
         return self::homepageSection('featured', $fallbackArticles, $limit, $exceptIds);
     }
 
-    public static function sticky(array $fallbackArticles, int $limit = 6, array $exceptIds = []): array
+    public static function sticky(?array $fallbackArticles = null, int $limit = 6, array $exceptIds = []): array
     {
         return self::homepageSection('sticky', $fallbackArticles, $limit, $exceptIds);
     }
 
-    public static function trending(array $fallbackArticles, int $limit = 5, array $exceptIds = []): array
+    public static function trending(?array $fallbackArticles = null, int $limit = 5, array $exceptIds = []): array
     {
         return self::homepageSection('trending', $fallbackArticles, $limit, $exceptIds);
     }
 
-    public static function editorsPick(array $fallbackArticles, int $limit = 3, array $exceptIds = []): array
+    public static function editorsPick(?array $fallbackArticles = null, int $limit = 3, array $exceptIds = []): array
     {
         return self::homepageSection('editors_pick', $fallbackArticles, $limit, $exceptIds);
     }
 
-    public static function localNews(array $fallbackArticles, int $limit = 9): array
+    public static function localNews(?array $fallbackArticles = null, int $limit = 9): array
     {
+        $fallbackArticles ??= FallbackDataService::getArticles();
+
         $posts = self::localNewsPosts($limit)
             ->map(fn(Post $post) => self::toArticleArray($post))
             ->unique('id')
@@ -75,23 +73,20 @@ class ArticleFeed
             return $posts->all();
         }
 
-        if (self::localNewsColumnsReady()) {
-            // Once the ID columns exist, an empty Local News query should stay empty.
-            // The mapping command is responsible for preserving legacy visible posts
-            // by assigning complete division/district/upazila IDs.
+        if (SchemaReadyCheck::hasLocalNewsColumns()) {
             return [];
         }
 
-        // Pre-migration fallback only: keep the old visual content available on
-        // fresh checkouts until the location-ID migration and mapper have run.
         return self::legacyLocalNewsSection(self::homepageArticles($fallbackArticles))
             ->take($limit)
             ->values()
             ->all();
     }
 
-    public static function categoryArticles(array $categorySlugs, array $fallbackArticles, int $limit = 30, ?string $division = null, ?string $district = null, ?string $upazila = null): array
+    public static function categoryArticles(array $categorySlugs, ?array $fallbackArticles = null, int $limit = 30, ?string $division = null, ?string $district = null, ?string $upazila = null): array
     {
+        $fallbackArticles ??= FallbackDataService::getArticles();
+
         $posts = self::categoryPosts($categorySlugs, $limit, $division, $district, $upazila)
             ->map(fn(Post $post) => self::toArticleArray($post));
 
@@ -108,19 +103,22 @@ class ArticleFeed
 
     public static function categoryRelationshipArticles(array $categorySlugs, int $limit = 30, ?string $division = null, ?string $district = null, ?string $upazila = null): array
     {
-        return self::categoryPosts($categorySlugs, $limit, $division, $district, $upazila, relationshipOnly: true)
+        return self::categoryPosts($categorySlugs, $limit, $division, $district, $upazila, true)
             ->map(fn(Post $post) => self::toArticleArray($post))
             ->values()
             ->all();
     }
 
-    public static function findArticle(string $slug, array $fallbackArticles): ?array
+    public static function findArticle(string $slug, ?array $fallbackArticles = null): ?array
     {
-        if (!self::postsTableReady()) {
+        $fallbackArticles ??= FallbackDataService::getArticles();
+
+        if (!SchemaReadyCheck::isPostsTableReady()) {
             return collect($fallbackArticles)->firstWhere('slug', $slug);
         }
 
         try {
+            /** @var \App\Models\Post|null $post */
             $post = Post::query()
                 ->withContentRelations()
                 ->with(['divisionLocation', 'districtLocation', 'upazilaLocation'])
@@ -128,7 +126,7 @@ class ArticleFeed
                 ->where('slug', $slug)
                 ->first();
         } catch (\Exception $e) {
-            \Illuminate\Support\Facades\Log::error("Failed to find article [{$slug}]: " . $e->getMessage());
+            Log::error("Failed to find article [{$slug}]: " . $e->getMessage());
             $post = null;
         }
 
@@ -139,14 +137,14 @@ class ArticleFeed
         return collect($fallbackArticles)->firstWhere('slug', $slug);
     }
 
-    public static function allForRelated(array $fallbackArticles, int $limit = 80): array
+    public static function allForRelated(?array $fallbackArticles = null, int $limit = 80): array
     {
         return self::homepageArticles($fallbackArticles, $limit);
     }
 
     private static function publicPosts(): Collection
     {
-        if (!self::postsTableReady()) {
+        if (!SchemaReadyCheck::isPostsTableReady()) {
             return collect();
         }
 
@@ -159,13 +157,15 @@ class ArticleFeed
                 ->take(100)
                 ->get();
         } catch (\Exception $e) {
-            \Illuminate\Support\Facades\Log::error("Failed to fetch public posts: " . $e->getMessage());
+            Log::error("Failed to fetch public posts: " . $e->getMessage());
             return collect();
         }
     }
 
-    private static function homepageSection(string $section, array $fallbackArticles, int $limit, array $exceptIds = []): array
+    private static function homepageSection(string $section, ?array $fallbackArticles = null, int $limit = 0, array $exceptIds = []): array
     {
+        $fallbackArticles ??= FallbackDataService::getArticles();
+
         $posts = self::sectionPosts($section, $limit, $exceptIds)
             ->map(fn(Post $post) => self::toArticleArray($post));
 
@@ -173,9 +173,6 @@ class ArticleFeed
             return $posts->values()->all();
         }
 
-        // Fallback is deliberately scoped to the legacy slice that used to feed this UI
-        // section. It keeps fresh installs and unmigrated databases visually stable while
-        // still preventing duplicate IDs once earlier homepage sections have claimed them.
         return collect(self::legacyHomepageSection($section, self::homepageArticles($fallbackArticles), $fallbackArticles))
             ->reject(fn(array $article) => self::articleIdExcluded($article, $exceptIds))
             ->take($limit)
@@ -185,12 +182,15 @@ class ArticleFeed
 
     private static function sectionPosts(string $section, int $limit, array $exceptIds = []): Collection
     {
-        if (! self::homepageSectionColumnsReady($section)) {
+        if (!isset(self::SECTION_COLUMNS[$section])) return collect();
+
+        $meta = self::SECTION_COLUMNS[$section];
+
+        if (!SchemaReadyCheck::hasSectionColumns([$meta['flag'], $meta['order']])) {
             return collect();
         }
 
         try {
-            $meta = self::SECTION_COLUMNS[$section];
             $scope = $meta['scope'];
 
             return Post::query()
@@ -198,9 +198,6 @@ class ArticleFeed
                 ->published()
                 ->{$scope}()
                 ->when($exceptIds !== [], function (Builder $query) use ($exceptIds) {
-                    // Runtime de-duping keeps a post from appearing in multiple homepage
-                    // regions when an editor intentionally or accidentally enables more
-                    // than one section flag on the same post.
                     $query->whereNotIn('id', array_values(array_unique($exceptIds)));
                 })
                 ->orderByRaw("CASE WHEN {$meta['order']} IS NULL THEN 1 ELSE 0 END")
@@ -210,21 +207,21 @@ class ArticleFeed
                 ->take($limit)
                 ->get();
         } catch (\Exception $e) {
-            \Illuminate\Support\Facades\Log::error("Failed to fetch section posts for [{$section}]: " . $e->getMessage());
+            Log::error("Failed to fetch section posts for [{$section}]: " . $e->getMessage());
             return collect();
         }
     }
 
     private static function categoryPosts(array $categorySlugs, int $limit, ?string $division = null, ?string $district = null, ?string $upazila = null, bool $relationshipOnly = false): Collection
     {
-        if (!self::postsTableReady()) {
+        if (!SchemaReadyCheck::isPostsTableReady()) {
             return collect();
         }
 
         try {
             $hasLocationFilter = self::hasLocationFilter($division, $district, $upazila);
 
-            if ($hasLocationFilter && ! self::locationColumnsReady()) {
+            if ($hasLocationFilter && !SchemaReadyCheck::hasLocationColumns()) {
                 return collect();
             }
 
@@ -240,14 +237,14 @@ class ArticleFeed
                 ->take($limit)
                 ->get();
         } catch (\Exception $e) {
-            \Illuminate\Support\Facades\Log::error("Failed to fetch category posts: " . $e->getMessage());
+            Log::error("Failed to fetch category posts: " . $e->getMessage());
             return collect();
         }
     }
 
     private static function localNewsPosts(int $limit): Collection
     {
-        if (! self::localNewsColumnsReady()) {
+        if (!SchemaReadyCheck::hasLocalNewsColumns()) {
             return collect();
         }
 
@@ -262,75 +259,8 @@ class ArticleFeed
                 ->take($limit)
                 ->get();
         } catch (\Exception $e) {
-            \Illuminate\Support\Facades\Log::error("Failed to fetch local news posts: " . $e->getMessage());
+            Log::error("Failed to fetch local news posts: " . $e->getMessage());
             return collect();
-        }
-    }
-
-    private static function postsTableReady(): bool
-    {
-        if (self::$postsTableReady !== null) {
-            return self::$postsTableReady;
-        }
-
-        try {
-            return self::$postsTableReady = class_exists(Post::class) && Schema::hasTable('posts');
-        } catch (\Exception $e) {
-            \Illuminate\Support\Facades\Log::error("Schema check failed for 'posts' table: " . $e->getMessage());
-            return self::$postsTableReady = false;
-        }
-    }
-
-    private static function homepageSectionColumnsReady(string $section): bool
-    {
-        if (isset(self::$sectionColumnsReady[$section])) {
-            return self::$sectionColumnsReady[$section];
-        }
-
-        try {
-            if (! self::postsTableReady() || ! isset(self::SECTION_COLUMNS[$section])) {
-                return self::$sectionColumnsReady[$section] = false;
-            }
-
-            return self::$sectionColumnsReady[$section] = Schema::hasColumn('posts', self::SECTION_COLUMNS[$section]['flag'])
-                && Schema::hasColumn('posts', self::SECTION_COLUMNS[$section]['order']);
-        } catch (\Exception $e) {
-            \Illuminate\Support\Facades\Log::error("Schema check failed for section '{$section}': " . $e->getMessage());
-            return self::$sectionColumnsReady[$section] = false;
-        }
-    }
-
-    private static function locationColumnsReady(): bool
-    {
-        if (self::$locationColumnsReady !== null) {
-            return self::$locationColumnsReady;
-        }
-
-        try {
-            return Schema::hasColumn('posts', 'division')
-                && Schema::hasColumn('posts', 'district')
-                && Schema::hasColumn('posts', 'upazila');
-        } catch (\Throwable) {
-            return false;
-        }
-    }
-
-    private static function localNewsColumnsReady(): bool
-    {
-        if (self::$localNewsColumnsReady !== null) {
-            return self::$localNewsColumnsReady;
-        }
-
-        try {
-            return self::$localNewsColumnsReady = self::postsTableReady()
-                && Schema::hasColumn('posts', 'division_id')
-                && Schema::hasColumn('posts', 'district_id')
-                && Schema::hasColumn('posts', 'upazila_id')
-                && Schema::hasTable('districts')
-                && Schema::hasTable('upazilas');
-        } catch (\Exception $e) {
-            \Illuminate\Support\Facades\Log::error("Schema check failed for local news columns: " . $e->getMessage());
-            return self::$localNewsColumnsReady = false;
         }
     }
 
@@ -352,7 +282,7 @@ class ArticleFeed
             return;
         }
 
-        if (self::categoryRelationshipReady()) {
+        if (SchemaReadyCheck::hasCategoryRelationship()) {
             $query->where(function (Builder $categoryQuery) use ($categorySlugs) {
                 $categoryQuery
                     ->whereHas('categories', fn (Builder $relationQuery) => $relationQuery->whereIn('slug', $categorySlugs))
@@ -382,7 +312,7 @@ class ArticleFeed
             return;
         }
 
-        if (self::locationIdColumnsReady()) {
+        if (SchemaReadyCheck::hasLocationIdColumns()) {
             $divisionId = self::divisionId($division);
             $districtId = self::districtId($district, $divisionId);
             $upazilaId = self::upazilaId($upazila, $districtId);
@@ -416,64 +346,49 @@ class ArticleFeed
             ->when($upazila, fn (Builder $query) => $query->where('upazila', $upazila));
     }
 
-    private static function categoryRelationshipReady(): bool
-    {
-        try {
-            return Schema::hasTable('post_category')
-                && Schema::hasColumn('posts', 'primary_category_id');
-        } catch (\Throwable) {
-            return false;
-        }
-    }
-
-    private static function locationIdColumnsReady(): bool
-    {
-        try {
-            return Schema::hasColumn('posts', 'division_id')
-                && Schema::hasColumn('posts', 'district_id')
-                && Schema::hasColumn('posts', 'upazila_id')
-                && Schema::hasTable('divisions')
-                && Schema::hasTable('districts')
-                && Schema::hasTable('upazilas');
-        } catch (\Throwable) {
-            return false;
-        }
-    }
-
     private static function divisionId(?string $division): ?int
     {
-        if (! $division) {
+        if (! $division) return null;
+
+        try {
+            return DB::table('divisions')
+                ->where('name', $division)
+                ->orWhere('name_bangla', $division)
+                ->value('id');
+        } catch (\Exception $e) {
+            Log::error("Failed to query division ID: " . $e->getMessage());
             return null;
         }
-
-        return DB::table('divisions')
-            ->where('name', $division)
-            ->orWhere('name_bangla', $division)
-            ->value('id');
     }
 
     private static function districtId(?string $district, ?int $divisionId): ?int
     {
-        if (! $district) {
+        if (! $district) return null;
+
+        try {
+            return DB::table('districts')
+                ->when($divisionId, fn ($query) => $query->where('division_id', $divisionId))
+                ->where(fn ($query) => $query->where('name', $district)->orWhere('name_bangla', $district))
+                ->value('id');
+        } catch (\Exception $e) {
+            Log::error("Failed to query district ID: " . $e->getMessage());
             return null;
         }
-
-        return DB::table('districts')
-            ->when($divisionId, fn ($query) => $query->where('division_id', $divisionId))
-            ->where(fn ($query) => $query->where('name', $district)->orWhere('name_bangla', $district))
-            ->value('id');
     }
 
     private static function upazilaId(?string $upazila, ?int $districtId): ?int
     {
-        if (! $upazila) {
+        if (! $upazila) return null;
+
+        try {
+            return DB::table('upazilas')
+                ->when($districtId, fn ($query) => $query->where('district_id', $districtId))
+                ->where(fn ($query) => $query->where('name', $upazila)->orWhere('name_bangla', $upazila))
+                ->value('id');
+        } catch (\Exception $e) {
+            Log::error("Failed to query upazila ID: " . $e->getMessage());
             return null;
         }
-
-        return DB::table('upazilas')
-            ->when($districtId, fn ($query) => $query->where('district_id', $districtId))
-            ->where(fn ($query) => $query->where('name', $upazila)->orWhere('name_bangla', $upazila))
-            ->value('id');
     }
 
     private static function legacyHomepageSection(string $section, array $articles, array $fallbackArticles): array
@@ -572,48 +487,5 @@ class ArticleFeed
         }
 
         return $article;
-    }
-
-    private static function imageUrl(?string $path): string
-    {
-        if (! $path) {
-            return asset('images/news-1.jpg');
-        }
-
-        if (Str::startsWith($path, ['http://', 'https://', '//', '/images/', 'images/'])) {
-            return Str::startsWith($path, ['http://', 'https://', '//'])
-                ? $path
-                : asset(ltrim($path, '/'));
-        }
-
-        if (! Str::contains($path, '/') && file_exists(public_path("images/{$path}"))) {
-            return asset("images/{$path}");
-        }
-
-        return asset('storage/' . ltrim($path, '/'));
-    }
-
-    private static function postImageUrl(Post $post): string
-    {
-        if ($post->image_path) {
-            $filename = basename($post->image_path);
-
-            return file_exists(public_path("images/{$filename}"))
-                ? asset("images/{$filename}")
-                : self::placeholderImageUrl();
-        }
-
-        return self::imageUrl($post->featured_image);
-    }
-
-    private static function placeholderImageUrl(): string
-    {
-        foreach (['placeholder.jpg', 'news-1.jpg', 'coming-soon-ad.webp'] as $filename) {
-            if (file_exists(public_path("images/{$filename}"))) {
-                return asset("images/{$filename}");
-            }
-        }
-
-        return asset('images/news-1.jpg');
     }
 }

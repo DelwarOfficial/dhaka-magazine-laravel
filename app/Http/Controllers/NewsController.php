@@ -13,6 +13,7 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Str;
 
 class NewsController extends Controller
+{
     private static ?bool $postsTableReady = null;
 
     public function latest()
@@ -122,16 +123,7 @@ class NewsController extends Controller
 
     private function postsTableReady(): bool
     {
-        if (self::$postsTableReady !== null) {
-            return self::$postsTableReady;
-        }
-
-        try {
-            return self::$postsTableReady = class_exists(Post::class) && Schema::hasTable('posts');
-        } catch (\Exception $e) {
-            \Illuminate\Support\Facades\Log::error("Schema check failed for 'posts' table in NewsController: " . $e->getMessage());
-            return self::$postsTableReady = false;
-        }
+        return \App\Support\SchemaReadyCheck::isPostsTableReady();
     }
 
 }
