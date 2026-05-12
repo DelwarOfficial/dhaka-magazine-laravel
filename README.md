@@ -1,198 +1,94 @@
-# Dhaka Magazine Frontend Demo
+# Dhaka Magazine Laravel Blade News Frontend
 
-Dhaka Magazine is a frontend-only news portal demo prepared for GitHub, Vercel, and Netlify distribution. The demo version has no backend, no live database, no private CMS data, and no environment secrets.
+Dhaka Magazine is a Laravel Blade news frontend prepared for future CMS/database integration. The current UI is intentionally controlled by Blade templates and reusable components, while content comes from CMS-ready Eloquent models, section services, seed/demo posts, or emergency fallback data.
 
-The clean release package lives in:
+## Project Goals
 
-```text
-frontend-demo/
-```
+- Keep the existing news UI, layout, and responsive behavior stable.
+- Let a future CMS/database control posts, categories, authors, tags, media, flags, and placements.
+- Keep Blade focused on presentation.
+- Keep services and repositories responsible for content preparation.
+- Keep fallback content only for local/demo/empty-database preview.
 
-## Project Status
-
-- Frontend-only demo application
-- Static Vite project
-- JSON-driven demo news content
-- Reusable local demo images
-- No Laravel runtime required for the demo package
-- No production CMS content included
-- No private uploads, secrets, or environment-specific data included
-
-## Demo Features
-
-- Responsive Dhaka Magazine homepage UI
-- Hero carousel
-- Sidebar widgets
-- Advertisement slot layout
-- All Posts section
-- Dark mode support
-- Mobile navigation behavior
-- Demo content loaded from JSON instead of hardcoded post arrays
-- Local image fallback handling for missing demo images
-
-## Folder Structure
+## Main Runtime Flow
 
 ```text
-frontend-demo/
-|-- public/
-|   |-- demo-data/
-|   |   `-- posts.json
-|   `-- demo-images/
-|-- scripts/
-|   `-- generate-demo-data.mjs
-|-- src/
-|   |-- main.js
-|   `-- styles.css
-|-- index.html
-|-- package.json
-|-- package-lock.json
-|-- vite.config.js
-`-- .gitignore
+Route
+  -> Controller
+  -> Service / Repository / ArticleFeed
+  -> Eloquent models with eager loading
+  -> Normalized article arrays
+  -> Blade pages and components
 ```
 
-## Demo Data
+Blade components should not query the database. They receive normalized arrays such as `title`, `slug`, `image_url`, `category`, `category_url`, `time_ago`, `author`, `views`, and `tags`.
 
-Demo posts are stored in:
+## Important Files
 
-```text
-frontend-demo/public/demo-data/posts.json
-```
-
-Reusable demo images are stored in:
-
-```text
-frontend-demo/public/demo-images/
-```
-
-Each post references an image by filename. The frontend resolves those images from `public/demo-images/`. If a referenced file is missing, the UI uses a local placeholder image.
-
-## UI Component Control System
-
-The frontend is controlled from `frontend-demo/src/main.js`. It loads `posts.json`, normalizes each post, sorts posts by newest `published_at`, then maps posts into homepage sections.
-
-| UI section | Data rule | Limit |
-| --- | --- | --- |
-| Top ticker / latest bar | `is_breaking: true` | 10 posts |
-| Main hero story | First post with `is_featured: true`; falls back to newest post | 1 post |
-| Body News grid | `is_body_news: true`, excluding the hero post | 6 posts |
-| Trending News | `is_trending: true`, excluding hero and Body News posts | 5 posts |
-| Editor's Pick | `is_editor_pick: true`, excluding Trending News posts | 3 posts |
-| Photo News | Newest posts after sorting | 10 posts |
-| Photo latest tab | Newest posts after sorting | 8 posts |
-| Photo popular tab | Highest `view_count` first | 10 posts |
-| Local News / Saradesh | `category: "local-news"` | 9 posts |
-| All Posts | Newest posts after sorting | 24 posts |
-| Most Read sidebar | Highest `view_count` first | 5 posts |
-
-Duplicate prevention is handled by the `uniquePosts()` helper for the hero area. It prevents the same post ID from appearing in the Hero, Body News, Trending News, and Editor's Pick groups at the same time.
-
-## Post Data Contract
-
-Each object in `posts.json` should keep this structure:
-
-```json
-{
-  "id": 1,
-  "slug": "demo-news-1",
-  "title": "Demo news title",
-  "excerpt": "Short summary text.",
-  "content": "Full demo article content.",
-  "author": "Dhaka Magazine Desk",
-  "category": "local-news",
-  "category_bn": "Saradesh",
-  "image_path": "news-1.jpg",
-  "view_count": 1200,
-  "published_at": "2026-05-10T12:00:00.000Z",
-  "is_breaking": true,
-  "is_featured": false,
-  "is_body_news": false,
-  "is_trending": false,
-  "is_editor_pick": false
-}
-```
-
-The UI expects stable field names. To change which posts appear in a component, update the JSON data or the demo data generator instead of changing the HTML structure or CSS classes.
+| Area | Files |
+| --- | --- |
+| Routes | `routes/web.php` |
+| Homepage controller | `app/Http/Controllers/HomeController.php` |
+| Homepage data | `app/Services/HomeDataService.php` |
+| Homepage repository | `app/Services/HomepageContentRepository.php` |
+| Article feed adapter | `app/Support/ArticleFeed.php` |
+| Fallback data | `app/Support/FallbackDataService.php` |
+| Popular widget data | `app/Services/PopularNewsService.php` |
+| Related article data | `app/Services/RelatedArticleService.php` |
+| Ticker data | `app/Services/TickerHeadlineService.php` |
+| Homepage config | `config/homepage.php` |
+| Category config | `config/categories.php` |
+| Main layout | `resources/views/layouts/app.blade.php` |
+| Homepage Blade | `resources/views/pages/home.blade.php` |
+| Components | `resources/views/components/` |
+| JS assets | `resources/js/` |
 
 ## Local Setup
 
-From the repository root:
-
 ```bash
-cd frontend-demo
+composer install
 npm install
+cp .env.example .env
+php artisan key:generate
+php artisan migrate --seed
 npm run dev
 ```
 
-Vite will print the local development URL in the terminal.
-
-## Build
+Production build:
 
 ```bash
-cd frontend-demo
 npm run build
-npm run preview
+php artisan optimize
 ```
 
-## Regenerate Demo Content
+## Environment Flags
 
-```bash
-cd frontend-demo
-npm run generate:data
+```env
+HOMEPAGE_CACHE_ENABLED=true
+HOMEPAGE_CACHE_TTL=300
+ENABLE_FALLBACK_CONTENT=false
 ```
 
-This rewrites:
+`ENABLE_FALLBACK_CONTENT=false` is the production-safe default. Set it to `true` only for local preview, staging demos, or an empty database preview.
 
-```text
-frontend-demo/public/demo-data/posts.json
-```
+## Documentation
 
-## Deployment
+- [Architecture](ARCHITECTURE.md)
+- [Frontend UI Guide](FRONTEND_UI_GUIDE.md)
+- [CMS Integration Guide](CMS_INTEGRATION_GUIDE.md)
+- [Content Flow](CONTENT_FLOW.md)
+- [Fallback and Seeder Guide](FALLBACK_AND_SEEDER_GUIDE.md)
+- [Performance Notes](PERFORMANCE_NOTES.md)
+- [Feature Map](FEATURE_MAP.md)
 
-Recommended Vercel or Netlify settings:
+## Maintenance Rules
 
-```text
-Root directory: frontend-demo
-Build command: npm run build
-Output directory: dist
-Node version: Current LTS
-```
-
-## GitHub Version Control
-
-Commit the reusable demo package:
-
-- `frontend-demo/src/`
-- `frontend-demo/public/demo-data/posts.json`
-- `frontend-demo/public/demo-images/`
-- `frontend-demo/scripts/`
-- `frontend-demo/index.html`
-- `frontend-demo/package.json`
-- `frontend-demo/package-lock.json`
-- `frontend-demo/vite.config.js`
-- `frontend-demo/.gitignore`
-- `README.md`
-
-Do not commit:
-
-- `.env` files
-- API keys or private credentials
-- `node_modules/`
-- `dist/`
-- Laravel cache files
-- local logs
-- private production CMS content
-- private uploaded media
-
-## Notes For Maintainers
-
-The repository may still contain the original Laravel development workspace for local reference. The GitHub-ready demo application is intentionally isolated inside `frontend-demo/` so it can be deployed as a clean static frontend without affecting the local Laravel development site.
-
-## Author
-
-Delwar Hossain
-
-- Website: `delwarhossain.net`
-- Email: `hello@delwarhossain.net`
+- Do not query Eloquent relationships inside Blade.
+- Do not add new homepage sections directly inside controllers.
+- Prefer service/repository methods for content preparation.
+- Keep UI layout control in Blade/config, not in database migrations.
+- Keep fallback/demo data separate from production publishing logic.
+- When adding new CMS content fields, normalize them in `ArticleFeed` before they reach views.
 
 ## License
 

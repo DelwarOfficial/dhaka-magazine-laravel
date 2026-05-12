@@ -2,24 +2,22 @@ import './components/photo-news';
 import './components/prayer-countdown';
 
 /**
- * Dhaka Magazine — Vanilla JS interactions
+ * Dhaka Magazine frontend interactions.
  *
  * Features:
- *  - Mobile menu toggle
- *  - Sticky navbar on scroll with slide animation
- *  - Scroll-to-top button
- *  - Tab switching for sports section
- *  - Dark/light theme toggle
+ * - Mobile menu toggle
+ * - Sticky navbar behavior
+ * - Scroll-to-top button
+ * - Dark/light theme toggle
+ * - Mobile category accordion
  */
 
 document.addEventListener('DOMContentLoaded', function () {
-
-  // ── Mobile menu toggle ───────────────────────────────────
   const hamburgerBtn = document.getElementById('hamburger-btn');
-  const mobileMenu   = document.getElementById('mobile-menu');
-  const iconMenu     = document.getElementById('icon-menu');
-  const iconClose    = document.getElementById('icon-close');
-  const body         = document.body;
+  const mobileMenu = document.getElementById('mobile-menu');
+  const iconMenu = document.getElementById('icon-menu');
+  const iconClose = document.getElementById('icon-close');
+  const body = document.body;
 
   if (hamburgerBtn && mobileMenu) {
     hamburgerBtn.addEventListener('click', function () {
@@ -41,8 +39,7 @@ document.addEventListener('DOMContentLoaded', function () {
     });
   }
 
-  // ── Sticky nav on scroll ─────────────────────────────────
-  var siteNav   = document.getElementById('site-nav');
+  var siteNav = document.getElementById('site-nav');
   var siteHeader = document.getElementById('site-header');
 
   if (siteNav) {
@@ -68,7 +65,6 @@ document.addEventListener('DOMContentLoaded', function () {
     });
   }
 
-  // ── Scroll-to-top button ─────────────────────────────────
   var scrollBtn = document.createElement('button');
   scrollBtn.id = 'scroll-to-top';
   scrollBtn.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="m18 15-6-6-6 6"/></svg>';
@@ -93,7 +89,6 @@ document.addEventListener('DOMContentLoaded', function () {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   });
 
-  // ── Dark/Light theme toggle ──────────────────────────────
   var themeToggle = document.getElementById('theme-toggle');
   var themeToggleNav = document.getElementById('theme-toggle-nav');
   var themeIconSun = document.getElementById('theme-icon-sun');
@@ -165,5 +160,4 @@ document.addEventListener('DOMContentLoaded', function () {
       stickyScrollNav.classList.toggle('is-sticky-scrolled', currentScroll > 80);
     });
   }
-
 });

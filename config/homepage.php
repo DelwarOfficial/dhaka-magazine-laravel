@@ -8,7 +8,7 @@ return [
     ],
 
     'demo_fallback' => [
-        'enabled' => env('DEMO_FALLBACK_ENABLED', true),
+        'enabled' => env('ENABLE_FALLBACK_CONTENT', env('DEMO_FALLBACK_ENABLED', false)),
     ],
 
     /*
