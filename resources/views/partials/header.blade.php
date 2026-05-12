@@ -33,6 +33,8 @@
           <a href="{{ route('news.latest') }}" class="nav-item {{ request()->routeIs('news.latest') ? 'is-active' : '' }}">সর্বশেষ</a>
 
           @foreach(($siteCategories ?? collect()) as $cat)
+            @continue(!is_array($cat))
+            @continue(empty($cat['slug']) || empty($cat['name_bn']))
             @if(!empty($cat['children']))
               <div class="nav-dropdown">
                 <a href="{{ \App\Support\CategoryRepository::route($cat) }}" class="nav-item flex items-center gap-1">
@@ -41,6 +43,7 @@
                 </a>
                 <div class="nav-dropdown-menu">
                   @foreach($cat['children'] as $child)
+                    @continue(!is_array($child) || empty($child['slug']) || empty($child['name_bn']))
                     <a href="{{ \App\Support\CategoryRepository::route($child) }}" class="nav-dropdown-item">{{ $child['name_bn'] }}</a>
                   @endforeach
                 </div>
@@ -76,6 +79,8 @@
           <div style="display:flex;align-items:center;gap:0;white-space:nowrap;padding-bottom:0px;">
             <a href="{{ route('news.latest') }}" class="mobile-scroll-nav-item {{ request()->routeIs('news.latest') ? 'is-active' : '' }}">সর্বশেষ</a>
             @foreach(($siteCategories ?? collect()) as $cat)
+              @continue(!is_array($cat))
+              @continue(empty($cat['slug']) || empty($cat['name_bn']))
               <a href="{{ \App\Support\CategoryRepository::route($cat) }}" class="mobile-scroll-nav-item">{{ $cat['name_bn'] }}</a>
             @endforeach
           </div>
@@ -98,15 +103,18 @@
       <a href="{{ route('news.latest') }}" class="mobile-nav-item {{ request()->routeIs('news.latest') ? 'is-active' : '' }}">সর্বশেষ</a>
 
       @foreach(($siteCategories ?? collect()) as $cat)
+        @continue(!is_array($cat))
+        @continue(empty($cat['slug']) || empty($cat['name_bn']))
         @if(!empty($cat['children']))
           <div class="mobile-accordion">
-            <button class="mobile-accordion-btn" onclick="toggleMobileSubmenu(this)">
+            <button class="mobile-accordion-btn">
               <span>{{ $cat['name_bn'] }}</span>
               <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
             </button>
             <div class="mobile-submenu hidden">
               <a href="{{ \App\Support\CategoryRepository::route($cat) }}" class="mobile-submenu-item">{{ $cat['name_bn'] }}</a>
               @foreach($cat['children'] as $child)
+                @continue(!is_array($child) || empty($child['slug']) || empty($child['name_bn']))
                 <a href="{{ \App\Support\CategoryRepository::route($child) }}" class="mobile-submenu-item">{{ $child['name_bn'] }}</a>
               @endforeach
             </div>
@@ -129,39 +137,3 @@
     </nav>
   </div>
 </header>
-
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-  const mobileMenu = document.getElementById('mobile-menu');
-  const hamburgerBtnSticky = document.getElementById('hamburger-btn-sticky');
-  const iconMenuSticky = document.getElementById('icon-menu-sticky');
-  const iconCloseSticky = document.getElementById('icon-close-sticky');
-
-  function toggleMenu() {
-    if (!mobileMenu) return;
-    mobileMenu.classList.toggle('hidden');
-    if (iconMenuSticky) iconMenuSticky.classList.toggle('hidden');
-    if (iconCloseSticky) iconCloseSticky.classList.toggle('hidden');
-  }
-
-  if (hamburgerBtnSticky) hamburgerBtnSticky.addEventListener('click', toggleMenu);
-
-  const siteNav = document.getElementById('site-nav');
-  if (siteNav) {
-    window.addEventListener('scroll', function() {
-      const currentScroll = window.pageYOffset || document.documentElement.scrollTop;
-      if (currentScroll > 80) {
-        siteNav.classList.add('is-sticky-scrolled');
-      } else {
-        siteNav.classList.remove('is-sticky-scrolled');
-      }
-    });
-  }
-});
-
-function toggleMobileSubmenu(btn) {
-  const submenu = btn.nextElementSibling;
-  submenu.classList.toggle('hidden');
-  btn.querySelector('svg').classList.toggle('rotate-180');
-}
-</script>

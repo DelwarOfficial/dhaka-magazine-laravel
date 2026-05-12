@@ -45,7 +45,13 @@
 
 <div class="border-t-4 border-border"></div>
 
-<div class="w-full max-w-screen-xl mx-auto px-4 py-5" id="{{ $blockId }}">
+<div
+  class="w-full max-w-screen-xl mx-auto px-4 py-5"
+  id="{{ $blockId }}"
+  data-photo-news
+  data-photo-news-data="{{ $blockId }}-data"
+  data-article-base="{{ url('/article') }}"
+>
   <div class="flex items-center gap-3 mb-4 border-b border-border pb-2">
     <span class="section-icon"></span>
     <h2 class="font-serif font-extrabold text-[20px] text-fg">ফটো সংবাদ</h2>
@@ -150,77 +156,3 @@
 
   <script type="application/json" id="{{ $blockId }}-data">@json($carousel)</script>
 </div>
-
-@push('scripts')
-<script>
-document.addEventListener('DOMContentLoaded', function () {
-  const block = document.getElementById('{{ $blockId }}');
-  if (!block) return;
-
-  const dataEl = document.getElementById('{{ $blockId }}-data');
-  const slides = dataEl ? JSON.parse(dataEl.textContent || '[]') : [];
-  if (!slides.length) return;
-
-  const mainLink = block.querySelector('.photo-main-link');
-  const mainImg = block.querySelector('.photo-main-img');
-  const mainTitle = block.querySelector('.photo-main-title');
-  const mainTime = block.querySelector('.photo-main-time span');
-  const prevWrap = block.querySelector('.photo-prev');
-  const nextWrap = block.querySelector('.photo-next');
-  const dots = Array.from(block.querySelectorAll('.photo-dots button'));
-
-  let idx = 0;
-  function articleUrl(slug) {
-    if (!slug || slug === '#') return '#';
-    return `{!! url('/article') !!}/` + slug;
-  }
-
-  function render(i) {
-    idx = (i + slides.length) % slides.length;
-    const cur = slides[idx];
-    const prev = slides[(idx - 1 + slides.length) % slides.length];
-    const next = slides[(idx + 1) % slides.length];
-
-    mainLink.setAttribute('href', articleUrl(cur.slug));
-    mainImg.setAttribute('src', cur.image_url);
-    mainImg.setAttribute('alt', cur.headline);
-    mainTitle.textContent = cur.headline;
-    mainTime.textContent = cur.timestamp;
-
-    prevWrap.innerHTML = '<img src="' + prev.image_url + '" class="w-full h-full object-cover" alt="Previous">';
-    nextWrap.innerHTML = '<img src="' + next.image_url + '" class="w-full h-full object-cover" alt="Next">';
-
-    dots.forEach((d, di) => {
-      d.classList.toggle('bg-black', di === idx);
-      d.classList.toggle('bg-gray-300', di !== idx);
-    });
-  }
-
-  block.querySelector('.photo-btn-prev').addEventListener('click', () => render(idx - 1));
-  block.querySelector('.photo-btn-next').addEventListener('click', () => render(idx + 1));
-  prevWrap.addEventListener('click', () => render(idx - 1));
-  nextWrap.addEventListener('click', () => render(idx + 1));
-  dots.forEach((d) => d.addEventListener('click', () => render(parseInt(d.dataset.index, 10) || 0)));
-
-  const latestTab = block.querySelector('.photo-tab-latest');
-  const popularTab = block.querySelector('.photo-tab-popular');
-  const tabBtns = block.querySelectorAll('.photo-tab-btn');
-  tabBtns.forEach((btn) => {
-    btn.addEventListener('click', () => {
-      const isPopular = btn.dataset.tab === 'popular';
-      latestTab.classList.toggle('hidden', isPopular);
-      popularTab.classList.toggle('hidden', !isPopular);
-      tabBtns.forEach((b) => {
-        const active = b === btn;
-        b.classList.toggle('border-[#e2231a]', active);
-        b.classList.toggle('text-fg', active);
-        b.classList.toggle('border-transparent', !active);
-        b.classList.toggle('text-fg-muted', !active);
-      });
-    });
-  });
-
-  render(0);
-});
-</script>
-@endpush

@@ -27,6 +27,8 @@
         <ul class="grid grid-cols-2 gap-y-2 gap-x-4 text-fg-muted text-sm">
           @if(isset($siteCategories))
             @foreach($siteCategories as $cat)
+              @continue(!is_array($cat))
+              @continue(empty($cat['slug']) || empty($cat['name_bn']))
               <li><a href="{{ \App\Support\CategoryRepository::route($cat) }}" class="hover:text-white transition-colors">{{ $cat['name_bn'] }}</a></li>
             @endforeach
           @endif

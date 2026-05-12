@@ -49,8 +49,16 @@ class CategoryRepository
         })->values();
     }
 
-    public static function route(array $category): string
+    public static function route(array|string $category): string
     {
+        if (is_string($category)) {
+            return route('category.parent', $category);
+        }
+
+        if (empty($category['slug']) || ! is_string($category['slug'])) {
+            return route('home');
+        }
+
         if (!empty($category['parent_slug'])) {
             return route('category.child', [$category['parent_slug'], $category['slug']]);
         }

@@ -1,3 +1,6 @@
+import './components/photo-news';
+import './components/prayer-countdown';
+
 /**
  * Dhaka Magazine — Vanilla JS interactions
  *
@@ -119,6 +122,8 @@ document.addEventListener('DOMContentLoaded', function () {
     updateThemeIcons();
   }
 
+  window.toggleTheme = handleThemeToggle;
+
   if (themeToggle) {
     updateThemeIcons();
     themeToggle.addEventListener('click', handleThemeToggle);
@@ -126,6 +131,39 @@ document.addEventListener('DOMContentLoaded', function () {
   if (themeToggleNav) {
     updateThemeIcons();
     themeToggleNav.addEventListener('click', handleThemeToggle);
+  }
+
+  var stickyMenuButton = document.getElementById('hamburger-btn-sticky');
+  var iconMenuSticky = document.getElementById('icon-menu-sticky');
+  var iconCloseSticky = document.getElementById('icon-close-sticky');
+
+  function toggleStickyMenu() {
+    if (!mobileMenu) return;
+    mobileMenu.classList.toggle('hidden');
+    if (iconMenuSticky) iconMenuSticky.classList.toggle('hidden');
+    if (iconCloseSticky) iconCloseSticky.classList.toggle('hidden');
+  }
+
+  if (stickyMenuButton) {
+    stickyMenuButton.addEventListener('click', toggleStickyMenu);
+  }
+
+  document.querySelectorAll('.mobile-accordion-btn').forEach(function (button) {
+    button.addEventListener('click', function () {
+      var submenu = button.nextElementSibling;
+      var icon = button.querySelector('svg');
+
+      if (submenu) submenu.classList.toggle('hidden');
+      if (icon) icon.classList.toggle('rotate-180');
+    });
+  });
+
+  var stickyScrollNav = document.getElementById('site-nav');
+  if (stickyScrollNav) {
+    window.addEventListener('scroll', function () {
+      var currentScroll = window.pageYOffset || document.documentElement.scrollTop;
+      stickyScrollNav.classList.toggle('is-sticky-scrolled', currentScroll > 80);
+    });
   }
 
 });

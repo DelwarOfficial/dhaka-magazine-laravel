@@ -17,8 +17,8 @@
   <x-section-header :title="$title" :moreUrl="$moreUrl" />
 
   @if($featuredPost)
-    <div class="grid grid-cols-1 md:grid-cols-[2fr_2fr_1fr] gap-0 md:divide-x divide-border">
-      <div class="md:pr-6">
+    <div class="grid grid-cols-1 md:grid-cols-[2fr_2fr_1fr] gap-0 divide-x divide-border">
+      <div class="pr-6">
         <a href="{{ route('article.show', $featuredPost['slug']) }}" class="group block">
           <div class="w-full aspect-[16/9] overflow-hidden mb-3">
             <img src="{{ $featuredPost['image_url'] }}" alt="{{ $featuredPost['title'] }}" loading="lazy"
@@ -36,7 +36,7 @@
         </a>
       </div>
 
-      <div class="mt-5 md:mt-0 md:px-6 flex flex-col divide-y divide-border">
+      <div class="px-6 flex flex-col divide-y divide-border">
         @foreach($listPosts as $post)
           <a href="{{ route('article.show', $post['slug']) }}"
             class="group flex items-center justify-between gap-3 py-3 first:pt-0 last:pb-0">
@@ -52,9 +52,9 @@
       </div>
 
       @if($showAd)
-        <div class="mt-5 md:mt-0 md:pl-6 flex flex-col items-center">
+        <div class="pl-6 flex flex-col items-center">
           <div class="ad-container bg-surface border border-border flex flex-col items-center justify-center relative">
-            <span class="text-[#e2231a] text-[11px] font-bold tracking-wide mb-1 absolute top-2 right-2 z-10">à¦¬à¦¿à¦œà§à¦žà¦¾à¦ªà¦¨</span>
+            <span class="text-[#e2231a] text-[11px] font-bold tracking-wide mb-1 absolute top-2 right-2 z-10">বিজ্ঞাপন</span>
             <img src="{{ asset('images/coming-soon-ad.webp') }}" alt="Advertisement" class="w-full h-full object-cover opacity-50" />
           </div>
         </div>

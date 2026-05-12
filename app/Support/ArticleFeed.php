@@ -142,6 +142,11 @@ class ArticleFeed
         return self::homepageArticles($fallbackArticles, $limit);
     }
 
+    public static function postToArticleArray(Post $post, bool $includeBody = false): array
+    {
+        return self::toArticleArray($post, $includeBody);
+    }
+
     private static function publicPosts(): Collection
     {
         if (!SchemaReadyCheck::isPostsTableReady()) {
