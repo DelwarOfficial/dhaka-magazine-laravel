@@ -13,6 +13,7 @@ class HomeDataService
 {
     public function __construct(
         private readonly HomepageContentRepository $content,
+        private readonly PopularNewsService $popularNews,
     ) {
     }
 
@@ -85,6 +86,8 @@ class HomeDataService
             'opinionArticles' => $sections['politics']->articles,
             'opinionMeta' => $this->opinionMeta(),
             'sportsArticles' => $sportsArticles,
+            'sportsPrimary' => $sportsArticles[0] ?? null,
+            'sportsSecondary' => array_slice($sportsArticles, 1, 2),
             'sportsSubcatArticles' => $this->sportsSubcategoryArticles($sportsArticles, $fallbackArticles),
             'matamatArticles' => $sections['opinion']->articles,
             'videoArticles' => $videoLayout['posts'],
@@ -98,7 +101,7 @@ class HomeDataService
             'healthArticles' => $sections['lifestyle']->articles,
             'jobArticles' => $sections['jobs']->articles,
             'specialArticles' => $sections['special']->articles,
-            'popularNews' => $this->popularArticles($articles),
+            'popularNews' => $this->popularNews->get(),
             'photoNewsArticles' => $photoStoryPayload['carousel'],
             'photoNewsLatest' => $photoStoryPayload['latest'],
             'photoNewsPopular' => $photoStoryPayload['popular'],
@@ -183,18 +186,6 @@ class HomeDataService
             ->all();
     }
 
-    private function popularArticles(array $articles): array
-    {
-        $byViews = collect($articles)
-            ->filter(fn (array $article) => isset($article['views']) && (int) $article['views'] > 0)
-            ->sortByDesc(fn (array $article) => (int) $article['views'])
-            ->take(5)
-            ->values()
-            ->all();
-
-        return $byViews !== [] ? $byViews : array_slice($articles, 5, 5);
-    }
-
     private function opinionMeta(): array
     {
         return [
@@ -258,7 +249,7 @@ class HomeDataService
             'timestamp' => $article['time_ago'],
         ])->all();
 
-        $popular = collect($this->popularArticles($articles))->values()->map(fn ($article, $index) => [
+        $popular = collect($this->popularNews->get())->values()->map(fn ($article, $index) => [
             'id' => $index + 1,
             'headline' => $article['title'],
             'slug' => $article['slug'],

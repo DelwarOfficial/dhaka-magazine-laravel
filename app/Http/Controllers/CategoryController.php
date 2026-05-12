@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Services\PopularNewsService;
 use App\Support\CategoryRepository;
 use App\Support\ArticleFeed;
 use App\Support\FallbackDataService;
@@ -10,6 +11,11 @@ use Illuminate\Http\Request;
 
 class CategoryController extends Controller
 {
+    public function __construct(
+        private readonly PopularNewsService $popularNews,
+    ) {
+    }
+
     public function showParent(Request $request, string $parentSlug)
     {
         if ($target = CategoryRepository::redirectTarget($parentSlug)) {
@@ -84,7 +90,7 @@ class CategoryController extends Controller
 
     private function renderCategory(array $category, array $categoryArticles, array $breadcrumbs, ?string $division = null, ?string $district = null, ?string $upazila = null, array $divisions = [])
     {
-        $popularNews = array_slice(ArticleFeed::homepageArticles(FallbackDataService::getArticles()), 0, 5);
+        $popularNews = $this->popularNews->get();
         $categoryName = $category['name_bn'];
         
         // Build meta title/description if location filtered

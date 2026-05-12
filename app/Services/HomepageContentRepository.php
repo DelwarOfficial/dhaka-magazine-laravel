@@ -12,6 +12,8 @@ use Illuminate\Support\Facades\Schema;
 class HomepageContentRepository
 {
     private ?bool $placementsReady = null;
+    private array $categoryCache = [];
+    private array $relationshipCategoryCache = [];
 
     public function latest(array $fallbackArticles, int $limit = 40): array
     {
@@ -41,18 +43,27 @@ class HomepageContentRepository
 
     public function category(array $slugs, array $fallbackArticles, int $limit): array
     {
-        return ArticleFeed::categoryArticles($slugs, $fallbackArticles, $limit);
+        $cacheKey = $this->feedCacheKey($slugs, $limit);
+
+        return $this->categoryCache[$cacheKey]
+            ??= ArticleFeed::categoryArticles($slugs, $fallbackArticles, $limit);
     }
 
     public function relationshipCategory(array $slugs, int $limit, array $fallbackArticles = []): array
     {
+        $cacheKey = $this->feedCacheKey($slugs, $limit);
+
+        if (array_key_exists($cacheKey, $this->relationshipCategoryCache)) {
+            return $this->relationshipCategoryCache[$cacheKey];
+        }
+
         $articles = ArticleFeed::categoryRelationshipArticles($slugs, $limit);
 
         if ($articles !== []) {
-            return $articles;
+            return $this->relationshipCategoryCache[$cacheKey] = $articles;
         }
 
-        return collect($fallbackArticles)
+        return $this->relationshipCategoryCache[$cacheKey] = collect($fallbackArticles)
             ->whereIn('category_slug', $slugs)
             ->take($limit)
             ->values()
@@ -103,5 +114,13 @@ class HomepageContentRepository
         } catch (\Throwable) {
             return $this->placementsReady = false;
         }
+    }
+
+    private function feedCacheKey(array $slugs, int $limit): string
+    {
+        $slugs = array_values(array_unique(array_filter($slugs)));
+        sort($slugs);
+
+        return md5(json_encode([$slugs, $limit]));
     }
 }

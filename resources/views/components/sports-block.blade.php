@@ -1,4 +1,9 @@
-@props(['sportsArticles' => [], 'sportsSubcatArticles' => []])
+@props(['sportsArticles' => [], 'primaryArticle' => null, 'secondaryArticles' => [], 'sportsSubcatArticles' => []])
+
+@php
+  $primaryArticle = $primaryArticle ?? ($sportsArticles[0] ?? null);
+  $secondaryArticles = $secondaryArticles ?: collect($sportsArticles)->skip(1)->take(2)->values()->all();
+@endphp
 
 {{-- Category-fed sports block.
      Future CMS source: Sports category plus child-category collections. --}}
@@ -12,24 +17,24 @@
       
       <div class="grid grid-cols-1 md:grid-cols-2 gap-6 lg:gap-8 mt-4">
         {{-- Left: Hero Sports --}}
-        @if(isset($sportsArticles) && count($sportsArticles) > 0)
+        @if($primaryArticle)
           <div>
-            <a href="{{ route('article.show', $sportsArticles[0]['slug']) }}" class="group block mb-4">
+            <a href="{{ route('article.show', $primaryArticle['slug']) }}" class="group block mb-4">
               <div class="relative w-full aspect-[16/9] overflow-hidden rounded-sm">
-                <img src="{{ $sportsArticles[0]['image_url'] }}" alt="{{ $sportsArticles[0]['title'] }}" loading="lazy"
+                <img src="{{ $primaryArticle['image_url'] }}" alt="{{ $primaryArticle['title'] }}" loading="lazy"
                   class="w-full h-full object-cover transition-transform duration-300 group-hover:scale-[1.03]" />
                 <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent"></div>
                 <div class="absolute bottom-0 left-0 right-0 px-4 py-3">
                   <h3 class="font-serif font-extrabold text-[20px] md:text-[22px] text-white leading-tight group-hover:text-[#e2231a] transition-colors line-clamp-2 drop-shadow">
-                    {{ $sportsArticles[0]['title'] }}
+                    {{ $primaryArticle['title'] }}
                   </h3>
-                  <div class="text-[12px] text-white/70 mt-1.5">{{ $sportsArticles[0]['time_ago'] }}</div>
+                  <div class="text-[12px] text-white/70 mt-1.5">{{ $primaryArticle['time_ago'] }}</div>
                 </div>
               </div>
             </a>
 
             <div class="grid grid-cols-2 gap-4">
-              @foreach(array_slice($sportsArticles, 1, 2) as $i => $a)
+              @foreach($secondaryArticles as $i => $a)
                 <a href="{{ route('article.show', $a['slug']) }}" class="group flex flex-col">
                   <div class="relative w-full aspect-[16/9] overflow-hidden rounded-sm mb-2">
                     <img src="{{ $a['image_url'] }}" alt="{{ $a['title'] }}" loading="lazy"

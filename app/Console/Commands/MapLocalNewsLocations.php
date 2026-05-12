@@ -2,9 +2,9 @@
 
 namespace App\Console\Commands;
 
-use App\Http\Controllers\HomeController;
 use App\Models\Post;
 use App\Support\ArticleFeed;
+use App\Support\FallbackDataService;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\DB;
@@ -24,7 +24,7 @@ class MapLocalNewsLocations extends Command
             return self::FAILURE;
         }
 
-        $articles = ArticleFeed::homepageArticles(app(HomeController::class)->fallbackArticles());
+        $articles = ArticleFeed::homepageArticles(FallbackDataService::getArticles());
         $legacyIds = $this->articleIdsAt($articles, [18, 10, 6, 4, 15, 19, 8, 2, 11]);
 
         if ($legacyIds === []) {
@@ -41,9 +41,14 @@ class MapLocalNewsLocations extends Command
             return self::FAILURE;
         }
 
-        DB::transaction(function () use ($legacyIds, $locations) {
+        $posts = Post::query()
+            ->whereKey($legacyIds)
+            ->get()
+            ->keyBy('id');
+
+        DB::transaction(function () use ($legacyIds, $locations, $posts) {
             foreach ($legacyIds as $index => $postId) {
-                $post = Post::query()->find($postId);
+                $post = $posts->get($postId);
 
                 if (! $post) {
                     continue;

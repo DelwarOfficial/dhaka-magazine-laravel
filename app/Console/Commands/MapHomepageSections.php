@@ -2,9 +2,9 @@
 
 namespace App\Console\Commands;
 
-use App\Http\Controllers\HomeController;
 use App\Models\Post;
 use App\Support\ArticleFeed;
+use App\Support\FallbackDataService;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\DB;
@@ -24,7 +24,7 @@ class MapHomepageSections extends Command
             return self::FAILURE;
         }
 
-        $fallbackArticles = app(HomeController::class)->fallbackArticles();
+        $fallbackArticles = FallbackDataService::getArticles();
         $articles = ArticleFeed::homepageArticles($fallbackArticles);
 
         $sections = [

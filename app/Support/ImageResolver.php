@@ -9,6 +9,10 @@ class ImageResolver
 {
     public static function postImageUrl(Post $post): string
     {
+        if ($post->relationLoaded('featuredMedia') && $post->featuredMedia?->path) {
+            return self::imageUrl($post->featuredMedia->path);
+        }
+
         if ($post->image_path) {
             $filename = basename($post->image_path);
 

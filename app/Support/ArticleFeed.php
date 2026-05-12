@@ -12,6 +12,13 @@ use Illuminate\Support\Str;
 
 class ArticleFeed
 {
+    /**
+     * Request-level caches prevent homepage widgets, fallbacks, and sidebar
+     * services from repeating the same hydrated post queries during one render.
+     */
+    private static array $publicPostCache = [];
+    private static array $locationIdCache = [];
+
     private const SECTION_COLUMNS = [
         'breaking' => ['flag' => 'is_breaking_news', 'order' => 'breaking_news_order', 'scope' => 'breakingNews'],
         'featured' => ['flag' => 'is_featured', 'order' => 'featured_order', 'scope' => 'featured'],
@@ -24,7 +31,7 @@ class ArticleFeed
     {
         $fallbackArticles ??= FallbackDataService::getArticles();
 
-        $posts = self::publicPosts()
+        $posts = self::publicPosts($limit)
             ->take($limit)
             ->map(fn(Post $post) => self::toArticleArray($post));
 
@@ -98,7 +105,11 @@ class ArticleFeed
             return $posts->values()->all();
         }
 
-        return collect($fallbackArticles)->whereIn('category_slug', $categorySlugs)->values()->all();
+        return collect($fallbackArticles)
+            ->whereIn('category_slug', $categorySlugs)
+            ->take($limit)
+            ->values()
+            ->all();
     }
 
     public static function categoryRelationshipArticles(array $categorySlugs, int $limit = 30, ?string $division = null, ?string $district = null, ?string $upazila = null): array
@@ -147,23 +158,30 @@ class ArticleFeed
         return self::toArticleArray($post, $includeBody);
     }
 
-    private static function publicPosts(): Collection
+    private static function publicPosts(int $limit = 40): Collection
     {
         if (!SchemaReadyCheck::isPostsTableReady()) {
             return collect();
         }
 
+        $limit = max(1, $limit);
+        $cacheKey = "latest:{$limit}";
+
+        if (array_key_exists($cacheKey, self::$publicPostCache)) {
+            return self::$publicPostCache[$cacheKey];
+        }
+
         try {
-            return Post::query()
+            return self::$publicPostCache[$cacheKey] = Post::query()
                 ->withContentRelations()
                 ->whereIn('status', self::publicStatuses())
                 ->latest('published_at')
                 ->latest('id')
-                ->take(100)
+                ->take($limit)
                 ->get();
         } catch (\Exception $e) {
             Log::error("Failed to fetch public posts: " . $e->getMessage());
-            return collect();
+            return self::$publicPostCache[$cacheKey] = collect();
         }
     }
 
@@ -231,6 +249,9 @@ class ArticleFeed
             }
 
             $query = Post::query()
+                // Every feed is normalized to arrays before Blade rendering, so
+                // all category, author, media, and tag relationships must be
+                // available here to avoid lazy loading while mapping posts.
                 ->withContentRelations()
                 ->whereIn('status', self::publicStatuses());
 
@@ -355,14 +376,20 @@ class ArticleFeed
     {
         if (! $division) return null;
 
+        $cacheKey = 'division:' . $division;
+
+        if (array_key_exists($cacheKey, self::$locationIdCache)) {
+            return self::$locationIdCache[$cacheKey];
+        }
+
         try {
-            return DB::table('divisions')
+            return self::$locationIdCache[$cacheKey] = DB::table('divisions')
                 ->where('name', $division)
                 ->orWhere('name_bangla', $division)
                 ->value('id');
         } catch (\Exception $e) {
             Log::error("Failed to query division ID: " . $e->getMessage());
-            return null;
+            return self::$locationIdCache[$cacheKey] = null;
         }
     }
 
@@ -370,14 +397,20 @@ class ArticleFeed
     {
         if (! $district) return null;
 
+        $cacheKey = 'district:' . ($divisionId ?: 'any') . ':' . $district;
+
+        if (array_key_exists($cacheKey, self::$locationIdCache)) {
+            return self::$locationIdCache[$cacheKey];
+        }
+
         try {
-            return DB::table('districts')
+            return self::$locationIdCache[$cacheKey] = DB::table('districts')
                 ->when($divisionId, fn ($query) => $query->where('division_id', $divisionId))
                 ->where(fn ($query) => $query->where('name', $district)->orWhere('name_bangla', $district))
                 ->value('id');
         } catch (\Exception $e) {
             Log::error("Failed to query district ID: " . $e->getMessage());
-            return null;
+            return self::$locationIdCache[$cacheKey] = null;
         }
     }
 
@@ -385,14 +418,20 @@ class ArticleFeed
     {
         if (! $upazila) return null;
 
+        $cacheKey = 'upazila:' . ($districtId ?: 'any') . ':' . $upazila;
+
+        if (array_key_exists($cacheKey, self::$locationIdCache)) {
+            return self::$locationIdCache[$cacheKey];
+        }
+
         try {
-            return DB::table('upazilas')
+            return self::$locationIdCache[$cacheKey] = DB::table('upazilas')
                 ->when($districtId, fn ($query) => $query->where('district_id', $districtId))
                 ->where(fn ($query) => $query->where('name', $upazila)->orWhere('name_bangla', $upazila))
                 ->value('id');
         } catch (\Exception $e) {
             Log::error("Failed to query upazila ID: " . $e->getMessage());
-            return null;
+            return self::$locationIdCache[$cacheKey] = null;
         }
     }
 

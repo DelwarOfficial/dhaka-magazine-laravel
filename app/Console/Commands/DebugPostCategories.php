@@ -2,10 +2,10 @@
 
 namespace App\Console\Commands;
 
-use App\Http\Controllers\HomeController;
 use App\Models\Post;
 use Database\Seeders\CategorySeeder;
 use App\Support\CategoryRepository;
+use App\Support\FallbackDataService;
 use App\Support\PostCategoryResolver;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
@@ -20,6 +20,7 @@ class DebugPostCategories extends Command
         {--no-sync-latest : Do not sync fallback latest-page articles into posts}';
 
     protected $description = 'Audit post category slugs, fix safe matches, and export a category post report.';
+    private array $validCategoryIdCache = [];
 
     public function handle(): int
     {
@@ -90,10 +91,16 @@ class DebugPostCategories extends Command
 
         $synced = 0;
 
-        foreach (app(HomeController::class)->fallbackArticles() as $index => $article) {
+        $fallbackArticles = FallbackDataService::getArticles();
+        $existingSlugs = Post::query()
+            ->whereIn('slug', collect($fallbackArticles)->pluck('slug')->filter()->values())
+            ->pluck('slug')
+            ->flip();
+
+        foreach ($fallbackArticles as $index => $article) {
             $slug = trim((string) ($article['slug'] ?? ''));
 
-            if ($slug === '' || Post::query()->where('slug', $slug)->exists()) {
+            if ($slug === '' || $existingSlugs->has($slug)) {
                 continue;
             }
 
@@ -312,7 +319,17 @@ class DebugPostCategories extends Command
 
     private function validCategoryId($id): bool
     {
-        return $id && Schema::hasTable('categories') && \App\Models\Category::query()->whereKey($id)->exists();
+        if (! $id || ! Schema::hasTable('categories')) {
+            return false;
+        }
+
+        if (array_key_exists((int) $id, $this->validCategoryIdCache)) {
+            return $this->validCategoryIdCache[(int) $id];
+        }
+
+        return $this->validCategoryIdCache[(int) $id] = \App\Models\Category::query()
+            ->whereKey($id)
+            ->exists();
     }
 
     private function normalizeImagePath(?string $path): ?string

@@ -64,6 +64,8 @@
   {{-- ══ SPORTS (খেলাধুলা) — 3 panel ════════════════════════ --}}
   <x-sports-block 
     :sports-articles="$sportsArticles ?? []" 
+    :primary-article="$sportsPrimary ?? null"
+    :secondary-articles="$sportsSecondary ?? []"
     :sports-subcat-articles="$sportsSubcatArticles ?? []" 
   />
 

@@ -10,6 +10,7 @@ use Illuminate\Support\Str;
 class PostCategoryResolver
 {
     public const FALLBACK_SLUG = 'others-news';
+    private static array $databaseCategoryIdCache = [];
 
     public static function fallbackCategory(): array
     {
@@ -384,7 +385,13 @@ class PostCategoryResolver
             return null;
         }
 
-        return \App\Models\Category::query()->where('slug', $slug)->value('id');
+        if (array_key_exists($slug, self::$databaseCategoryIdCache)) {
+            return self::$databaseCategoryIdCache[$slug];
+        }
+
+        return self::$databaseCategoryIdCache[$slug] = \App\Models\Category::query()
+            ->where('slug', $slug)
+            ->value('id');
     }
 
     private static function categoryArrayFromModel(\App\Models\Category $category): array

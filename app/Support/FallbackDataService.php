@@ -12,6 +12,10 @@ class FallbackDataService
      */
     public static function getArticles(): array
     {
+        if (! config('homepage.demo_fallback.enabled', true)) {
+            return [];
+        }
+
         $img = fn($n) => asset("images/news-{$n}.jpg");
 
         return [

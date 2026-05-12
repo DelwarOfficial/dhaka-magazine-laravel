@@ -7,6 +7,10 @@ return [
         'key' => 'homepage:v1',
     ],
 
+    'demo_fallback' => [
+        'enabled' => env('DEMO_FALLBACK_ENABLED', true),
+    ],
+
     /*
     |--------------------------------------------------------------------------
     | Homepage content sources

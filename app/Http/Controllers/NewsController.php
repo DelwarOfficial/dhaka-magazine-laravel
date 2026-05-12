@@ -4,24 +4,28 @@ namespace App\Http\Controllers;
 
 use App\Helpers\DateHelper;
 use App\Models\Post;
-use App\Support\ArticleFeed;
+use App\Services\PopularNewsService;
 use App\Support\PostCategoryResolver;
 use App\Support\FallbackDataService;
 use App\Support\ImageResolver;
 use Illuminate\Pagination\LengthAwarePaginator;
-use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Str;
 
 class NewsController extends Controller
 {
     private static ?bool $postsTableReady = null;
 
+    public function __construct(
+        private readonly PopularNewsService $popularNews,
+    ) {
+    }
+
     public function latest()
     {
         $fallbackArticles = FallbackDataService::getArticles();
         $posts = $this->latestPosts($fallbackArticles);
         $topStory = $posts->firstItem() === 1 ? $posts->getCollection()->first() : null;
-        $popularNews = array_slice(ArticleFeed::homepageArticles($fallbackArticles, 20), 0, 5);
+        $popularNews = $this->popularNews->get();
         $metaTitle = 'সর্বশেষ সংবাদ | Dhaka Magazine';
         $metaDescription = 'বাংলাদেশ ও বিশ্বের সর্বশেষ খবর, রাজনীতি, খেলাধুলা, বিনোদন, অর্থনীতি ও প্রযুক্তির আপডেট পড়ুন Dhaka Magazine-এ।';
         $canonicalUrl = route('news.latest');
@@ -46,7 +50,9 @@ class NewsController extends Controller
 
         try {
             $posts = Post::query()
-                ->with(['category.parent', 'subcategory.parent', 'author'])
+                // Match ArticleFeed's eager-loaded graph so latest-page cards
+                // can be normalized without category/media/author lazy loads.
+                ->withContentRelations()
                 ->whereIn('status', ['published'])
                 ->latest('published_at')
                 ->latest('id')
