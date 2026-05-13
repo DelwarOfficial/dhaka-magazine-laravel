@@ -46,6 +46,7 @@ class Post extends Model
         'is_featured',
         'featured_order',
         'is_sticky',
+        'is_photocard',
         'sticky_order',
         'is_trending',
         'trending_order',
@@ -61,6 +62,7 @@ class Post extends Model
         'is_breaking_news' => 'boolean',
         'is_featured' => 'boolean',
         'is_sticky' => 'boolean',
+        'is_photocard' => 'boolean',
         'is_trending' => 'boolean',
         'is_editors_pick' => 'boolean',
         'raw_import_payload' => 'array',
@@ -84,6 +86,11 @@ class Post extends Model
     public function scopeSticky(Builder $query): Builder
     {
         return $query->where('is_sticky', true);
+    }
+
+    public function scopePhotocard(Builder $query): Builder
+    {
+        return $query->where('is_photocard', true);
     }
 
     public function scopeTrending(Builder $query): Builder

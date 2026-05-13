@@ -503,7 +503,10 @@ class ArticleFeed
         $article = [
             'id' => $post->id,
             'slug' => $post->slug,
+            'url' => route('article.show', $post->slug),
             'title' => $post->title,
+            'headline' => $post->title,
+            'shoulder' => $post->shoulder,
             'category' => $category['name_bn'] ?? PostCategoryResolver::fallbackCategory()['name_bn'],
             'category_slug' => $category['slug'] ?? PostCategoryResolver::FALLBACK_SLUG,
             'category_url' => $categoryRoute,
@@ -513,6 +516,7 @@ class ArticleFeed
             'time_ago' => DateHelper::timeAgo($publishedAt),
             'image_url' => ImageResolver::postImageUrl($post),
             'views' => (int) ($post->view_count ?? 0),
+            'is_photocard' => (bool) ($post->is_photocard ?? false),
             'tags' => $post->relationLoaded('tags') ? $post->tags->pluck('name')->values()->all() : [],
         ];
 
