@@ -9,19 +9,27 @@ class ImageResolver
 {
     public static function postImageUrl(Post $post): string
     {
-        if ($post->relationLoaded('featuredMedia') && $post->featuredMedia?->path) {
-            return self::imageUrl($post->featuredMedia->path);
+        // Try featuredMedia with new column names first, then fall back
+        if ($post->relationLoaded('featuredMedia') && $post->featuredMedia) {
+            $media = $post->featuredMedia;
+            if ($media->file_url) {
+                return $media->file_url;
+            }
+            if ($media->url) {
+                return $media->url;
+            }
+            if ($media->file_path) {
+                return self::imageUrl($media->file_path);
+            }
         }
 
-        if ($post->image_path) {
-            $filename = basename($post->image_path);
-
-            return file_exists(public_path("images/{$filename}"))
-                ? asset("images/{$filename}")
-                : self::placeholderImageUrl();
+        // Fall back to legacy image_path or featured_image
+        $path = $post->image_path ?: $post->featured_image;
+        if ($path) {
+            return self::imageUrl($path);
         }
 
-        return self::imageUrl($post->featured_image);
+        return self::placeholderImageUrl();
     }
 
     public static function imageUrl(?string $path): string
