@@ -177,7 +177,7 @@ function gridMiniCard(post) {
   return `
     <a href="${post.url}" class="group flex flex-col">
       <div class="mb-1.5 aspect-[16/9] w-full overflow-hidden">${img(post, 'h-full w-full object-cover transition-transform duration-300 group-hover:scale-[1.03]')}</div>
-      <h3 class="line-clamp-2 font-serif text-[13px] font-bold leading-snug text-fg group-hover:text-[#e2231a]">${post.title}</h3>
+      <h3 class="font-serif text-[13px] font-bold leading-snug text-fg group-hover:text-[#e2231a]">${post.title}</h3>
       <div class="mt-0.5 text-[11px] text-fg-muted">${post.time_ago}</div>
     </a>
   `;
@@ -188,7 +188,7 @@ function sideItem(post, imageRight) {
   const text = `
     <div class="min-w-0 flex-1">
       <span class="mb-0.5 block text-[12px] font-bold text-[#e2231a]">${post.category_bn} •</span>
-      <h3 class="line-clamp-2 font-serif text-[15px] font-bold leading-snug text-fg group-hover:text-[#e2231a]">${post.title}</h3>
+      <h3 class="font-serif text-[15px] font-bold leading-snug text-fg group-hover:text-[#e2231a]">${post.title}</h3>
       <p class="mt-1 line-clamp-2 text-[12px] text-fg-secondary">${post.excerpt}</p>
       <div class="mt-1 text-[11px] text-fg-muted">${post.time_ago}</div>
     </div>
@@ -202,7 +202,7 @@ function mobileSideItem(post) {
     <a href="${post.url}" class="group flex items-start gap-3 border-b border-border py-3 last:border-b-0">
       <div class="min-w-0 flex-1">
         <span class="mb-0.5 block text-[12px] font-bold text-[#e2231a]">${post.category_bn}</span>
-        <h3 class="line-clamp-2 font-serif text-[14px] font-bold leading-snug text-fg group-hover:text-[#e2231a]">${post.title}</h3>
+        <h3 class="font-serif text-[14px] font-bold leading-snug text-fg group-hover:text-[#e2231a]">${post.title}</h3>
       </div>
       <div class="h-[68px] w-[120px] shrink-0 overflow-hidden rounded-sm">${img(post, 'h-full w-full object-cover')}</div>
     </a>
@@ -236,7 +236,7 @@ function photoCarousel(carousel, latest, popular) {
                 ${img(first, 'photo-main-img h-full w-full object-cover object-center bg-[#f3f4f6]')}
                 <div class="absolute inset-0 bg-gradient-to-t from-black/90 via-black/15 to-transparent"></div>
                 <div class="absolute right-0 bottom-0 left-0 p-4">
-                  <h3 class="photo-main-title line-clamp-2 font-serif text-[16px] font-extrabold leading-tight text-white drop-shadow">${first.title}</h3>
+                  <h3 class="photo-main-title font-serif text-[16px] font-extrabold leading-tight text-white drop-shadow">${first.title}</h3>
                   <div class="mt-1.5 text-[11px] text-white/80"><span class="photo-main-time">${first.time_ago}</span></div>
                 </div>
               </a>
@@ -269,7 +269,7 @@ function rankedList(posts) {
     <a href="${post.url}" class="group flex items-start gap-4 border-b border-gray-100 px-3 py-3.5 transition-colors last:border-b-0 hover:bg-gray-50">
       <span class="mt-1 w-8 shrink-0 text-center font-serif text-[32px] font-extrabold leading-none text-[#fca5a5] transition-colors group-hover:text-[#e2231a]">${numerals[index] || index + 1}</span>
       <div class="min-w-0 flex-1">
-        <h3 class="line-clamp-2 font-serif text-[14.5px] font-bold leading-snug text-gray-800 transition-colors group-hover:text-[#e2231a]">${post.title}</h3>
+        <h3 class="font-serif text-[14.5px] font-bold leading-snug text-gray-800 transition-colors group-hover:text-[#e2231a]">${post.title}</h3>
         <div class="mt-1.5 flex items-center gap-1 text-[11px] text-gray-500"><span class="truncate">${post.time_ago}</span></div>
       </div>
     </a>
@@ -298,15 +298,15 @@ function localNewsSection(posts) {
 }
 
 function localCard(post) {
-  return `<a href="${post.url}" class="group flex flex-col"><div class="mb-2 aspect-[16/9] w-full overflow-hidden">${img(post, 'h-full w-full object-cover transition-transform duration-300 group-hover:scale-[1.03]')}</div><h3 class="line-clamp-3 font-serif text-[15px] font-bold leading-snug text-fg group-hover:text-[#e2231a]">${post.title}</h3></a>`;
+  return `<a href="${post.url}" class="group flex flex-col"><div class="mb-2 aspect-[16/9] w-full overflow-hidden">${img(post, 'h-full w-full object-cover transition-transform duration-300 group-hover:scale-[1.03]')}</div><h3 class="font-serif text-[15px] font-bold leading-snug text-fg group-hover:text-[#e2231a]">${post.title}</h3></a>`;
 }
 
 function heroLocalCard(post) {
-  return `<a href="${post.url}" class="group flex flex-col"><div class="mb-3 aspect-[16/9] w-full overflow-hidden">${img(post, 'h-full w-full object-cover transition-transform duration-300 group-hover:scale-[1.03]')}</div><h3 class="mb-2 line-clamp-2 font-serif text-[21px] font-extrabold leading-snug text-fg group-hover:text-[#e2231a]">${post.title}</h3><p class="line-clamp-2 text-[13px] leading-relaxed text-fg-secondary">${post.excerpt}</p></a>`;
+  return `<a href="${post.url}" class="group flex flex-col"><div class="mb-3 aspect-[16/9] w-full overflow-hidden">${img(post, 'h-full w-full object-cover transition-transform duration-300 group-hover:scale-[1.03]')}</div><h3 class="mb-2 font-serif text-[21px] font-extrabold leading-snug text-fg group-hover:text-[#e2231a]">${post.title}</h3><p class="line-clamp-2 text-[13px] leading-relaxed text-fg-secondary">${post.excerpt}</p></a>`;
 }
 
 function localListItem(post) {
-  return `<a href="${post.url}" class="group flex items-start gap-3 py-3 first:pt-0 last:pb-0"><h3 class="line-clamp-3 flex-1 font-serif text-[14px] font-bold leading-snug text-fg group-hover:text-[#e2231a]">${post.title}</h3><div class="h-[38px] w-[68px] shrink-0 overflow-hidden">${img(post, 'h-full w-full object-cover')}</div></a>`;
+  return `<a href="${post.url}" class="group flex items-start gap-3 py-3 first:pt-0 last:pb-0"><h3 class="flex-1 font-serif text-[14px] font-bold leading-snug text-fg group-hover:text-[#e2231a]">${post.title}</h3><div class="h-[38px] w-[68px] shrink-0 overflow-hidden">${img(post, 'h-full w-full object-cover')}</div></a>`;
 }
 
 function allPostsSection(posts, popular) {
@@ -340,7 +340,7 @@ function newsCard(post) {
       <a href="${post.url}" class="flex h-full min-w-0 flex-col overflow-hidden rounded-[8px] border border-border bg-bg shadow-sm transition-all duration-200 hover:-translate-y-1 hover:shadow-lg">
         <div class="relative aspect-[16/10] overflow-hidden bg-surface">${img(post, 'h-full w-full object-cover transition-transform duration-300 group-hover:scale-[1.04]')}<span class="absolute top-3 left-3 bg-[#e2231a] px-2 py-1 text-[11px] font-bold leading-none text-white shadow-sm">${post.category_bn}</span></div>
         <div class="flex min-w-0 flex-1 flex-col p-4">
-          <h3 class="line-clamp-2 break-words font-serif text-[18px] font-bold leading-snug text-fg transition-colors group-hover:text-[#e2231a]">${post.title}</h3>
+          <h3 class="break-words font-serif text-[18px] font-bold leading-snug text-fg transition-colors group-hover:text-[#e2231a]">${post.title}</h3>
           <p class="mt-2 line-clamp-2 break-words text-[14px] leading-relaxed text-fg-secondary">${post.excerpt}</p>
           <div class="mt-auto flex flex-wrap items-center gap-x-2 gap-y-1 pt-3 text-[12px] text-fg-muted"><time>${post.time_ago}</time><span>${formatNumber(post.view_count)} বার পড়া</span></div>
         </div>
@@ -353,7 +353,7 @@ function mostRead(posts) {
   return `
     <section class="border border-border bg-bg p-4">
       <h2 class="mb-3 border-b border-border pb-2 font-serif text-[18px] font-extrabold">সর্বাধিক পঠিত</h2>
-      <div class="divide-y divide-border">${posts.map((post, index) => `<a href="${post.url}" class="flex gap-3 py-3"><span class="font-serif text-2xl font-extrabold text-[#e2231a]">${index + 1}</span><h3 class="line-clamp-2 font-serif text-[15px] font-bold leading-snug hover:text-[#e2231a]">${post.title}</h3></a>`).join('')}</div>
+      <div class="divide-y divide-border">${posts.map((post, index) => `<a href="${post.url}" class="flex gap-3 py-3"><span class="font-serif text-2xl font-extrabold text-[#e2231a]">${index + 1}</span><h3 class="font-serif text-[15px] font-bold leading-snug hover:text-[#e2231a]">${post.title}</h3></a>`).join('')}</div>
     </section>
   `;
 }

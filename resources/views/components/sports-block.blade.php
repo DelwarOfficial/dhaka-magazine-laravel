@@ -25,7 +25,7 @@
                   class="w-full h-full object-cover transition-transform duration-300 group-hover:scale-[1.03]" />
                 <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent"></div>
                 <div class="absolute bottom-0 left-0 right-0 px-4 py-3">
-                  <h3 class="font-serif font-extrabold text-[20px] md:text-[22px] text-white leading-tight group-hover:text-[#e2231a] transition-colors line-clamp-2 drop-shadow">
+                  <h3 class="font-serif font-extrabold text-[20px] md:text-[22px] text-white leading-tight group-hover:text-[#e2231a] transition-colors drop-shadow">
                     {{ $primaryArticle['title'] }}
                   </h3>
                   <div class="text-[12px] text-white/70 mt-1.5">{{ $primaryArticle['time_ago'] }}</div>
@@ -40,7 +40,7 @@
                     <img src="{{ $a['image_url'] }}" alt="{{ $a['title'] }}" loading="lazy"
                       class="w-full h-full object-cover transition-transform duration-300 group-hover:scale-[1.03]" />
                   </div>
-                  <h3 class="font-serif font-extrabold text-[13px] text-fg leading-tight group-hover:text-[#e2231a] transition-colors line-clamp-2">
+                  <h3 class="font-serif font-extrabold text-[13px] text-fg leading-tight group-hover:text-[#e2231a] transition-colors">
                     {{ $a['title'] }}
                   </h3>
                 </a>
@@ -58,7 +58,7 @@
                 class="group flex items-start gap-3 py-3 border-b border-border last:border-b-0 first:pt-0">
                 <div class="flex-1 min-w-0">
                   <span class="text-[#e2231a] font-bold text-[12px]">{{ $item['subcat'] }} &bull;</span>
-                  <h3 class="font-serif font-bold text-[15px] text-fg leading-tight group-hover:text-[#e2231a] transition-colors line-clamp-2 mt-0.5">
+                  <h3 class="font-serif font-bold text-[15px] text-fg leading-tight group-hover:text-[#e2231a] transition-colors mt-0.5">
                     {{ $item['article']['title'] }}
                   </h3>
                   <div class="text-[11px] text-fg-muted mt-1.5">{{ $item['article']['time_ago'] }}</div>

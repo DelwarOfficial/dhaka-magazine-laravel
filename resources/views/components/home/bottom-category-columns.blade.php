@@ -20,7 +20,7 @@
                 <div class="flex-1 h-[2px] bg-[#e2231a] mb-0.5"></div>
               </div>
             </div>
-            <h3 class="font-serif font-extrabold text-[17px] text-fg leading-snug group-hover:text-[#e2231a] transition-colors line-clamp-3">
+            <h3 class="font-serif font-extrabold text-[17px] text-fg leading-snug group-hover:text-[#e2231a] transition-colors">
               {{ $heroPost['title'] }}
             </h3>
           </a>
@@ -28,7 +28,7 @@
           <div class="flex flex-col">
             @foreach($posts->slice(1, 3) as $post)
               <a href="{{ route('article.show', $post['slug']) }}" class="group py-3 border-t border-border">
-                <h3 class="font-serif font-bold text-[15px] text-fg leading-snug group-hover:text-[#e2231a] transition-colors line-clamp-3">
+                <h3 class="font-serif font-bold text-[15px] text-fg leading-snug group-hover:text-[#e2231a] transition-colors">
                   {{ $post['title'] }}
                 </h3>
               </a>

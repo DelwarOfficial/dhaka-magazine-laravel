@@ -30,7 +30,7 @@
             </div>
           </div>
         </div>
-        <h3 class="font-serif font-bold text-[18px] md:text-[22px] text-fg leading-tight group-hover:text-[#e2231a] transition-colors line-clamp-2">
+        <h3 class="font-serif font-bold text-[18px] md:text-[22px] text-fg leading-tight group-hover:text-[#e2231a] transition-colors">
           {{ $featuredVideo['title'] }}
         </h3>
         <div class="text-[12px] text-fg-muted mt-1.5">{{ $featuredVideo['time_ago'] }}</div>
@@ -53,7 +53,7 @@
               </div>
             </div>
             <div class="flex-1 min-w-0">
-              <h3 class="font-serif font-bold text-[14px] text-fg leading-snug group-hover:text-[#e2231a] transition-colors line-clamp-3">
+              <h3 class="font-serif font-bold text-[14px] text-fg leading-snug group-hover:text-[#e2231a] transition-colors">
                 {{ $a['title'] }}
               </h3>
               <div class="text-[11px] text-fg-muted mt-1.5">{{ $a['time_ago'] }}</div>
