@@ -53,6 +53,7 @@ class Post extends Model
         'is_editors_pick',
         'editors_pick_order',
         'view_count',
+        'post_format',
         'raw_import_payload',
     ];
 

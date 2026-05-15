@@ -488,6 +488,21 @@ class ArticleFeed
             ->values();
     }
 
+    private static function videoThumbnailUrl(Post $post): ?string
+    {
+        $html = $post->content ?? $post->body ?? '';
+
+        if (preg_match('/(?:youtube\.com\/(?:watch\?v=|embed\/|v\/)|youtu\.be\/)([a-zA-Z0-9_-]{11})/', $html, $matches)) {
+            return 'https://img.youtube.com/vi/' . $matches[1] . '/hqdefault.jpg';
+        }
+
+        if (preg_match('/(?:vimeo\.com\/(?:video\/)?(\d+))/', $html, $matches)) {
+            return 'https://vumbnail.com/' . $matches[1] . '.jpg';
+        }
+
+        return null;
+    }
+
     private static function articleIdExcluded(array $article, array $exceptIds): bool
     {
         return isset($article['id']) && in_array($article['id'], $exceptIds, true);
@@ -499,6 +514,11 @@ class ArticleFeed
         $categoryRoute = PostCategoryResolver::categoryRoute($category);
 
         $publishedAt = $post->published_at ?: $post->created_at;
+        $imageUrl = ImageResolver::postImageUrl($post);
+
+        if ($post->post_format === 'video') {
+            $imageUrl = self::videoThumbnailUrl($post) ?: $imageUrl;
+        }
 
         $article = [
             'id' => $post->id,
@@ -514,10 +534,11 @@ class ArticleFeed
             'author' => $post->author?->name ?: $post->source_name ?: 'ঢাকা ম্যাগাজিন ডেস্ক',
             'date' => DateHelper::getBengaliDate($publishedAt),
             'time_ago' => DateHelper::timeAgo($publishedAt),
-            'image_url' => ImageResolver::postImageUrl($post),
+            'image_url' => $imageUrl,
             'views' => (int) ($post->view_count ?? 0),
             'is_photocard' => (bool) ($post->is_photocard ?? false),
             'tags' => $post->relationLoaded('tags') ? $post->tags->pluck('name')->values()->all() : [],
+            'post_format' => $post->post_format,
         ];
 
         if ($includeBody) {
