@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Models\District;
+use App\Support\ArticleFeed;
 use App\Support\FallbackDataService;
 use App\ViewModels\HomepageSection;
 use Illuminate\Support\Facades\Cache;
@@ -66,8 +67,27 @@ class HomeDataService
         $videoArticles = $this->content->videoPosts(10);
         $videoLayout = $this->featureListLayout($videoArticles, 3);
         $entertainmentLayout = $this->entertainmentLayout($sections['entertainment']->articles);
+        $photocardArticles = $this->content->photocard(20);
         $photoStoryPayload = $this->cms->photoStory()
-            ?? $this->buildPhotoStoryPayload($this->content->photocard(20));
+            ?? $this->buildPhotoStoryPayload($photocardArticles);
+
+        if (empty($photoStoryPayload['latest']) || collect($photoStoryPayload['latest'])->isEmpty()) {
+            $allArticles = ArticleFeed::homepageArticles(FallbackDataService::getArticles(), 20);
+            $photoStoryPayload['latest'] = collect($allArticles)->take(8)->map(fn ($a) => [
+                'headline' => $a['title'], 'slug' => $a['slug'],
+                'shoulder' => $a['shoulder'] ?? null, 'url' => $a['url'] ?? null,
+                'timestamp' => $a['time_ago'],
+            ])->all();
+        }
+
+        if (empty($photoStoryPayload['popular']) || collect($photoStoryPayload['popular'])->isEmpty()) {
+            $popularArticles = $this->popularNews->get(8);
+            $photoStoryPayload['popular'] = collect($popularArticles)->map(fn ($a) => [
+                'headline' => $a['title'], 'slug' => $a['slug'],
+                'shoulder' => $a['shoulder'] ?? null, 'url' => $a['url'] ?? null,
+                'timestamp' => $a['time_ago'],
+            ])->all();
+        }
 
         return [
             'homepageSections' => $sections,
