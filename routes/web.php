@@ -12,7 +12,9 @@ Route::get('/api/photo-story', [HomeController::class, 'photoStoryData'])->name(
 Route::get('/category/{parentSlug}', [CategoryController::class, 'showParent'])->name('category.parent');
 Route::get('/category/{parentSlug}/{childSlug}', [CategoryController::class, 'showChild'])->name('category.child');
 Route::get('/sitemap.xml', [CategoryController::class, 'sitemap'])->name('sitemap');
-Route::get('/article/{slug}', [ArticleController::class, 'show'])->name('article.show');
+foreach (['article', 'video', 'live', 'gallery', 'opinion'] as $fmt) {
+    Route::get("/{$fmt}/{slug}", [ArticleController::class, 'show'])->name("{$fmt}.show");
+}
 
 // JSON endpoints for dependent local-news dropdowns.
 Route::get('/api/saradesh/districts', [CategoryController::class, 'districts'])->name('saradesh.districts');

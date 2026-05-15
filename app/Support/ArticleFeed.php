@@ -493,7 +493,7 @@ class ArticleFeed
         $html = $post->content ?? $post->body ?? '';
 
         if (preg_match('/(?:youtube\.com\/(?:watch\?v=|embed\/|v\/)|youtu\.be\/)([a-zA-Z0-9_-]{11})/', $html, $matches)) {
-            return 'https://img.youtube.com/vi/' . $matches[1] . '/hqdefault.jpg';
+            return 'https://img.youtube.com/vi/' . $matches[1] . '/maxresdefault.jpg';
         }
 
         if (preg_match('/(?:vimeo\.com\/(?:video\/)?(\d+))/', $html, $matches)) {
@@ -501,6 +501,17 @@ class ArticleFeed
         }
 
         return null;
+    }
+
+    private static function formatRoutePrefix(?string $format): string
+    {
+        return match ($format) {
+            'video' => 'video',
+            'live' => 'live',
+            'gallery' => 'gallery',
+            'opinion' => 'opinion',
+            default => 'article',
+        };
     }
 
     private static function articleIdExcluded(array $article, array $exceptIds): bool
@@ -520,10 +531,12 @@ class ArticleFeed
             $imageUrl = self::videoThumbnailUrl($post) ?: $imageUrl;
         }
 
+        $prefix = self::formatRoutePrefix($post->post_format);
+
         $article = [
             'id' => $post->id,
             'slug' => $post->slug,
-            'url' => route('article.show', $post->slug),
+            'url' => route("{$prefix}.show", $post->slug),
             'title' => $post->title,
             'headline' => $post->title,
             'shoulder' => $post->shoulder,
